@@ -80,8 +80,11 @@
         .btn-primary:disabled { background:#6c757d; cursor:not-allowed; opacity:.5; }
         .btn-primary:disabled:hover { transform:none; box-shadow:none; }
         .btn-small { padding:15px 30px; font-size:16px; font-weight:600; }
+        .btn-small:disabled { opacity:0.5; cursor:not-allowed; }
+        .btn-small:disabled:hover { transform:none; box-shadow:none; }
         .btn-secondary { background:#6c757d; color:#fff; }
         .btn-secondary:hover { background:#545b62; }
+        .btn-secondary:disabled:hover { background:#6c757d; }
 
         /* ─── page 2 – grid ─── */
         #grid-page { background:var(--bg-secondary); }
@@ -140,12 +143,48 @@
             margin-top:40px; padding:20px; background:var(--card-bg);
             border-radius:8px; border:2px dashed var(--accent); box-shadow:0 2px 8px var(--shadow);
         }
-        .done-section h3 { margin-top:0; color:var(--accent); }
-        .done-list { display:flex; flex-direction:column; gap:8px; }
-        .done-item {
-            background:var(--accent-light); padding:8px 12px; border-radius:4px;
-            border:1px solid var(--accent); color:var(--accent); font-size:14px; font-weight:600;
+        .done-section-header {
+            display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:15px;
         }
+        .done-section h3 { margin:0; color:var(--accent); }
+        .btn-delete-all {
+            background:#dc3545; color:#fff; border:none; border-radius:4px;
+            padding:8px 16px; cursor:pointer; display:flex; align-items:center;
+            gap:6px; font-size:14px; font-weight:600; transition:background .2s;
+        }
+        .btn-delete-all:hover { background:#c82333; }
+        .btn-delete-all svg { width:16px; height:16px; fill:#fff; }
+        .done-list { display:flex; flex-direction:column; gap:12px; }
+        .done-item {
+            background:var(--accent-light); padding:12px 15px; border-radius:6px;
+            border:1px solid var(--accent); color:var(--accent); font-size:16px; font-weight:600;
+            display:flex; align-items:center; gap:15px; min-height:80px;
+        }
+        .done-item-thumbnail {
+            width:60px; height:60px; object-fit:contain; border-radius:4px;
+            background:rgba(0,0,0,0.3); flex-shrink:0;
+        }
+        .done-item-name { flex:1; color:var(--accent); font-size:16px; font-weight:600; }
+        .done-item-buttons {
+            display:flex; flex-direction:column; gap:8px; flex-shrink:0;
+        }
+        .done-item-undo {
+            background:#ffc107; color:#000; border:none; border-radius:4px;
+            padding:8px 16px; cursor:pointer; display:flex; align-items:center;
+            gap:6px; font-size:14px; font-weight:600; flex-shrink:0;
+            transition:background .2s;
+        }
+        .done-item-undo:hover { background:#ffca2c; }
+        .done-item-undo svg { width:16px; height:16px; fill:#000; }
+        .done-item-delete {
+            background:#dc3545; color:#fff; border:none; border-radius:4px;
+            padding:8px 16px; cursor:pointer; display:flex; align-items:center;
+            gap:6px; font-size:14px; font-weight:600; flex-shrink:0;
+            transition:background .2s;
+        }
+        .done-item-delete:hover { background:#c82333; }
+        .done-item-delete svg { width:16px; height:16px; fill:#fff; }
 
         /* ─── page 3 – viewer ─── */
         #viewer-page {
@@ -188,13 +227,17 @@
             color:#fff; border:none; border-radius:4px; cursor:pointer; font-weight:600;
         }
         .btn-rotate:hover { background:var(--accent-hover); }
+        .btn-rotate:disabled { opacity:0.5; cursor:not-allowed; }
+        .btn-rotate:disabled:hover { background:var(--accent); }
 
         .btn-crop {
             padding:12px 18px; font-size:16px; background:var(--crop-accent);
             color:#000; border:none; border-radius:4px; cursor:pointer; font-weight:600;
         }
         .btn-crop:hover { background:var(--crop-accent-hover); }
-        .btn-crop.active { background:#ff9800; box-shadow:0 0 10px rgba(255,152,0,.5); }
+        .btn-crop.active { background:#ff9800; }
+        .btn-crop:disabled { opacity:0.5; cursor:not-allowed; }
+        .btn-crop:disabled:hover { background:var(--crop-accent); }
 
         /* ─── viewer canvas area ─── */
         .viewer-canvas-container {
@@ -241,23 +284,84 @@
 
         /* ─── crop bottom bar ─── */
         .crop-controls {
-            position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
-            background:var(--card-bg); padding:15px 25px; border-radius:8px;
+            position:fixed; bottom:10px; left:50%; transform:translateX(-50%);
+            background:var(--card-bg); padding:8px 12px; border-radius:8px;
             box-shadow:0 4px 12px var(--shadow); border:1px solid var(--border-color);
-            display:none; gap:10px; z-index:200;
+            display:none; gap:5px; z-index:200;
         }
         .crop-controls.active { display:flex; }
-        .btn-crop-apply  { background:var(--crop-accent); color:#000; }
+        .btn-crop-apply  { 
+            background:var(--crop-accent); color:#000; 
+            padding:12px 18px; font-size:16px; border:none; border-radius:4px;
+            cursor:pointer; font-weight:600; transition:background .2s;
+        }
         .btn-crop-apply:hover  { background:var(--crop-accent-hover); }
-        .btn-crop-cancel { background:#dc3545; }
-        .btn-crop-cancel:hover { background:#c82333; }
-        .btn-crop-reset  { background:#17a2b8; }
+        .btn-crop-cancel { 
+            background:#dc3545; padding:12px 18px; font-size:16px;
+            border:none; border-radius:4px; cursor:pointer; font-weight:600;
+            transition:background .2s; color:#fff;
+        }
+        .btn-crop-reset  { 
+            background:#17a2b8; padding:12px 18px; font-size:16px;
+            border:none; border-radius:4px; cursor:pointer; font-weight:600;
+            transition:background .2s; color:#fff;
+        }
         .btn-crop-reset:hover  { background:#138496; }
 
         /* ─── responsive grid ─── */
         @media (max-width:1200px) { .image-grid { grid-template-columns:repeat(3,1fr); } }
         @media (max-width:768px)  { .image-grid { grid-template-columns:repeat(2,1fr); } }
         @media (max-width:480px)  { .image-grid { grid-template-columns:1fr; } }
+
+        /* ─── modals ─── */
+        .modal-overlay {
+            position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.6); z-index:1000;
+            display:none; align-items:center; justify-content:center;
+        }
+        .modal-overlay.active { display:flex; }
+        
+        .modal-content {
+            background:var(--card-bg); border-radius:10px;
+            padding:30px 40px; max-width:500px; width:90%;
+            box-shadow:0 8px 32px rgba(0,0,0,0.6);
+            border:1px solid var(--border-color);
+        }
+        
+        .modal-title {
+            font-size:24px; font-weight:700; color:var(--text-primary);
+            margin-bottom:15px; text-align:center;
+        }
+        
+        .modal-message {
+            font-size:16px; color:var(--text-secondary);
+            margin-bottom:30px; line-height:1.5; text-align:center;
+        }
+        
+        .modal-buttons {
+            display:flex; gap:15px; justify-content:space-between;
+        }
+        
+        .modal-btn {
+            padding:12px 30px; font-size:16px; border:none;
+            border-radius:5px; cursor:pointer; font-weight:600;
+            transition:all .2s;
+        }
+        
+        .modal-btn-cancel {
+            background:#6c757d; color:#fff;
+        }
+        .modal-btn-cancel:hover { background:#545b62; }
+        
+        .modal-btn-delete {
+            background:#dc3545; color:#fff;
+        }
+        .modal-btn-delete:hover { background:#c82333; }
+        
+        .modal-btn-confirm {
+            background:var(--accent); color:#fff;
+        }
+        .modal-btn-confirm:hover { background:var(--accent-hover); }
     </style>
 </head>
 <body>
@@ -297,7 +401,13 @@
     <div id="loadingMessage" class="loading">Processing images...</div>
     <div class="image-grid" id="imageGrid"></div>
     <div class="done-section">
-        <h3>Completed Files:</h3>
+        <div class="done-section-header">
+            <h3>Completed Files:</h3>
+            <button class="btn-delete-all" id="deleteAllBtn">
+                <svg viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12z"/></svg>
+                Delete All
+            </button>
+        </div>
         <div id="doneList" class="done-list"></div>
     </div>
 </div>
@@ -363,13 +473,37 @@
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-title">Confirm Delete</div>
+        <div class="modal-message" id="deleteModalMessage">Are you sure you want to delete these images?</div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-cancel" id="deleteModalCancel">Cancel</button>
+            <button class="modal-btn modal-btn-delete" id="deleteModalConfirm">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Done Confirmation Modal -->
+<div id="doneModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-title">Confirm Done</div>
+        <div class="modal-message">Are you sure you want to mark this image as complete?</div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-cancel" id="doneModalCancel">Cancel</button>
+            <button class="modal-btn modal-btn-confirm" id="doneModalConfirm">Done</button>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
     /* ──────────── state ──────────── */
     let uploadedFiles       = [];
     let processedImages     = [];   // { dataUrl, originalDataUrl, fileName }
-    let doneFiles           = [];
+    let doneFiles           = [];   // { fileName, dataUrl }
     let currentViewingIndex = -1;
 
     // pan / zoom
@@ -389,6 +523,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let cropSnapX = 0, cropSnapY = 0, cropSnapW = 0, cropSnapH = 0;
     let preCropDataUrl = null;   // snapshot of dataUrl when crop mode is entered
     let currentRotation = 0;     // cumulative rotation in degrees (mod 360)
+    let dragThumbnailUsed = false; // track if user has dragged the thumbnail
 
     /* ──────────── DOM ──────────── */
     const uploadPage          = document.getElementById('upload-page');
@@ -405,6 +540,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const backToGridBtn       = document.getElementById('backToGridBtn');
     const doneBtn             = document.getElementById('doneBtn');
     const doneList            = document.getElementById('doneList');
+    const deleteAllBtn        = document.getElementById('deleteAllBtn');
     const uploadMoreInput     = document.getElementById('uploadMoreInput');
     const uploadMoreDropZone  = document.getElementById('uploadMoreDropZone');
     const dragThumbnail       = document.getElementById('dragThumbnail');
@@ -419,6 +555,77 @@ document.addEventListener('DOMContentLoaded', function () {
     const cropBoxEl           = document.getElementById('cropBox');
     const cropSvg             = document.getElementById('cropSvg');
     const maskCut             = document.getElementById('maskCut');
+    
+    // Modals
+    const deleteModal         = document.getElementById('deleteModal');
+    const deleteModalMessage  = document.getElementById('deleteModalMessage');
+    const deleteModalCancel   = document.getElementById('deleteModalCancel');
+    const deleteModalConfirm  = document.getElementById('deleteModalConfirm');
+    const doneModal           = document.getElementById('doneModal');
+    const doneModalCancel     = document.getElementById('doneModalCancel');
+    const doneModalConfirm    = document.getElementById('doneModalConfirm');
+    
+    let pendingDeleteCallback = null;
+
+    /* ──────────── modal functions ──────────── */
+    function showDeleteModal(message, onConfirm){
+        deleteModalMessage.textContent = message;
+        pendingDeleteCallback = onConfirm;
+        deleteModal.classList.add('active');
+    }
+    
+    function hideDeleteModal(){
+        deleteModal.classList.remove('active');
+        pendingDeleteCallback = null;
+    }
+    
+    function showDoneModal(onConfirm){
+        doneModal.classList.add('active');
+        doneModal.dataset.confirmCallback = 'pending';
+        doneModalConfirm.onclick = function(){
+            hideDoneModal();
+            onConfirm();
+        };
+    }
+    
+    function hideDoneModal(){
+        doneModal.classList.remove('active');
+    }
+    
+    // Delete modal event listeners
+    deleteModalCancel.addEventListener('click', hideDeleteModal);
+    deleteModalConfirm.addEventListener('click', function(){
+        if(pendingDeleteCallback){
+            pendingDeleteCallback();
+            hideDeleteModal();
+        }
+    });
+    
+    // Done modal event listeners
+    doneModalCancel.addEventListener('click', hideDoneModal);
+    
+    // Close modals when clicking outside
+    deleteModal.addEventListener('click', function(e){
+        if(e.target === deleteModal) hideDeleteModal();
+    });
+    doneModal.addEventListener('click', function(e){
+        if(e.target === doneModal) hideDoneModal();
+    });
+    
+    /* ──────────── delete all done files ──────────── */
+    deleteAllBtn.addEventListener('click', function(){
+        if(doneFiles.length === 0) return;
+        
+        const count = doneFiles.length;
+        const message = count === 1 
+            ? 'Are you sure you want to delete this image?'
+            : `Are you sure you want to delete all ${count} images?`;
+        
+        showDeleteModal(message, function(){
+            doneFiles = [];
+            updateDoneList();
+        });
+    });
 
     /* ──────────── upload page ──────────── */
     fileInput.addEventListener('change', function (e) {
@@ -508,23 +715,104 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         updateDoneList();
     }
+    
     function updateDoneList(){
-        doneList.innerHTML = doneFiles.length
-            ? doneFiles.map(n=>'<div class="done-item">'+n+'</div>').join('')
-            : '<em style="color:#6c757d">No completed files yet</em>';
-    }
-    function deleteImage(index){
-        if(confirm('Delete "'+processedImages[index].fileName+'"?')){
-            processedImages.splice(index,1);
-            uploadedFiles = Array.from(uploadedFiles).filter((_,i)=>i!==index);
-            displayGrid();
+        if(doneFiles.length === 0){
+            doneList.innerHTML = '<em style="color:#6c757d">No completed files yet</em>';
+            return;
         }
+        
+        doneList.innerHTML = '';
+        doneFiles.forEach((doneItem, index) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'done-item';
+            
+            // Thumbnail
+            const thumbnail = document.createElement('img');
+            thumbnail.className = 'done-item-thumbnail';
+            thumbnail.src = doneItem.dataUrl;
+            
+            // Filename
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'done-item-name';
+            nameDiv.textContent = doneItem.fileName.replace(/\.[^/.]+$/, '');
+            
+            // Button container
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'done-item-buttons';
+            
+            // Undo button
+            const undoBtn = document.createElement('button');
+            undoBtn.className = 'done-item-undo';
+            undoBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>Undo';
+            undoBtn.addEventListener('click', () => undoDone(index));
+            
+            // Delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'done-item-delete';
+            deleteBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12z"/></svg>Delete';
+            deleteBtn.addEventListener('click', () => deleteDone(index));
+            
+            buttonsDiv.appendChild(undoBtn);
+            buttonsDiv.appendChild(deleteBtn);
+            
+            itemDiv.appendChild(thumbnail);
+            itemDiv.appendChild(nameDiv);
+            itemDiv.appendChild(buttonsDiv);
+            doneList.appendChild(itemDiv);
+        });
+    }
+    
+    function undoDone(doneIndex){
+        const doneItem = doneFiles[doneIndex];
+        
+        // Add back to processedImages
+        processedImages.push({
+            dataUrl: doneItem.dataUrl,
+            originalDataUrl: doneItem.originalDataUrl,
+            fileName: doneItem.fileName
+        });
+        
+        // Add back to uploadedFiles (create a dummy File object)
+        // Note: We can't recreate the exact File object, but we keep the structure consistent
+        
+        // Remove from doneFiles
+        doneFiles.splice(doneIndex, 1);
+        
+        // Refresh the display
+        displayGrid();
+    }
+    
+    function deleteDone(doneIndex){
+        const doneItem = doneFiles[doneIndex];
+        const fileName = doneItem.fileName.replace(/\.[^/.]+$/, '');
+        
+        showDeleteModal(
+            'Are you sure you want to delete this image?',
+            function(){
+                doneFiles.splice(doneIndex, 1);
+                updateDoneList();
+            }
+        );
+    }
+    
+    function deleteImage(index){
+        const fileName = processedImages[index].fileName.replace(/\.[^/.]+$/,'');
+        showDeleteModal(
+            'Are you sure you want to delete this image?',
+            function(){
+                processedImages.splice(index,1);
+                uploadedFiles = Array.from(uploadedFiles).filter((_,i)=>i!==index);
+                displayGrid();
+            }
+        );
     }
 
     /* ──────────── viewer open ──────────── */
     function openViewer(index){
         currentViewingIndex=index;
         currentRotation=0;   // fresh image, no rotation yet
+        dragThumbnailUsed=false; // reset drag tracking for new image
         const img=processedImages[index];
         viewerImage.src   = img.dataUrl;
         dragThumbnail.src = img.dataUrl;
@@ -539,9 +827,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const cw=canvasContainer.clientWidth, ch=canvasContainer.clientHeight;
         const iw=viewerImage.naturalWidth,    ih=viewerImage.naturalHeight;
         if(!iw||!ih) return;
-        scale      = Math.min(cw/iw, ch/ih, 1)*0.9;
+        
+        // Calculate available space based on mode
+        let availableHeight = ch;
+        let verticalOffset = 0;
+        
+        if(isCropping){
+            // In crop mode: center between viewer controls (top) and crop controls (bottom)
+            const viewerControlsHeight = 100; // Approximate top control bar height
+            const cropControlsHeight = 70;    // Approximate bottom crop controls height + margins
+            availableHeight = ch - viewerControlsHeight - cropControlsHeight;
+            verticalOffset = viewerControlsHeight;
+        }
+        
+        scale      = Math.min(cw/iw, availableHeight/ih, 1)*0.9;
         translateX = (cw - iw*scale)/2;
-        translateY = (ch - ih*scale)/2;
+        translateY = verticalOffset + (availableHeight - ih*scale)/2;
         updateViewerTransform();
     }
     function updateViewerTransform(){
@@ -550,7 +851,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* ──────────── zoom ──────────── */
     canvasContainer.addEventListener('wheel', function(e){
-        if(isCropping) return;
         e.preventDefault();
         const rect=canvasContainer.getBoundingClientRect();
         const mx=e.clientX-rect.left, my=e.clientY-rect.top;
@@ -561,11 +861,17 @@ document.addEventListener('DOMContentLoaded', function () {
         translateX = mx - imgX*scale;
         translateY = my - imgY*scale;
         updateViewerTransform();
+        
+        // If in crop mode, update the crop display after zoom
+        if(isCropping && cropBoxEl.classList.contains('active')){
+            paintCrop();
+        }
     });
 
     /* ──────────── drag thumbnail (drag-to-upload) ──────────── */
     dragThumbnail.addEventListener('dragstart', function(e){
         if(currentViewingIndex<0) return;
+        dragThumbnailUsed = true; // mark that user has used drag feature
         const img=processedImages[currentViewingIndex];
         e.dataTransfer.effectAllowed='copy';
         e.dataTransfer.setData('DownloadURL','image/jpeg:'+img.fileName+':'+img.dataUrl);
@@ -626,6 +932,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if(currentViewingIndex<0){ e.preventDefault(); return; }
             const img=processedImages[currentViewingIndex];
             if(!img){ e.preventDefault(); return; }
+            dragThumbnailUsed = true; // mark that user has used drag feature
             e.dataTransfer.effectAllowed='copy';
             e.dataTransfer.setData('DownloadURL','image/jpeg:'+img.fileName+':'+img.dataUrl);
         });
@@ -682,10 +989,30 @@ document.addEventListener('DOMContentLoaded', function () {
     backToGridBtn.addEventListener('click', ()=>{ exitCropMode(); showPage('grid'); });
     doneBtn.addEventListener('click', function(){
         if(currentViewingIndex<0||currentViewingIndex>=processedImages.length) return;
-        doneFiles.push(processedImages[currentViewingIndex].fileName);
-        processedImages.splice(currentViewingIndex,1);
-        uploadedFiles = Array.from(uploadedFiles).filter((_,i)=>i!==currentViewingIndex);
-        exitCropMode(); showPage('grid'); displayGrid();
+        
+        // Function to actually mark as done
+        function markAsDone(){
+            const currentImage = processedImages[currentViewingIndex];
+            
+            // Add to doneFiles with the processed image data
+            doneFiles.push({
+                fileName: currentImage.fileName,
+                dataUrl: currentImage.dataUrl,
+                originalDataUrl: currentImage.originalDataUrl
+            });
+            
+            // Remove from processedImages
+            processedImages.splice(currentViewingIndex,1);
+            uploadedFiles = Array.from(uploadedFiles).filter((_,i)=>i!==currentViewingIndex);
+            exitCropMode(); showPage('grid'); displayGrid();
+        }
+        
+        // Only show confirmation if user hasn't dragged the image
+        if(!dragThumbnailUsed){
+            showDoneModal(markAsDone);
+        } else {
+            markAsDone();
+        }
     });
 
     /* ═══════════════════════════════════════════════════════
@@ -704,6 +1031,13 @@ document.addEventListener('DOMContentLoaded', function () {
         cropBtnEl.classList.add('active');
         canvasContainer.classList.add('cropping');
         cropControls.classList.add('active');
+        
+        // Disable other buttons during crop mode
+        backToGridBtn.disabled = true;
+        doneBtn.disabled = true;
+        rotateLeftBtn.disabled = true;
+        rotateRightBtn.disabled = true;
+        cropBtnEl.disabled = true;
 
         // snapshot the current working image – this is what we crop FROM and reset TO
         preCropDataUrl = processedImages[currentViewingIndex].dataUrl;
@@ -730,6 +1064,13 @@ document.addEventListener('DOMContentLoaded', function () {
         cropControls.classList.remove('active');
         cropSvg.classList.remove('active');
         cropBoxEl.classList.remove('active');
+        
+        // Re-enable other buttons
+        backToGridBtn.disabled = false;
+        doneBtn.disabled = false;
+        rotateLeftBtn.disabled = false;
+        rotateRightBtn.disabled = false;
+        cropBtnEl.disabled = false;
     }
 
     /* ── coordinate helpers ── */
