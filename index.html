@@ -1,1 +1,1152 @@
-oops
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Rotator and Viewer</title>
+    <style>
+        :root {
+            /* Dark mode permanently */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3d3d3d;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border-color: #495057;
+            --shadow: rgba(0,0,0,0.4);
+            --accent: #32a852;
+            --accent-hover: #3bc95f;
+            --accent-light: #1a3d24;
+            --card-bg: #2d2d2d;
+            --controls-height: 100px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .page.active {
+            display: block !important;
+        }
+
+        /* Page 1 - Upload */
+        #upload-page {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #upload-page.active {
+            display: flex !important;
+        }
+
+        .upload-container {
+            background: var(--card-bg);
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px var(--shadow);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid var(--border-color);
+        }
+
+        .upload-container h1 {
+            margin-bottom: 30px;
+            color: var(--text-primary);
+        }
+        
+        .upload-container > p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin: 30px 0;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 40px;
+            border: 3px dashed var(--accent);
+            border-radius: 10px;
+            background: var(--accent-light);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: var(--accent);
+            border-color: var(--accent-hover);
+        }
+        
+        .file-input-label > div:first-child {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .file-input-label > div:last-child {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .file-input-label:hover > div:last-child {
+            color: white;
+        }
+
+        .file-count {
+            margin: 20px 0;
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-primary:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .btn-primary:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Page 2 - Grid */
+        #grid-page {
+            background: var(--bg-secondary);
+        }
+
+        .grid-header {
+            background: var(--card-bg);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .grid-header h2 {
+            color: #ffffff;
+            margin: 0 0 5px 0;
+        }
+        
+        .grid-header p {
+            color: #cccccc;
+            margin: 0;
+        }
+        
+        .upload-more-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .upload-more-unified {
+            padding: 35px 50px;
+            border: 3px dashed var(--accent);
+            border-radius: 8px;
+            background: var(--accent-light);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 250px;
+        }
+        
+        .upload-more-title {
+            color: var(--accent);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .upload-more-subtitle {
+            color: var(--accent);
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+        
+        .upload-more-unified:hover {
+            background: var(--accent);
+            border-color: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        .upload-more-unified:hover .upload-more-title,
+        .upload-more-unified:hover .upload-more-subtitle {
+            color: white;
+            opacity: 1;
+        }
+        
+        .upload-more-unified.drag-over {
+            background: var(--accent);
+            border-color: var(--accent-hover);
+            transform: scale(1.05);
+        }
+        
+        .upload-more-unified.drag-over .upload-more-title,
+        .upload-more-unified.drag-over .upload-more-subtitle {
+            color: white;
+            opacity: 1;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .grid-item {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px var(--shadow);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .grid-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px var(--shadow);
+        }
+
+        .grid-item-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .grid-item-name {
+            text-align: left;
+            font-size: 14px;
+            color: #ffffff;
+            word-break: break-word;
+            flex: 1;
+        }
+        
+        .grid-item-name-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+            padding: 15px;
+            background: var(--bg-tertiary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #ffffff;
+        }
+
+        /* Page 3 - Viewer */
+        #viewer-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--bg-secondary);
+            overflow: hidden;
+            padding: 0;
+        }
+        
+        #viewer-page.active {
+            display: block !important;
+        }
+
+        .viewer-controls-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            padding: 15px;
+            z-index: 100;
+            box-sizing: border-box;
+        }
+        
+        .viewer-controls-card {
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow);
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .viewer-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            max-width: calc(100% - 300px);
+            overflow: hidden;
+        }
+        
+        .viewer-filename {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.3;
+        }
+        
+        .drag-thumbnail-pinned {
+            position: fixed;
+            top: 140px;
+            right: 15px;
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border: 3px solid var(--accent);
+            border-radius: 8px;
+            cursor: grab;
+            z-index: 300;
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            transition: transform 0.2s, box-shadow 0.2s;
+            pointer-events: auto;
+        }
+        
+        .drag-thumbnail-pinned:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+            border-color: var(--accent-hover);
+        }
+        
+        .drag-thumbnail-pinned:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        
+        .rotation-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-rotate {
+            padding: 12px 18px;
+            font-size: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-rotate:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-small {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .done-section {
+            margin-top: 40px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 2px dashed var(--accent);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        
+        .done-section h3 {
+            margin-top: 0;
+            color: var(--accent);
+        }
+        
+        .done-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .done-item {
+            background: var(--accent-light);
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .grid-item {
+            position: relative;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            transition: background 0.2s;
+            padding: 0;
+        }
+        
+        .delete-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+            display: block;
+            margin: auto;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .viewer-canvas-container {
+            position: fixed;
+            top: 100px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            cursor: grab;
+            background: var(--bg-primary);
+        }
+
+        .viewer-canvas-container.dragging {
+            cursor: grabbing;
+        }
+
+        .viewer-canvas {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .viewer-canvas img {
+            display: block;
+            position: absolute;
+            transform-origin: 0 0;
+            max-width: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        @media (max-width: 1200px) {
+            .image-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .image-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .image-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page 1: Upload -->
+    <div id="upload-page" class="page active">
+        <div class="upload-container">
+            <h1>Image Rotator & Viewer</h1>
+            <p>Select multiple images to process</p>
+            
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" multiple accept="image/*">
+                <label for="fileInput" class="file-input-label">
+                    <div style="font-size: 48px; margin-bottom: 10px;">📁</div>
+                    <div>Click to select images or drag and drop</div>
+                </label>
+            </div>
+            
+            <div class="file-count" id="fileCount">No files selected</div>
+            
+            <button class="btn btn-primary" id="processBtn" disabled>Process Images</button>
+        </div>
+    </div>
+
+    <!-- Page 2: Grid -->
+    <div id="grid-page" class="page">
+        <div class="grid-header">
+            <div>
+                <h2>Uploaded Images</h2>
+                <p id="imageCount"></p>
+            </div>
+            <div class="upload-more-container">
+                <input type="file" id="uploadMoreInput" accept="image/*" multiple style="display: none;">
+                <div id="uploadMoreDropZone" class="upload-more-unified">
+                    <div class="upload-more-title">Upload More</div>
+                    <div class="upload-more-subtitle">Click to select or drag & drop</div>
+                </div>
+            </div>
+        </div>
+        <div id="loadingMessage" class="loading">Processing images...</div>
+        <div class="image-grid" id="imageGrid"></div>
+        <div class="done-section">
+            <h3>Completed Files:</h3>
+            <div id="doneList" class="done-list"></div>
+        </div>
+    </div>
+
+    <!-- Page 3: Viewer -->
+    <div id="viewer-page" class="page">
+        <div class="viewer-controls-background">
+            <div class="viewer-controls-card">
+                <button class="btn btn-secondary btn-small" id="backToGridBtn">Return</button>
+                <div class="viewer-info">
+                    <span id="viewerFileName" class="viewer-filename"></span>
+                    <div class="rotation-controls">
+                        <button class="btn-rotate" id="rotateLeftBtn">⟲ Rotate Left</button>
+                        <button class="btn-rotate" id="rotateRightBtn">⟳ Rotate Right</button>
+                    </div>
+                </div>
+                <button class="btn btn-small" id="doneBtn">✓ Done</button>
+            </div>
+        </div>
+        <div class="viewer-canvas-container" id="canvasContainer">
+            <div class="viewer-canvas" id="viewerCanvas">
+                <img id="viewerImage" alt="Viewing image">
+            </div>
+            <img id="dragThumbnail" class="drag-thumbnail-pinned" alt="Drag to upload" draggable="true">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing app');
+            
+            let uploadedFiles = [];
+            let processedImages = [];
+            let doneFiles = [];
+            let currentViewingIndex = -1;
+            let scale = 1;
+            let translateX = 0;
+            let translateY = 0;
+            let isDragging = false;
+            let dragStartX = 0;
+            let dragStartY = 0;
+            let dragTranslateX = 0;
+            let dragTranslateY = 0;
+
+            const uploadPage = document.getElementById('upload-page');
+            const gridPage = document.getElementById('grid-page');
+            const viewerPage = document.getElementById('viewer-page');
+            const fileInput = document.getElementById('fileInput');
+            const fileCount = document.getElementById('fileCount');
+            const processBtn = document.getElementById('processBtn');
+            const imageGrid = document.getElementById('imageGrid');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const viewerImage = document.getElementById('viewerImage');
+            const viewerCanvas = document.getElementById('viewerCanvas');
+            const canvasContainer = document.getElementById('canvasContainer');
+            const backToGridBtn = document.getElementById('backToGridBtn');
+            const doneBtn = document.getElementById('doneBtn');
+            const doneList = document.getElementById('doneList');
+            const uploadMoreInput = document.getElementById('uploadMoreInput');
+            const uploadMoreDropZone = document.getElementById('uploadMoreDropZone');
+            const dragThumbnail = document.getElementById('dragThumbnail');
+            const viewerFileName = document.getElementById('viewerFileName');
+            const rotateLeftBtn = document.getElementById('rotateLeftBtn');
+            const rotateRightBtn = document.getElementById('rotateRightBtn');
+
+            console.log('Elements loaded:', {
+                uploadPage: !!uploadPage,
+                fileInput: !!fileInput,
+                processBtn: !!processBtn
+            });
+
+        fileInput.addEventListener('change', function(e) {
+            console.log('File input changed');
+            uploadedFiles = Array.from(e.target.files);
+            console.log('Files selected:', uploadedFiles.length);
+            updateFileCount();
+        });
+
+        function updateFileCount() {
+            if (uploadedFiles.length === 0) {
+                fileCount.textContent = 'No files selected';
+                processBtn.disabled = true;
+            } else {
+                fileCount.textContent = `${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''} selected`;
+                processBtn.disabled = false;
+            }
+        }
+
+        processBtn.addEventListener('click', async function() {
+            console.log('Process button clicked');
+            console.log('Files to process:', uploadedFiles.length);
+            showPage('grid');
+            await processImages();
+        });
+        
+        uploadMoreDropZone.addEventListener('click', function() {
+            uploadMoreInput.click();
+        });
+        
+        uploadMoreInput.addEventListener('change', async function(e) {
+            const newFiles = Array.from(e.target.files);
+            if (newFiles.length > 0) {
+                await addMoreFiles(newFiles);
+            }
+        });
+        
+        uploadMoreDropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadMoreDropZone.classList.add('drag-over');
+        });
+        
+        uploadMoreDropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadMoreDropZone.classList.remove('drag-over');
+        });
+        
+        uploadMoreDropZone.addEventListener('drop', async function(e) {
+            e.preventDefault();
+            uploadMoreDropZone.classList.remove('drag-over');
+            
+            const newFiles = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+            if (newFiles.length > 0) {
+                await addMoreFiles(newFiles);
+            }
+        });
+        
+        async function addMoreFiles(newFiles) {
+            console.log('Adding', newFiles.length, 'more files');
+            loadingMessage.style.display = 'block';
+            
+            uploadedFiles = [...uploadedFiles, ...newFiles];
+            
+            for (let i = 0; i < newFiles.length; i++) {
+                const file = newFiles[i];
+                const dataUrl = await fileToDataUrl(file);
+                
+                processedImages.push({
+                    dataUrl: dataUrl,
+                    fileName: file.name
+                });
+            }
+            
+            displayGrid();
+            console.log('New files added to grid');
+        }
+
+        async function processImages() {
+            console.log('Starting image processing');
+            loadingMessage.style.display = 'block';
+            imageGrid.innerHTML = '';
+            processedImages = [];
+
+            for (let i = 0; i < uploadedFiles.length; i++) {
+                console.log('Processing image', i + 1, 'of', uploadedFiles.length);
+                const file = uploadedFiles[i];
+                
+                const dataUrl = await fileToDataUrl(file);
+                
+                processedImages.push({
+                    dataUrl: dataUrl,
+                    fileName: file.name
+                });
+            }
+
+            console.log('All images loaded, displaying grid');
+            displayGrid();
+        }
+        
+        function fileToDataUrl(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function displayGrid() {
+            loadingMessage.style.display = 'none';
+            imageGrid.innerHTML = '';
+			document.getElementById('imageCount').textContent = `${processedImages.length} image${processedImages.length > 1 ? 's' : ''} uploaded`;
+            
+
+            processedImages.forEach((img, index) => {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                
+                const imgElement = document.createElement('img');
+                imgElement.src = img.dataUrl;
+                imgElement.className = 'grid-item-image';
+                
+                const nameContainer = document.createElement('div');
+                nameContainer.className = 'grid-item-name-container';
+                
+                const nameElement = document.createElement('div');
+                nameElement.className = 'grid-item-name';
+                const fileNameWithoutExt = img.fileName.replace(/\.[^/.]+$/, '');
+                nameElement.textContent = fileNameWithoutExt;
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12z"/>
+                </svg>`;
+                deleteBtn.title = 'Delete this image';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteImage(index);
+                });
+                
+                nameContainer.appendChild(nameElement);
+                nameContainer.appendChild(deleteBtn);
+                
+                gridItem.appendChild(imgElement);
+                gridItem.appendChild(nameContainer);
+                
+                gridItem.addEventListener('click', () => openViewer(index));
+                
+                imageGrid.appendChild(gridItem);
+            });
+            
+            updateDoneList();
+        }
+        
+        function updateDoneList() {
+            doneList.innerHTML = '';
+            if (doneFiles.length === 0) {
+                doneList.innerHTML = '<em style="color: #6c757d;">No completed files yet</em>';
+            } else {
+                doneFiles.forEach(fileName => {
+                    const doneItem = document.createElement('div');
+                    doneItem.className = 'done-item';
+                    doneItem.textContent = fileName;
+                    doneList.appendChild(doneItem);
+                });
+            }
+        }
+        
+        function deleteImage(index) {
+            if (confirm(`Delete "${processedImages[index].fileName}"?`)) {
+                processedImages.splice(index, 1);
+                uploadedFiles = Array.from(uploadedFiles).filter((_, i) => i !== index);
+                displayGrid();
+            }
+        }
+
+        function openViewer(index) {
+            console.log('=== OPENING VIEWER ===');
+            console.log('Index:', index);
+            
+            currentViewingIndex = index;
+            const img = processedImages[index];
+            
+            console.log('Image data:', {
+                hasDataUrl: !!img.dataUrl,
+                dataUrlLength: img.dataUrl ? img.dataUrl.length : 0,
+                fileName: img.fileName
+            });
+            
+            viewerImage.src = img.dataUrl;
+            dragThumbnail.src = img.dataUrl;
+            
+            const fileNameWithoutExt = img.fileName.replace(/\.[^/.]+$/, '');
+            viewerFileName.textContent = fileNameWithoutExt;
+            
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            
+            console.log('Image src set, waiting for load...');
+            
+            viewerImage.onload = function() {
+                console.log('IMAGE LOADED!');
+                console.log('Image natural dimensions:', viewerImage.naturalWidth, 'x', viewerImage.naturalHeight);
+                centerImage();
+            };
+            
+            viewerImage.onerror = function(e) {
+                console.error('IMAGE FAILED TO LOAD!', e);
+            };
+            
+            showPage('viewer');
+        }
+        
+        dragThumbnail.addEventListener('dragstart', function(e) {
+            console.log('Drag started');
+            if (currentViewingIndex >= 0) {
+                const img = processedImages[currentViewingIndex];
+                
+                fetch(img.dataUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], img.fileName, { type: 'image/jpeg' });
+                        
+                        const dt = new DataTransfer();
+                        dt.items.add(file);
+                        
+                        e.dataTransfer.effectAllowed = 'copy';
+                        e.dataTransfer.setData('DownloadURL', `image/jpeg:${img.fileName}:${img.dataUrl}`);
+                        
+                        console.log('Drag data set for:', img.fileName);
+                    });
+            }
+        });
+
+        function centerImage() {
+            console.log('=== CENTERING IMAGE ===');
+            
+            const containerWidth = canvasContainer.clientWidth;
+            const containerHeight = canvasContainer.clientHeight;
+            const imgWidth = viewerImage.naturalWidth;
+            const imgHeight = viewerImage.naturalHeight;
+            
+            console.log('Container dimensions:', containerWidth, 'x', containerHeight);
+            console.log('Image natural dimensions:', imgWidth, 'x', imgHeight);
+            
+            if (!imgWidth || !imgHeight) {
+                console.error('❌ Image has no dimensions! Cannot center.');
+                return;
+            }
+            
+            const scaleX = containerWidth / imgWidth;
+            const scaleY = containerHeight / imgHeight;
+            scale = Math.min(scaleX, scaleY, 1) * 0.9;
+            
+            translateX = (containerWidth - imgWidth * scale) / 2;
+            translateY = (containerHeight - imgHeight * scale) / 2;
+            
+            console.log('Calculated values:', {
+                scale: scale,
+                translateX: translateX,
+                translateY: translateY
+            });
+            
+            updateViewerTransform();
+        }
+
+        function updateViewerTransform() {
+            const transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            console.log('Setting transform:', transform);
+            viewerImage.style.transform = transform;
+        }
+
+        canvasContainer.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            
+            const rect = canvasContainer.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const imgX = (mouseX - translateX) / scale;
+            const imgY = (mouseY - translateY) / scale;
+            
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const newScale = scale * delta;
+            
+            if (newScale < 0.1 || newScale > 10) return;
+            
+            scale = newScale;
+            
+            translateX = mouseX - imgX * scale;
+            translateY = mouseY - imgY * scale;
+            
+            updateViewerTransform();
+        });
+
+        let dragOffScreenMode = false;
+        
+        canvasContainer.addEventListener('mousedown', function(e) {
+            if (e.target.id === 'dragThumbnail') {
+                return;
+            }
+            
+            if (e.button === 0) {
+                if (e.shiftKey) {
+                    console.log('✓ SHIFT+CLICK detected - File drag mode ENABLED');
+                    dragOffScreenMode = true;
+                    viewerCanvas.setAttribute('draggable', 'true');
+                    viewerImage.setAttribute('draggable', 'true');
+                    canvasContainer.style.cursor = 'grab';
+                } else {
+                    console.log('Normal click - Pan mode');
+                    dragOffScreenMode = false;
+                    viewerCanvas.setAttribute('draggable', 'false');
+                    viewerImage.setAttribute('draggable', 'false');
+                    isDragging = true;
+                    dragStartX = e.clientX;
+                    dragStartY = e.clientY;
+                    dragTranslateX = translateX;
+                    dragTranslateY = translateY;
+                    canvasContainer.classList.add('dragging');
+                    e.preventDefault();
+                }
+            }
+        });
+
+        function setupDragHandler(element) {
+            element.addEventListener('dragstart', function(e) {
+                console.log('DRAGSTART event fired on', element.id);
+                
+                if (!dragOffScreenMode) {
+                    console.log('Not in drag mode, preventing');
+                    e.preventDefault();
+                    return;
+                }
+                
+                if (currentViewingIndex === null || currentViewingIndex < 0) {
+                    console.log('No image selected');
+                    e.preventDefault();
+                    return;
+                }
+                
+                const currentImage = processedImages[currentViewingIndex];
+                if (!currentImage) {
+                    console.log('No current image data');
+                    e.preventDefault();
+                    return;
+                }
+                
+                const fileName = currentImage.fileName;
+                const dataUrl = currentImage.dataUrl;
+                
+                e.dataTransfer.effectAllowed = 'copy';
+                e.dataTransfer.setData('DownloadURL', `image/jpeg:${fileName}:${dataUrl}`);
+                
+                console.log('✓ Dragging viewer image as file:', fileName);
+            });
+            
+            element.addEventListener('dragend', function(e) {
+                console.log('DRAGEND event fired on', element.id);
+                viewerCanvas.setAttribute('draggable', 'false');
+                viewerImage.setAttribute('draggable', 'false');
+                canvasContainer.style.cursor = '';
+                dragOffScreenMode = false;
+            });
+        }
+        
+        setupDragHandler(viewerCanvas);
+        setupDragHandler(viewerImage);
+
+        document.addEventListener('mousemove', function(e) {
+            if (isDragging && !dragOffScreenMode) {
+                const dx = e.clientX - dragStartX;
+                const dy = e.clientY - dragStartY;
+                translateX = dragTranslateX + dx;
+                translateY = dragTranslateY + dy;
+                updateViewerTransform();
+            }
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (isDragging) {
+                isDragging = false;
+                canvasContainer.classList.remove('dragging');
+            }
+            if (dragOffScreenMode && !e.shiftKey) {
+                viewerCanvas.setAttribute('draggable', 'false');
+                viewerImage.setAttribute('draggable', 'false');
+                canvasContainer.style.cursor = '';
+                dragOffScreenMode = false;
+            }
+        });
+
+        backToGridBtn.addEventListener('click', function() {
+            showPage('grid');
+        });
+        
+        doneBtn.addEventListener('click', function() {
+            if (currentViewingIndex < 0 || currentViewingIndex >= processedImages.length) return;
+            
+            const completedFile = processedImages[currentViewingIndex];
+            
+            doneFiles.push(completedFile.fileName);
+            
+            processedImages.splice(currentViewingIndex, 1);
+            
+            uploadedFiles = Array.from(uploadedFiles).filter((_, i) => i !== currentViewingIndex);
+            
+            showPage('grid');
+            displayGrid();
+            
+            console.log('Marked as done:', completedFile.fileName);
+        });
+        
+        rotateLeftBtn.addEventListener('click', function() {
+            rotateCurrentImage(-90);
+        });
+        
+        rotateRightBtn.addEventListener('click', function() {
+            rotateCurrentImage(90);
+        });
+        
+        function rotateCurrentImage(degrees) {
+            if (currentViewingIndex < 0) return;
+            
+            const img = processedImages[currentViewingIndex];
+            const tempImg = new Image();
+            tempImg.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                if (degrees === 90 || degrees === -270 || degrees === 270) {
+                    canvas.width = tempImg.height;
+                    canvas.height = tempImg.width;
+                    ctx.translate(canvas.width / 2, canvas.height / 2);
+                    ctx.rotate((degrees) * Math.PI / 180);
+                    ctx.drawImage(tempImg, -tempImg.width / 2, -tempImg.height / 2);
+                } else if (degrees === -90 || degrees === 270) {
+                    canvas.width = tempImg.height;
+                    canvas.height = tempImg.width;
+                    ctx.translate(canvas.width / 2, canvas.height / 2);
+                    ctx.rotate((degrees) * Math.PI / 180);
+                    ctx.drawImage(tempImg, -tempImg.width / 2, -tempImg.height / 2);
+                }
+                
+                const rotatedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                processedImages[currentViewingIndex].dataUrl = rotatedDataUrl;
+                
+                viewerImage.src = rotatedDataUrl;
+                dragThumbnail.src = rotatedDataUrl;
+                
+                const gridItems = imageGrid.querySelectorAll('.grid-item-image');
+                if (gridItems[currentViewingIndex]) {
+                    gridItems[currentViewingIndex].src = rotatedDataUrl;
+                }
+                
+                viewerImage.onload = function() {
+                    centerImage();
+                };
+            };
+            tempImg.src = img.dataUrl;
+        }
+
+        function showPage(pageName) {
+            console.log('Switching to page:', pageName);
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            if (pageName === 'upload') {
+                uploadPage.classList.add('active');
+            } else if (pageName === 'grid') {
+                gridPage.classList.add('active');
+            } else if (pageName === 'viewer') {
+                viewerPage.classList.add('active');
+            }
+            console.log('Page switched');
+        }
+
+        const uploadContainer = document.querySelector('.upload-container');
+        
+        uploadContainer.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        uploadContainer.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+            if (files.length > 0) {
+                uploadedFiles = files;
+                updateFileCount();
+            }
+        });
+        
+        });
+    </script>
+</body>
+</html>
