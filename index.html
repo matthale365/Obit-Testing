@@ -122,7 +122,7 @@
             border:1px solid var(--border-color); position:relative;
         }
         .grid-item:hover { transform:translateY(-5px); box-shadow:0 6px 16px var(--shadow); }
-        .grid-item-image { width:100%; height:250px; object-fit:cover; display:block; }
+        .grid-item-image { width:100%; height:250px; object-fit:contain; display: block; background:#000; }
         .grid-item-name { text-align:left; font-size:14px; color:#fff; word-break:break-word; flex:1; }
         .grid-item-name-container {
             display:flex; align-items:center; justify-content:space-between;
@@ -401,21 +401,26 @@
 		.rebuild-workspace {
 			flex: 1;
 			display: flex;
+			flex-direction: column;
 			justify-content: center;
 			align-items: center;
 			padding: 20px;
 			background: #1a1a1a;
 			position: relative;
+			width: 100%;
 		}
 
 		#rebuildContainer {
 			position: relative;
 			border: 2px solid #555;
 			background: #000;
-			width: 800px;  /* Set a fixed starting width */
-			height: 1000px; /* Set a fixed starting height */
+			max-width: 95vw;
+			max-height: 80vh; 
+			width: auto;
+			height: auto;
 			box-shadow: 0 0 30px rgba(0,0,0,0.5);
-			display: block !important;
+			display: flex !important;
+			justify-content: center;
 		}
 
 		#rebuildCanvas {
@@ -598,9 +603,6 @@
             <div id="split-center" class="split-handle"></div>
         </div>
         
-        <div class="rebuild-instructions">
-            Drag the **center red dot** to position the cross. Drag the **lines** to adjust individual split heights/widths.
-        </div>
     </div>
 </div>
 
@@ -804,8 +806,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* ──────────── upload page ──────────── */
     fileInput.addEventListener('change', function (e) {
-        uploadedFiles = Array.from(e.target.files);
-        updateFileCount();
+        const newFiles = Array.from(e.target.files);
+		if (newFiles.length > 0) {
+			uploadedFiles = [...uploadedFiles, ...newFiles]; 
+			updateFileCount();
+			
+		}
+        
     });
     function updateFileCount() {
         if (!uploadedFiles.length) { fileCountEl.textContent='No files selected'; processBtn.disabled=true; }
@@ -834,17 +841,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	async function addMoreFiles(newFiles) {
 		loadingMessage.style.display = 'block';
-		
-		// Initialize worker
-		const worker = await Tesseract.createWorker('osd');
 
 		for (const file of newFiles) {
+			const rawData = await new Promise(resolve => {
+				const reader = new FileReader();
+				reader.onload = e => resolve(e.target.result);
+				reader.readAsDataURL(file);
+			});
 			uploadedFiles.push(file);
-			const processedObj = await autoRotateAndProcess(file, worker);
+			const processedObj = await autoRotateAndProcess(file, rawData);
 			processedImages.push(processedObj);
 		}
-		
-		await worker.terminate();
+
 		loadingMessage.style.display = 'none';
 		displayGrid();
 	}
@@ -982,7 +990,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const rowWrapper = document.createElement('div');
 			rowWrapper.style = "margin-bottom: 40px; width: 100%; grid-column: 1 / -1;";
 
-			const canMerge = rowData.length === 4;
+			const canMerge = rowData.length > 0;
 			const rowHeader = document.createElement('div');
 			rowHeader.style = "display: flex; align-items: center; margin-bottom: 15px; gap: 15px; padding: 0 5px;";
 			rowHeader.innerHTML = `
@@ -999,7 +1007,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				const item = document.createElement('div');
 				item.className = 'grid-item';
 				item.innerHTML = `
-					<img src="${img.dataUrl}" class="grid-item-image" onclick="window.openViewer(${img.originalIndex})">
+					<img src="${img.dataUrl}" class="grid-item-image" data-index="${img.originalIndex}" onclick="window.openViewer(${img.originalIndex})">
 					<div class="grid-item-name-container">
 						<div class="grid-item-name">${img.fileName.replace(/\.[^/.]+$/, '')}</div>
 						<button class="delete-btn" title="Delete" onclick="window.deleteImage(${img.originalIndex})">
@@ -1281,8 +1289,8 @@ document.addEventListener('DOMContentLoaded', function () {
             processedImages[currentViewingIndex].dataUrl = d;
             // originalDataUrl intentionally NOT touched
             viewerImage.src=d; dragThumbnail.src=d;
-            const gi=imageGrid.querySelectorAll('.grid-item-image');
-            if(gi[currentViewingIndex]) gi[currentViewingIndex].src=d;
+            const gi = imageGrid.querySelector(`.grid-item-image[data-index="${currentViewingIndex}"]`);
+			if(gi) gi.src = d;
             viewerImage.onload=()=> centerImage();
         });
     }
@@ -1536,14 +1544,14 @@ document.addEventListener('DOMContentLoaded', function () {
    applyCropBtn.addEventListener('click', function(){
         if(currentViewingIndex < 0) return;
     
-    let n = normCrop();
-    const iw = viewerImage.naturalWidth;
-    const ih = viewerImage.naturalHeight;
+		let n = normCrop();
+		const iw = viewerImage.naturalWidth;
+		const ih = viewerImage.naturalHeight;
 
-    // NEW CHECK: If the user hasn't drawn a box (width or height is 0), 
-    // set the crop area to the full dimensions of the image.
-    if (n.w <= 0 || n.h <= 0) {
-        n = { x: 0, y: 0, w: iw, h: ih };
+		// NEW CHECK: If the user hasn't drawn a box (width or height is 0), 
+		// set the crop area to the full dimensions of the image.
+		if (n.w <= 0 || n.h <= 0) {
+			n = { x: 0, y: 0, w: iw, h: ih };
     }
 
     const src = preCropDataUrl; 
@@ -1561,8 +1569,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         viewerImage.src = d; 
         dragThumbnail.src = d;
-        const gi = imageGrid.querySelectorAll('.grid-item-image');
-        if(gi[currentViewingIndex]) gi[currentViewingIndex].src = d;
+        const gi = imageGrid.querySelector(`.grid-item-image[data-index="${currentViewingIndex}"]`);
+		if(gi) gi.src = d;
         
         viewerImage.onload = () => { 
             centerImage(); 
@@ -1598,13 +1606,27 @@ document.addEventListener('DOMContentLoaded', function () {
             // update everything visible
             viewerImage.src   = rotated;
             dragThumbnail.src = rotated;
-            const gi=imageGrid.querySelectorAll('.grid-item-image');
-            if(gi[currentViewingIndex]) gi[currentViewingIndex].src=rotated;
+            const gi = imageGrid.querySelector(`.grid-item-image[data-index="${currentViewingIndex}"]`);
+			if(gi) gi.src = rotated;
 
             viewerImage.onload = ()=> centerImage();
             centerImage();
         });
     });
+	
+	function applyCrop() {
+		if (!cropperCanvas || currentImageIdx === -1) return;
+
+		// 1. Get the data from the cropper tool
+		const croppedData = cropperCanvas.toDataURL('image/jpeg', 0.9);
+
+		// 2. Save it to the EXACT slot in the master array
+		processedImages[currentImageIdx].dataUrl = croppedData;
+
+		// 3. Update the Grid
+		closeViewer();
+		displayGrid(); 
+	}
 
     /* ──────────── page switcher ──────────── */
     window.showPage = function(name){
@@ -1787,9 +1809,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			return m && m[1] === id;
 		});
 		
-		if(set.length !== 4) {
-			console.error("Found " + set.length + " images, need 4.");
-			return alert("Need 4 images to rebuild.");
+		if(set.length < 1) {
+			return alert("No Images found fro this set.");
 		}
 
 		// 2. Sort them into the 2x2 grid based on R and C codes
@@ -1821,35 +1842,59 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	function setupRebuildCanvas() {
 		const canvas = document.getElementById('rebuildCanvas');
-		const ctx = canvas.getContext('2d');
-		
-		canvas.width = 1600;
-		canvas.height = 2200;
-		
-		// We Map the set to use originalDataUrl specifically
+
+		// Build image list — null for missing slots
 		currentRebuildImgs = currentRebuildSet.map(item => {
+			if (!item) return null;
 			const img = new Image();
-			// Use originalDataUrl, and ONLY use dataUrl as a emergency fallback
-			img.src = item.originalDataUrl || item.dataUrl; 
+			img.src = item.originalDataUrl || item.dataUrl;
 			return img;
 		});
 
-		Promise.all(currentRebuildImgs.map(i => new Promise(resolve => i.onload = resolve))).then(() => {
+		// Wait for all present images to load
+		const loadPromises = currentRebuildImgs.map(img =>
+			img ? new Promise(resolve => { img.onload = resolve; img.onerror = resolve; })
+				: Promise.resolve()
+		);
+
+		Promise.all(loadPromises).then(() => {
+			// Measure actual image dimensions from the loaded images
+			// Top row: slots 0 and 1 — bottom row: slots 2 and 3
+			const w0 = currentRebuildImgs[0] ? currentRebuildImgs[0].naturalWidth  : 0;
+			const h0 = currentRebuildImgs[0] ? currentRebuildImgs[0].naturalHeight : 0;
+			const w1 = currentRebuildImgs[1] ? currentRebuildImgs[1].naturalWidth  : 0;
+			const h1 = currentRebuildImgs[1] ? currentRebuildImgs[1].naturalHeight : 0;
+			const w2 = currentRebuildImgs[2] ? currentRebuildImgs[2].naturalWidth  : 0;
+			const h2 = currentRebuildImgs[2] ? currentRebuildImgs[2].naturalHeight : 0;
+			const w3 = currentRebuildImgs[3] ? currentRebuildImgs[3].naturalWidth  : 0;
+			const h3 = currentRebuildImgs[3] ? currentRebuildImgs[3].naturalHeight : 0;
+
+			// Column widths = widest image in that column
+			const colW0 = Math.max(w0, w2);
+			const colW1 = Math.max(w1, w3);
+			// Row heights = tallest image in that row
+			const rowH0 = Math.max(h0, h1);
+			const rowH1 = Math.max(h2, h3);
+
+			// Total canvas size driven by actual content
+			const totalW = colW0 + colW1 || 1600;
+			const totalH = rowH0 + rowH1 || 2200;
+
+			canvas.width  = totalW;
+			canvas.height = totalH;
+
 			masterStitchedCanvas = document.createElement('canvas');
-			masterStitchedCanvas.width = canvas.width;
-			masterStitchedCanvas.height = canvas.height;
+			masterStitchedCanvas.width  = totalW;
+			masterStitchedCanvas.height = totalH;
 			const sCtx = masterStitchedCanvas.getContext('2d');
 
-			const midX = canvas.width / 2;
-			const midY = canvas.height / 2;
-			
-			// Stitch the raw, un-rotated pieces
-			sCtx.drawImage(currentRebuildImgs[0], 0, 0, midX, midY);
-			sCtx.drawImage(currentRebuildImgs[1], midX, 0, midX, midY);
-			sCtx.drawImage(currentRebuildImgs[2], 0, midY, midX, midY);
-			sCtx.drawImage(currentRebuildImgs[3], midX, midY, midX, midY);
+			// Draw each image flush into its quadrant — no letterboxing, no gaps
+			if (currentRebuildImgs[0]) sCtx.drawImage(currentRebuildImgs[0], 0,      0,      colW0, rowH0);
+			if (currentRebuildImgs[1]) sCtx.drawImage(currentRebuildImgs[1], colW0,  0,      colW1, rowH0);
+			if (currentRebuildImgs[2]) sCtx.drawImage(currentRebuildImgs[2], 0,      rowH0,  colW0, rowH1);
+			if (currentRebuildImgs[3]) sCtx.drawImage(currentRebuildImgs[3], colW0,  rowH0,  colW1, rowH1);
 
-			splitPoints = { xTop: midX, xBottom: midX, yLeft: midY, yRight: midY };
+			splitPoints = { xTop: colW0, xBottom: colW0, yLeft: rowH0, yRight: rowH0 };
 
 			drawRebuildCanvas();
 			updateSplitUI();
