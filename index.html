@@ -364,6 +364,26 @@
             background:var(--accent); color:#fff;
         }
         .modal-btn-confirm:hover { background:var(--accent-hover); }
+
+        /* Calculator specific styles */
+        #calcButtons button {
+        padding: 12px 5px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+        }
+        #calcButtons button:hover { background: #4d4d4d; }
+        /* Operator styling */
+        #calcButtons button.op { background: var(--bg-tertiary); color: var(--text-secondary); }
+        /* Special button sizes for Numpad layout */
+        .btn-plus { grid-row: span 2; }
+        .btn-enter { grid-row: span 2; background: var(--accent) !important; }
+        .btn-zero { grid-column: span 2; }
+        .btn-clear { color: #ff4444 !important; }
     </style>
 </head>
 <body>
@@ -422,11 +442,12 @@
             <div class="viewer-info">
                 <span id="viewerFileName" class="viewer-filename"></span>
                 <div class="rotation-controls">
+                    <button class="btn-rotate" id="calcBtn" style="background:#6c757d;">Calc</button>
                     <button class="btn-rotate" id="rotateRightBtn">Rotate</button>
                     <button class="btn-crop" id="cropBtn">Crop</button>
                 </div>
             </div>
-            <button class="btn btn-small" id="doneBtn">✓ Done</button>
+            <button class="btn btn-small" id="doneBtn">Done</button>
         </div>
     </div>
 
@@ -434,7 +455,15 @@
         <div class="viewer-canvas" id="viewerCanvas">
             <img id="viewerImage" alt="Viewing image">
         </div>
-
+        <div id="calcPopup" style="display:none; position:absolute; top:10px; left:10px; width:220px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:8px; z-index:400; box-shadow:0 8px 24px var(--shadow); user-select:none;">
+            <div id="calcHeader" style="padding:8px; background:var(--bg-tertiary); cursor:move; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); border-top-left-radius:6px; border-top-right-radius:6px;">
+                <span style="font-size:11px; font-weight:bold; color:var(--text-secondary); letter-spacing:1px;">CALCULATOR</span>
+                <span id="closeCalc" style="cursor:pointer; color:#dc3545; font-weight:bold; padding:0 5px;">✕</span>
+            </div>
+            <div id="calcDisplay" style="padding:15px; text-align:right; font-size:24px; background:var(--bg-primary); color:var(--text-primary); font-family:monospace; overflow:hidden; white-space:nowrap; border-bottom:1px solid var(--border-color);">0</div>
+            <div id="calcButtons" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:4px; padding:8px; background:var(--bg-secondary);">
+                </div>
+        </div>
         <!--
           SVG mask overlay.
           maskBg  = black (hides everything)
@@ -887,6 +916,8 @@ document.addEventListener('DOMContentLoaded', function () {
         exitCropMode();
         viewerImage.onload = ()=> centerImage();
         showPage('viewer');
+        calcPopup.style.display = 'none'; // Add this line
+        showPage('viewer');
     }
 
     function centerImage(){
@@ -1139,13 +1170,23 @@ document.addEventListener('DOMContentLoaded', function () {
     /* ── coordinate helpers ── */
     function screenToImg(sx,sy){ return { x:(sx-translateX)/scale, y:(sy-translateY)/scale }; }
 
-    function normCrop(){
-        let x=cropX, y=cropY, w=cropW, h=cropH;
-        if(w<0){ x+=w; w=-w; }
-        if(h<0){ y+=h; h=-h; }
-        return {x,y,w,h};
-    }
+   function normCrop(){
+    let x = cropX, y = cropY, w = cropW, h = cropH;
+    if(w < 0){ x += w; w = -w; }
+    if(h < 0){ y += h; h = -h; }
 
+    const iw = viewerImage.naturalWidth;
+    const ih = viewerImage.naturalHeight;
+
+    // Clamp values to image boundaries
+    const nx = Math.max(0, Math.min(x, iw));
+    const ny = Math.max(0, Math.min(y, ih));
+    const nw = Math.min(w, iw - nx);
+    const nh = Math.min(h, ih - ny);
+
+    return { x: nx, y: ny, w: nw, h: nh };
+}
+   
     /* ── paint the overlay + selection box ── */
     function paintCrop(){
         const n=normCrop();
@@ -1193,24 +1234,24 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function onDrawUp(e){
-        document.removeEventListener('mousemove', onDrawMove);
-        document.removeEventListener('mouseup',   onDrawUp);
-        isDrawing=false;
+    document.removeEventListener('mousemove', onDrawMove);
+    document.removeEventListener('mouseup',   onDrawUp);
+    isDrawing = false;
 
-        // single-click (tiny rect) → spawn a default box at the click point
-        const n=normCrop();
-        if(n.w<5 || n.h<5){
-            const iw=viewerImage.naturalWidth, ih=viewerImage.naturalHeight;
-            const defW = Math.min(iw*0.4, 300);
-            const defH = Math.min(ih*0.4, 300);
-            cropX = Math.max(0, Math.min(drawOriginX - defW/2, iw-defW));
-            cropY = Math.max(0, Math.min(drawOriginY - defH/2, ih-defH));
-            cropW = defW;
-            cropH = defH;
-        }
+    const n = normCrop();
+    // If it was just a click (less than 5px), don't create a box.
+    // This keeps the image fully "grayed out" as you preferred.
+    if(n.w < 5 || n.h < 5){
+        cropW = 0;
+        cropH = 0;
+        cropBoxEl.classList.remove('active');
+        maskCut.setAttribute('width', 0);
+        maskCut.setAttribute('height', 0);
+    } else {
         paintCrop();
     }
-
+}
+    
     /* ── DRAG the box ── */
     function startDragCrop(e){
         isDraggingCrop=true;
@@ -1224,10 +1265,21 @@ document.addEventListener('DOMContentLoaded', function () {
         document.addEventListener('mouseup',   onDragCropUp);
     }
     function onDragCropMove(e){
-        if(!isDraggingCrop) return;
-        cropX = cropSnapX + (e.clientX-cropDragStartX)/scale;
-        cropY = cropSnapY + (e.clientY-cropDragStartY)/scale;
-        paintCrop();
+        if (!isDraggingCrop) return;
+    
+    const iw = viewerImage.naturalWidth;
+    const ih = viewerImage.naturalHeight;
+
+    let newX = cropSnapX + (e.clientX - cropDragStartX) / scale;
+    let newY = cropSnapY + (e.clientY - cropDragStartY) / scale;
+
+    // Constrain X and Y so the box stays inside
+    newX = Math.max(0, Math.min(newX, iw - cropW));
+    newY = Math.max(0, Math.min(newY, ih - cropH));
+
+    cropX = newX;
+    cropY = newY;
+    paintCrop();
     }
     function onDragCropUp(){
         isDraggingCrop=false;
@@ -1275,29 +1327,44 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* ── Apply crop ── */
-    applyCropBtn.addEventListener('click', function(){
-        if(currentViewingIndex<0) return;
-        const n   = normCrop();
-        const src = preCropDataUrl;   // crop from the snapshot taken when crop mode opened
+   applyCropBtn.addEventListener('click', function(){
+        if(currentViewingIndex < 0) return;
+    
+    let n = normCrop();
+    const iw = viewerImage.naturalWidth;
+    const ih = viewerImage.naturalHeight;
 
-        const tmp=new Image();
-        tmp.onload=function(){
-            const c=document.createElement('canvas'), ctx=c.getContext('2d');
-            c.width=n.w; c.height=n.h;
-            ctx.drawImage(tmp, n.x, n.y, n.w, n.h, 0, 0, n.w, n.h);
-            const d=c.toDataURL('image/jpeg',0.95);
+    // NEW CHECK: If the user hasn't drawn a box (width or height is 0), 
+    // set the crop area to the full dimensions of the image.
+    if (n.w <= 0 || n.h <= 0) {
+        n = { x: 0, y: 0, w: iw, h: ih };
+    }
 
-            processedImages[currentViewingIndex].dataUrl = d;
-            // originalDataUrl untouched – Reset to Original still reaches upload-time image
+    const src = preCropDataUrl; 
 
-            viewerImage.src=d; dragThumbnail.src=d;
-            const gi=imageGrid.querySelectorAll('.grid-item-image');
-            if(gi[currentViewingIndex]) gi[currentViewingIndex].src=d;
-            viewerImage.onload=()=>{ centerImage(); exitCropMode(); };
+    const tmp = new Image();
+    tmp.onload = function(){
+        const c = document.createElement('canvas');
+        const ctx = c.getContext('2d');
+        c.width = n.w; 
+        c.height = n.h;
+        ctx.drawImage(tmp, n.x, n.y, n.w, n.h, 0, 0, n.w, n.h);
+        const d = c.toDataURL('image/jpeg', 0.95);
+
+        processedImages[currentViewingIndex].dataUrl = d;
+
+        viewerImage.src = d; 
+        dragThumbnail.src = d;
+        const gi = imageGrid.querySelectorAll('.grid-item-image');
+        if(gi[currentViewingIndex]) gi[currentViewingIndex].src = d;
+        
+        viewerImage.onload = () => { 
+            centerImage(); 
+            exitCropMode(); 
+         };
         };
-        tmp.src=src;
+        tmp.src = src;
     });
-
     /* ── Cancel crop (go back to what was shown before) ── */
     cancelCropBtn.addEventListener('click', function(){
         const d = processedImages[currentViewingIndex].dataUrl;
@@ -1341,7 +1408,146 @@ document.addEventListener('DOMContentLoaded', function () {
         else if(name==='viewer') viewerPage.classList.add('active');
     }
 
-});
+   /* ──────────── Fixed Calculator Logic ──────────── */
+    const calcBtn = document.getElementById('calcBtn');
+    const calcPopup = document.getElementById('calcPopup');
+    const calcDisplay = document.getElementById('calcDisplay');
+    const closeCalc = document.getElementById('closeCalc');
+    const calcHeader = document.getElementById('calcHeader');
+    let calcInput = "0";
+
+    // 1 & 4. Toggle Visibility and Set Position
+    calcBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (calcPopup.style.display === 'none' || !calcPopup.style.display) {
+            calcPopup.style.display = 'block';
+            // Match the 140px top of the drag-thumbnail
+            calcPopup.style.top = '140px'; 
+            calcPopup.style.left = '15px';
+            resetCalc();
+        } else {
+            calcPopup.style.display = 'none';
+        }
+    });
+
+    closeCalc.addEventListener('click', (e) => {
+        e.stopPropagation();
+        calcPopup.style.display = 'none';
+    });
+
+    function resetCalc() {
+        calcInput = "0";
+        updateCalcDisplay();
+    }
+
+    function updateCalcDisplay() {
+        calcDisplay.textContent = calcInput;
+    }
+    // Handle Clicks
+    document.getElementById('calcButtons').innerHTML = `
+        <button class="btn-clear">C</button>
+    <button class="op">/</button>
+    <button class="op">*</button>
+    <button class="op">-</button>
+    
+    <button>7</button>
+    <button>8</button>
+    <button>9</button>
+    <button class="op btn-plus">+</button>
+    
+    <button>4</button>
+    <button>5</button>
+    <button>6</button>
+    <button>1</button>
+    <button>2</button>
+    <button>3</button>
+    <button class="btn-enter">=</button>
+    
+    <button class="btn-zero">0</button>
+    <button>.</button>
+    `;
+
+    document.getElementById('calcButtons').addEventListener('click', (e) => {
+        if (e.target.tagName !== 'BUTTON') return;
+        handleCalcInput(e.target.textContent);
+    });
+
+    // 3. Smart Operator Handling
+    function handleCalcInput(val) {
+        const operators = ['+', '-', '*', '/'];
+        const lastChar = calcInput.slice(-1);
+
+        if (val === 'C') {
+            calcInput = "0";
+        } else if (val === '=' || val === 'Enter') {
+            try {
+                // Calculate and round to 2 decimals if needed
+                let result = new Function('return ' + calcInput)();
+                calcInput = Number.isInteger(result) ? result.toString() : result.toFixed(2).toString();
+            } catch {
+                calcInput = "Error";
+            }
+        } else if (operators.includes(val)) {
+            // If last char is already an operator, replace it with the new one
+            if (operators.includes(lastChar)) {
+                calcInput = calcInput.slice(0, -1) + val;
+            } else {
+                calcInput += val;
+            }
+        } else {
+            if (calcInput === "0" || calcInput === "Error") calcInput = val;
+            else calcInput += val;
+        }
+        updateCalcDisplay();
+    }
+
+    // 1. Fixed Keyboard Support
+    document.addEventListener('keydown', (e) => {
+        if (calcPopup.style.display === 'block') {
+            const key = e.key;
+            if (/[0-9\.\+\-\*\/]/.test(key)) {
+                e.preventDefault(); // Stop page from reacting
+                handleCalcInput(key);
+            }
+            if (key === 'Enter') {
+                e.preventDefault(); // STOP popup from closing
+                handleCalcInput('=');
+            }
+            if (key === 'Escape') {
+                calcPopup.style.display = 'none';
+            }
+            if (key === 'Backspace') {
+                e.preventDefault();
+                calcInput = calcInput.length > 1 ? calcInput.slice(0, -1) : "0";
+                updateCalcDisplay();
+            }
+        }
+    }, true); // Use capture phase to intercept Enter
+
+    // 2. Fixed Draggable Logic (Stop propagation to image)
+    let isCalcDragging = false;
+    let calcOffsetX, calcOffsetY;
+
+    calcHeader.addEventListener('mousedown', (e) => {
+        e.stopPropagation(); // STOP the image from dragging
+        isCalcDragging = true;
+        calcOffsetX = e.clientX - calcPopup.offsetLeft;
+        calcOffsetY = e.clientY - calcPopup.offsetTop;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isCalcDragging) return;
+        calcPopup.style.left = (e.clientX - calcOffsetX) + 'px';
+        calcPopup.style.top = (e.clientY - calcOffsetY) + 'px';
+    });
+
+    document.addEventListener('mouseup', () => isCalcDragging = false);
+
+    // Prevent clicks on the calc buttons from dragging the image too
+    document.getElementById('calcPopup').addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+    });
+    });
 </script>
 </body>
 </html>
