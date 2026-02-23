@@ -23,50 +23,34 @@
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            overflow-x: hidden;
-        }
+        body { font-family:Arial,sans-serif; background:var(--bg-secondary); color:var(--text-primary); overflow-x:hidden; }
 
         /* ─── pages ─── */
         .page { display:none; min-height:100vh; padding:20px; }
-        .page.active { display:block !important; }
+        .page.active { display:block; }
+        #upload-page.active { display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        #viewer-page { position:fixed; top:0; left:0; width:100%; height:100vh; background:var(--bg-secondary); overflow:hidden; padding:0; }
+        #rebuildPage.active { display:flex !important; flex-direction:column; height:100vh; width:100vw; background:#111; position:fixed; top:0; left:0; z-index:9999; }
 
-        /* ─── page 1 – upload ─── */
-        #upload-page { flex-direction:column; align-items:center; justify-content:center; }
-        #upload-page.active { display:flex !important; }
-
+        /* ─── upload page ─── */
         .upload-container {
-            background: var(--card-bg);
-            padding: 50px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px var(--shadow);
-            text-align: center;
-            max-width: 600px;
-            width: 90%;
-            border: 1px solid var(--border-color);
+            background:var(--card-bg); padding:50px; border-radius:10px;
+            box-shadow:0 4px 6px var(--shadow); text-align:center;
+            max-width:600px; width:90%; border:1px solid var(--border-color);
         }
-        .upload-container h1 { margin-bottom:30px; color:var(--text-primary); }
+        .upload-container h1 { margin-bottom:30px; }
         .upload-container > p { color:var(--text-secondary); margin-bottom:20px; }
 
         .file-input-wrapper { position:relative; margin:30px 0; }
         .file-input-wrapper input[type="file"] { position:absolute; opacity:0; width:100%; height:100%; cursor:pointer; }
-
         .file-input-label {
-            display:block; padding:40px;
-            border: 3px dashed var(--accent);
-            border-radius:10px;
-            background: var(--accent-light);
-            cursor:pointer; transition:all .3s;
+            display:block; padding:40px; border:3px dashed var(--accent);
+            border-radius:10px; background:var(--accent-light); cursor:pointer; transition:all .3s;
         }
         .file-input-label:hover { background:var(--accent); border-color:var(--accent-hover); }
-        .file-input-label > div:first-child { font-size:48px; margin-bottom:10px; }
-        .file-input-label > div:last-child { color:var(--accent); font-weight:600; }
-        .file-input-label:hover > div:last-child { color:#fff; }
-
+        .file-input-label .icon { font-size:48px; margin-bottom:10px; }
+        .file-input-label .label-text { color:var(--accent); font-weight:600; }
+        .file-input-label:hover .label-text { color:#fff; }
         .file-count { margin:20px 0; color:var(--text-secondary); font-size:18px; }
 
         /* ─── buttons ─── */
@@ -76,20 +60,12 @@
             background:var(--accent); color:#fff; font-weight:600;
         }
         .btn:hover { background:var(--accent-hover); transform:translateY(-2px); box-shadow:0 4px 12px var(--shadow); }
-        .btn-primary { background:var(--accent); color:#fff; }
-        .btn-primary:hover { background:var(--accent-hover); }
-        .btn-primary:disabled { background:#6c757d; cursor:not-allowed; opacity:.5; }
-        .btn-primary:disabled:hover { transform:none; box-shadow:none; }
+        .btn:disabled { background:#6c757d; cursor:not-allowed; opacity:.5; transform:none; box-shadow:none; }
         .btn-small { padding:15px 30px; font-size:16px; font-weight:600; }
-        .btn-small:disabled { opacity:0.5; cursor:not-allowed; }
-        .btn-small:disabled:hover { transform:none; box-shadow:none; }
-        .btn-secondary { background:#6c757d; color:#fff; }
+        .btn-secondary { background:#6c757d; }
         .btn-secondary:hover { background:#545b62; }
-        .btn-secondary:disabled:hover { background:#6c757d; }
 
-        /* ─── page 2 – grid ─── */
-        #grid-page { background:var(--bg-secondary); }
-
+        /* ─── grid page ─── */
         .grid-header {
             background:var(--card-bg); padding:20px; margin-bottom:20px;
             border-radius:8px; box-shadow:0 2px 8px var(--shadow);
@@ -99,7 +75,6 @@
         .grid-header h2 { color:#fff; margin:0 0 5px; }
         .grid-header p  { color:#ccc; margin:0; }
 
-        .upload-more-container { display:flex; align-items:center; gap:10px; }
         .upload-more-unified {
             padding:35px 50px; border:3px dashed var(--accent); border-radius:8px;
             background:var(--accent-light); cursor:pointer; transition:all .3s;
@@ -107,47 +82,40 @@
         }
         .upload-more-title { color:var(--accent); font-size:22px; font-weight:700; margin-bottom:8px; }
         .upload-more-subtitle { color:var(--accent); font-size:14px; opacity:.8; }
-        .upload-more-unified:hover { background:var(--accent); border-color:var(--accent-hover); transform:translateY(-2px); box-shadow:0 4px 12px var(--shadow); }
-        .upload-more-unified:hover .upload-more-title,
-        .upload-more-unified:hover .upload-more-subtitle { color:#fff; opacity:1; }
-        .upload-more-unified.drag-over { background:var(--accent); border-color:var(--accent-hover); transform:scale(1.05); }
-        .upload-more-unified.drag-over .upload-more-title,
-        .upload-more-unified.drag-over .upload-more-subtitle { color:#fff; opacity:1; }
+        .upload-more-unified:hover, .upload-more-unified.drag-over {
+            background:var(--accent); border-color:var(--accent-hover); transform:translateY(-2px); box-shadow:0 4px 12px var(--shadow);
+        }
+        .upload-more-unified:hover .upload-more-title, .upload-more-unified:hover .upload-more-subtitle,
+        .upload-more-unified.drag-over .upload-more-title, .upload-more-unified.drag-over .upload-more-subtitle { color:#fff; opacity:1; }
 
         .image-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; max-width:1400px; margin:0 auto; }
+        @media (max-width:1200px) { .image-grid { grid-template-columns:repeat(3,1fr); } }
+        @media (max-width:768px)  { .image-grid { grid-template-columns:repeat(2,1fr); } }
+        @media (max-width:480px)  { .image-grid { grid-template-columns:1fr; } }
+
         .grid-item {
             background:var(--card-bg); border-radius:8px; overflow:hidden;
-            box-shadow:0 2px 8px var(--shadow); cursor:pointer;
-            transition:transform .2s, box-shadow .2s;
+            box-shadow:0 2px 8px var(--shadow); transition:transform .2s, box-shadow .2s;
             border:1px solid var(--border-color); position:relative;
         }
         .grid-item:hover { transform:translateY(-5px); box-shadow:0 6px 16px var(--shadow); }
-        .grid-item-image { width:100%; height:250px; object-fit:contain; display: block; background:#000; }
+        .grid-item-image { width:100%; height:250px; object-fit:contain; display:block; background:#000; cursor:pointer; }
+        .grid-item-name-container { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; padding:15px; background:var(--bg-tertiary); }
         .grid-item-name { text-align:left; font-size:14px; color:#fff; word-break:break-word; flex:1; }
-        .grid-item-name-container {
-            display:flex; align-items:center; justify-content:space-between;
-            gap:12px; width:100%; padding:15px; background:var(--bg-tertiary);
-        }
 
         .loading { text-align:center; padding:40px; font-size:18px; color:#fff; }
 
         .delete-btn {
             background:#dc3545; color:#fff; border:none; border-radius:4px;
             width:28px; height:28px; cursor:pointer; display:flex;
-            align-items:center; justify-content:center; flex-shrink:0;
-            transition:background .2s; padding:0;
+            align-items:center; justify-content:center; flex-shrink:0; transition:background .2s;
         }
-        .delete-btn svg { width:16px; height:16px; fill:#fff; display:block; margin:auto; }
+        .delete-btn svg { width:16px; height:16px; fill:#fff; display:block; }
         .delete-btn:hover { background:#c82333; }
 
-        .done-section {
-            margin-top:40px; padding:20px; background:var(--card-bg);
-            border-radius:8px; border:2px dashed var(--accent); box-shadow:0 2px 8px var(--shadow);
-        }
-        .done-section-header {
-            display:flex; justify-content:space-between; align-items:center;
-            margin-bottom:15px;
-        }
+        /* ─── done section ─── */
+        .done-section { margin-top:40px; padding:20px; background:var(--card-bg); border-radius:8px; border:2px dashed var(--accent); }
+        .done-section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
         .done-section h3 { margin:0; color:var(--accent); }
         .btn-delete-all {
             background:#dc3545; color:#fff; border:none; border-radius:4px;
@@ -156,80 +124,47 @@
         }
         .btn-delete-all:hover { background:#c82333; }
         .btn-delete-all svg { width:16px; height:16px; fill:#fff; }
+
         .done-list { display:flex; flex-direction:column; gap:12px; }
         .done-item {
             background:var(--accent-light); padding:12px 15px; border-radius:6px;
-            border:1px solid var(--accent); color:var(--accent); font-size:16px; font-weight:600;
-            display:flex; align-items:center; gap:15px; min-height:80px;
+            border:1px solid var(--accent); display:flex; align-items:center; gap:15px; min-height:80px;
         }
-        .done-item-thumbnail {
-            width:60px; height:60px; object-fit:contain; border-radius:4px;
-            background:rgba(0,0,0,0.3); flex-shrink:0;
-        }
+        .done-item-thumbnail { width:60px; height:60px; object-fit:contain; border-radius:4px; background:rgba(0,0,0,0.3); flex-shrink:0; }
         .done-item-name { flex:1; color:var(--accent); font-size:16px; font-weight:600; }
-        .done-item-buttons {
-            display:flex; flex-direction:column; gap:8px; flex-shrink:0;
-        }
+        .done-item-buttons { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
         .done-item-undo {
             background:#ffc107; color:#000; border:none; border-radius:4px;
             padding:8px 16px; cursor:pointer; display:flex; align-items:center;
-            gap:6px; font-size:14px; font-weight:600; flex-shrink:0;
-            transition:background .2s;
+            gap:6px; font-size:14px; font-weight:600; transition:background .2s;
         }
         .done-item-undo:hover { background:#ffca2c; }
         .done-item-undo svg { width:16px; height:16px; fill:#000; }
         .done-item-delete {
             background:#dc3545; color:#fff; border:none; border-radius:4px;
             padding:8px 16px; cursor:pointer; display:flex; align-items:center;
-            gap:6px; font-size:14px; font-weight:600; flex-shrink:0;
-            transition:background .2s;
+            gap:6px; font-size:14px; font-weight:600; transition:background .2s;
         }
         .done-item-delete:hover { background:#c82333; }
         .done-item-delete svg { width:16px; height:16px; fill:#fff; }
 
-        /* ─── page 3 – viewer ─── */
-        #viewer-page {
-            position:fixed; top:0; left:0; width:100%; height:100vh;
-            background:var(--bg-secondary); overflow:hidden; padding:0;
-        }
-        #viewer-page.active { display:block !important; }
-
-        .viewer-controls-background {
-            position:fixed; top:0; left:0; right:0;
-            background:var(--bg-secondary); padding:15px; z-index:100;
-        }
+        /* ─── viewer page ─── */
+        .viewer-controls-background { position:fixed; top:0; left:0; right:0; background:var(--bg-primary); padding:15px; z-index:100; }
         .viewer-controls-card {
             background:var(--card-bg); padding:15px 20px; border-radius:8px;
             box-shadow:0 2px 8px var(--shadow); border:1px solid var(--border-color);
             display:flex; justify-content:space-between; align-items:center; gap:20px;
         }
-        .viewer-info {
-            display:flex; flex-direction:column; align-items:center; gap:8px;
-            flex:1; max-width:calc(100% - 300px); overflow:hidden;
-        }
-        .viewer-filename {
-            color:#fff; font-size:16px; font-weight:600; text-align:center;
-            word-wrap:break-word; overflow-wrap:break-word; line-height:1.3;
-        }
-
-        .drag-thumbnail-pinned {
-            position:fixed; top:140px; right:15px; width:60px; height:60px;
-            object-fit:contain; border:3px solid var(--accent); border-radius:8px;
-            cursor:grab; z-index:300; background:rgba(0,0,0,.9);
-            box-shadow:0 4px 12px rgba(0,0,0,.6); transition:transform .2s, box-shadow .2s;
-            pointer-events:auto;
-        }
-        .drag-thumbnail-pinned:hover { transform:scale(1.1); box-shadow:0 6px 20px rgba(0,0,0,.8); border-color:var(--accent-hover); }
-        .drag-thumbnail-pinned:active { cursor:grabbing; transform:scale(.95); }
-
+        .viewer-info { display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; overflow:hidden; }
+        .viewer-filename { color:#fff; font-size:16px; font-weight:600; text-align:center; word-wrap:break-word; line-height:1.3; }
         .rotation-controls { display:flex; gap:5px; }
+
         .btn-rotate {
             padding:12px 18px; font-size:16px; background:var(--accent);
             color:#fff; border:none; border-radius:4px; cursor:pointer; font-weight:600;
         }
         .btn-rotate:hover { background:var(--accent-hover); }
         .btn-rotate:disabled { opacity:0.5; cursor:not-allowed; }
-        .btn-rotate:disabled:hover { background:var(--accent); }
 
         .btn-crop {
             padding:12px 18px; font-size:16px; background:var(--crop-accent);
@@ -238,42 +173,31 @@
         .btn-crop:hover { background:var(--crop-accent-hover); }
         .btn-crop.active { background:#ff9800; }
         .btn-crop:disabled { opacity:0.5; cursor:not-allowed; }
-        .btn-crop:disabled:hover { background:var(--crop-accent); }
 
-        /* ─── viewer canvas area ─── */
+        .drag-thumbnail-pinned {
+            position:fixed; top:140px; right:15px; width:60px; height:60px;
+            object-fit:contain; border:3px solid var(--accent); border-radius:8px;
+            cursor:grab; z-index:300; background:rgba(0,0,0,.9);
+            box-shadow:0 4px 12px rgba(0,0,0,.6); transition:transform .2s, box-shadow .2s;
+        }
+        .drag-thumbnail-pinned:hover { transform:scale(1.1); box-shadow:0 6px 20px rgba(0,0,0,.8); border-color:var(--accent-hover); }
+        .drag-thumbnail-pinned:active { cursor:grabbing; transform:scale(.95); }
+
         .viewer-canvas-container {
             position:fixed; top:100px; left:0; right:0; bottom:0;
             overflow:hidden; cursor:grab; background:var(--bg-primary);
         }
         .viewer-canvas-container.dragging { cursor:grabbing; }
         .viewer-canvas-container.cropping { cursor:crosshair; }
-
         .viewer-canvas { position:relative; width:100%; height:100%; }
-        .viewer-canvas img {
-            display:block; position:absolute; transform-origin:0 0;
-            max-width:none; user-select:none; -webkit-user-drag:none;
-        }
+        .viewer-canvas img { display:block; position:absolute; transform-origin:0 0; max-width:none; user-select:none; -webkit-user-drag:none; }
 
-        /* ─── crop SVG overlay (dark mask with cutout) ─── */
-        #cropSvg {
-            position:absolute; top:0; left:0; width:100%; height:100%;
-            pointer-events:none; z-index:50; display:none;
-        }
+        /* ─── crop overlay ─── */
+        #cropSvg { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:50; display:none; }
         #cropSvg.active { display:block; }
-
-        /* ─── crop selection border + handles ─── */
-        #cropBox {
-            position:absolute; border:2px solid var(--crop-accent);
-            cursor:move; pointer-events:auto; z-index:60;
-            display:none; box-sizing:border-box;
-        }
+        #cropBox { position:absolute; border:2px solid var(--crop-accent); cursor:move; pointer-events:auto; z-index:60; display:none; box-sizing:border-box; }
         #cropBox.active { display:block; }
-
-        .crop-handle {
-            position:absolute; width:12px; height:12px;
-            background:var(--crop-accent); border:2px solid #000;
-            pointer-events:auto;
-        }
+        .crop-handle { position:absolute; width:12px; height:12px; background:var(--crop-accent); border:2px solid #000; pointer-events:auto; }
         .crop-handle.nw { top:-6px; left:-6px; cursor:nw-resize; }
         .crop-handle.ne { top:-6px; right:-6px; cursor:ne-resize; }
         .crop-handle.sw { bottom:-6px; left:-6px; cursor:sw-resize; }
@@ -283,7 +207,6 @@
         .crop-handle.w  { top:50%; left:-6px; margin-top:-6px; cursor:w-resize; }
         .crop-handle.e  { top:50%; right:-6px; margin-top:-6px; cursor:e-resize; }
 
-        /* ─── crop bottom bar ─── */
         .crop-controls {
             position:fixed; bottom:10px; left:50%; transform:translateX(-50%);
             background:var(--card-bg); padding:8px 12px; border-radius:8px;
@@ -291,175 +214,51 @@
             display:none; gap:5px; z-index:200;
         }
         .crop-controls.active { display:flex; }
-        .btn-crop-apply  { 
-            background:var(--crop-accent); color:#000; 
-            padding:12px 18px; font-size:16px; border:none; border-radius:4px;
-            cursor:pointer; font-weight:600; transition:background .2s;
-        }
+        .btn-crop-apply  { background:var(--crop-accent); color:#000; padding:12px 18px; font-size:16px; border:none; border-radius:4px; cursor:pointer; font-weight:600; }
         .btn-crop-apply:hover  { background:var(--crop-accent-hover); }
-        .btn-crop-cancel { 
-            background:#dc3545; padding:12px 18px; font-size:16px;
-            border:none; border-radius:4px; cursor:pointer; font-weight:600;
-            transition:background .2s; color:#fff;
-        }
-		.btn-crop-cancel:hover  { background:#c82333; }
-        .btn-crop-reset  { 
-            background:#17a2b8; padding:12px 18px; font-size:16px;
-            border:none; border-radius:4px; cursor:pointer; font-weight:600;
-            transition:background .2s; color:#fff;
-        }
+        .btn-crop-cancel { background:#dc3545; color:#fff; padding:12px 18px; font-size:16px; border:none; border-radius:4px; cursor:pointer; font-weight:600; }
+        .btn-crop-cancel:hover { background:#c82333; }
+        .btn-crop-reset  { background:#17a2b8; color:#fff; padding:12px 18px; font-size:16px; border:none; border-radius:4px; cursor:pointer; font-weight:600; }
         .btn-crop-reset:hover  { background:#138496; }
 
-        /* ─── responsive grid ─── */
-        @media (max-width:1200px) { .image-grid { grid-template-columns:repeat(3,1fr); } }
-        @media (max-width:768px)  { .image-grid { grid-template-columns:repeat(2,1fr); } }
-        @media (max-width:480px)  { .image-grid { grid-template-columns:1fr; } }
-
         /* ─── modals ─── */
-        .modal-overlay {
-            position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.6); z-index:1000;
-            display:none; align-items:center; justify-content:center;
-        }
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; display:none; align-items:center; justify-content:center; }
         .modal-overlay.active { display:flex; }
-        
-        .modal-content {
-            background:var(--card-bg); border-radius:10px;
-            padding:30px 40px; max-width:500px; width:90%;
-            box-shadow:0 8px 32px rgba(0,0,0,0.6);
-            border:1px solid var(--border-color);
-        }
-        
-        .modal-title {
-            font-size:24px; font-weight:700; color:var(--text-primary);
-            margin-bottom:15px; text-align:center;
-        }
-        
-        .modal-message {
-            font-size:16px; color:var(--text-secondary);
-            margin-bottom:30px; line-height:1.5; text-align:center;
-        }
-        
-        .modal-buttons {
-            display:flex; gap:15px; justify-content:space-between;
-        }
-        
-        .modal-btn {
-            padding:12px 30px; font-size:16px; border:none;
-            border-radius:5px; cursor:pointer; font-weight:600;
-            transition:all .2s;
-        }
-        
-        .modal-btn-cancel {
-            background:#6c757d; color:#fff;
-        }
-        .modal-btn-cancel:hover { background:#545b62; }
-        
-        .modal-btn-delete {
-            background:#dc3545; color:#fff;
-        }
-        .modal-btn-delete:hover { background:#c82333; }
-        
-        .modal-btn-confirm {
-            background:var(--accent); color:#fff;
-        }
+        .modal-content { background:var(--card-bg); border-radius:10px; padding:30px 40px; max-width:500px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.6); border:1px solid var(--border-color); }
+        .modal-title { font-size:24px; font-weight:700; margin-bottom:15px; text-align:center; }
+        .modal-message { font-size:16px; color:var(--text-secondary); margin-bottom:30px; line-height:1.5; text-align:center; }
+        .modal-buttons { display:flex; gap:15px; justify-content:space-between; }
+        .modal-btn { padding:12px 30px; font-size:16px; border:none; border-radius:5px; cursor:pointer; font-weight:600; transition:all .2s; }
+        .modal-btn-cancel  { background:#6c757d; color:#fff; }
+        .modal-btn-cancel:hover  { background:#545b62; }
+        .modal-btn-delete  { background:#dc3545; color:#fff; }
+        .modal-btn-delete:hover  { background:#c82333; }
+        .modal-btn-confirm { background:var(--accent); color:#fff; }
         .modal-btn-confirm:hover { background:var(--accent-hover); }
 
-        /* Calculator specific styles */
-        #calcButtons button {
-        padding: 12px 5px;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        color: var(--text-primary);
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 16px;
-        }
-        #calcButtons button:hover { background: #4d4d4d; }
-        /* Operator styling */
-        #calcButtons button.op { background: var(--bg-tertiary); color: var(--text-secondary); }
-        /* Special button sizes for Numpad layout */
-        .btn-plus { grid-row: span 2; }
-        .btn-enter { grid-row: span 2; background: var(--accent) !important; }
-        .btn-zero { grid-column: span 2; }
-        .btn-clear { color: #ff4444 !important; }
-		
-		/* Ensure the Rebuild Page is actually visible when active */
-		#rebuildPage.active {
-			display: flex !important;
-			flex-direction: column;
-			height: 100vh;
-			width: 100vw;
-			background: #111;
-			position: fixed;
-			top: 0;
-			left: 0;
-			z-index: 9999; /* Put it on top of everything */
-		}
+        /* ─── calculator ─── */
+        #calcButtons button { padding:12px 5px; background:var(--bg-tertiary); border:1px solid var(--border-color); color:var(--text-primary); border-radius:4px; cursor:pointer; font-weight:bold; font-size:16px; }
+        #calcButtons button:hover { background:#4d4d4d; }
+        #calcButtons button.op { color:var(--text-secondary); }
+        .btn-plus  { grid-row:span 2; }
+        .btn-enter { grid-row:span 2; background:var(--accent) !important; }
+        .btn-zero  { grid-column:span 2; }
+        .btn-clear { color:#ff4444 !important; }
 
-		.rebuild-workspace {
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-			padding: 20px;
-			background: #1a1a1a;
-			position: relative;
-			width: 100%;
-		}
+        /* ─── rebuild page ─── */
+        .rebuild-workspace { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; padding-top:100px; background:#1a1a1a; position:relative; width:100%; }
+        #rebuildContainer { position:relative; border:2px solid #555; background:#000; max-width:95vw; max-height:80vh; display:block; }
+        #rebuildCanvas { width:100%; height:100%; display:block; }
 
-		#rebuildContainer {
-			position: relative;
-			border: 2px solid #555;
-			background: #000;
-			max-width: 95vw;
-			max-height: 80vh; 
-			width: auto;
-			height: auto;
-			box-shadow: 0 0 30px rgba(0,0,0,0.5);
-			display: flex !important;
-			justify-content: center;
-		}
+        .split-line { position:absolute; background:rgba(255,193,7,0.7); z-index:10; cursor:pointer; }
+        .split-line::after { content:''; position:absolute; background:transparent; pointer-events:none; z-index:11; }
+        .split-line.vert  { width:4px; height:100%; }
+        .split-line.vert::after  { left:-10px; width:24px; height:100%; }
+        .split-line.horiz { height:4px; width:100%; }
+        .split-line.horiz::after { top:-10px; height:24px; width:100%; }
 
-		#rebuildCanvas {
-			width: 100% !important;
-			height: 100% !important;
-			display: block !important;
-		}
-
-		.split-line {
-			position: absolute;
-			background: rgba(255, 193, 7, 0.6);
-			z-index: 10;
-			cursor: pointer;
-		}
-		.split-line:hover { background: rgba(255, 193, 7, 1); }
-
-		.split-line.vert { width: 2px; height: 100%; }
-		.split-line.horiz { height: 2px; width: 100%; }
-
-		.split-handle {
-			position: absolute;
-			width: 12px;
-			height: 12px;
-			background: #ff4444;
-			border: 2px solid white;
-			border-radius: 50%;
-			transform: translate(-50%, -50%);
-			z-index: 20;
-			cursor: move;
-		}
-
-		.rebuild-instructions {
-			margin-top: 15px;
-			color: var(--text-secondary);
-			font-size: 13px;
-			background: var(--bg-tertiary);
-			padding: 10px 20px;
-			border-radius: 20px;
-		}
+        .split-handle { position:absolute; width:16px; height:16px; background:#ff4444; border:2px solid white; border-radius:50%; transform:translate(-50%,-50%); z-index:25; cursor:move; box-shadow:0 0 10px rgba(0,0,0,0.5); }
+        .rebuild-instructions { margin-top:15px; color:var(--text-secondary); font-size:13px; background:var(--bg-tertiary); padding:10px 20px; border-radius:20px; }
     </style>
 </head>
 <body>
@@ -470,14 +269,14 @@
         <h1>Image Rotator &amp; Viewer</h1>
         <p>Select multiple images to process</p>
         <div class="file-input-wrapper">
-            <input type="file" id="fileInput" multiple accept="image/*">
+            <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff,.svg">
             <label for="fileInput" class="file-input-label">
-                <div style="font-size:48px;margin-bottom:10px">📁</div>
-                <div>Choose a file or Drag & Drop</div>
+                <div class="icon">📁</div>
+                <div class="label-text">Choose a file or Drag &amp; Drop</div>
             </label>
         </div>
         <div class="file-count" id="fileCount">No files selected</div>
-        <button class="btn btn-primary" id="processBtn" disabled>Process Images</button>
+        <button class="btn" id="processBtn" disabled>Process Images</button>
     </div>
 </div>
 
@@ -488,15 +287,15 @@
             <h2>Uploaded Images</h2>
             <p id="imageCount"></p>
         </div>
-        <div class="upload-more-container">
-            <input type="file" id="uploadMoreInput" accept="image/*" multiple style="display:none">
+        <div>
+            <input type="file" id="uploadMoreInput" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff,.svg" multiple style="display:none">
             <div id="uploadMoreDropZone" class="upload-more-unified">
                 <div class="upload-more-title">Upload More</div>
                 <div class="upload-more-subtitle">Click to select or drag &amp; drop</div>
             </div>
         </div>
     </div>
-    <div id="loadingMessage" class="loading">Processing images...</div>
+    <div id="loadingMessage" class="loading" style="display:none">Processing images...</div>
     <div class="image-grid" id="imageGrid"></div>
     <div class="done-section">
         <div class="done-section-header">
@@ -531,33 +330,29 @@
         <div class="viewer-canvas" id="viewerCanvas">
             <img id="viewerImage" alt="Viewing image">
         </div>
-        <div id="calcPopup" style="display:none; position:absolute; top:10px; left:10px; width:220px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:8px; z-index:400; box-shadow:0 8px 24px var(--shadow); user-select:none;">
-            <div id="calcHeader" style="padding:8px; background:var(--bg-tertiary); cursor:move; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); border-top-left-radius:6px; border-top-right-radius:6px;">
+
+        <!-- Calculator popup -->
+        <div id="calcPopup" style="display:none; position:absolute; top:140px; left:15px; width:220px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:8px; z-index:400; box-shadow:0 8px 24px var(--shadow); user-select:none;">
+            <div id="calcHeader" style="padding:8px; background:var(--bg-tertiary); cursor:move; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); border-radius:6px 6px 0 0;">
                 <span style="font-size:11px; font-weight:bold; color:var(--text-secondary); letter-spacing:1px;">CALCULATOR</span>
                 <span id="closeCalc" style="cursor:pointer; color:#dc3545; font-weight:bold; padding:0 5px;">✕</span>
             </div>
             <div id="calcDisplay" style="padding:15px; text-align:right; font-size:24px; background:var(--bg-primary); color:var(--text-primary); font-family:monospace; overflow:hidden; white-space:nowrap; border-bottom:1px solid var(--border-color);">0</div>
-            <div id="calcButtons" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:4px; padding:8px; background:var(--bg-secondary);">
-                </div>
+            <div id="calcButtons" style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; padding:8px; background:var(--bg-secondary);"></div>
         </div>
-        <!--
-          SVG mask overlay.
-          maskBg  = black (hides everything)
-          maskCut = white rect (punches a hole → image shows at full brightness there)
-          darkOverlay rect uses this mask so it's opaque everywhere EXCEPT the cutout.
-        -->
+
+        <!-- Crop SVG overlay -->
         <svg id="cropSvg">
             <defs>
                 <mask id="cropMask">
-                    <rect id="maskBg"  x="0" y="0" width="9999" height="9999" fill="white"/>
-                    <rect id="maskCut" x="0" y="0" width="0"    height="0"    fill="black"/>
+                    <rect x="0" y="0" width="9999" height="9999" fill="white"/>
+                    <rect id="maskCut" x="0" y="0" width="0" height="0" fill="black"/>
                 </mask>
             </defs>
-            <rect id="darkOverlay" x="0" y="0" width="9999" height="9999"
-                  fill="rgba(0,0,0,0.6)" mask="url(#cropMask)"/>
+            <rect x="0" y="0" width="9999" height="9999" fill="rgba(0,0,0,0.6)" mask="url(#cropMask)"/>
         </svg>
 
-        <!-- crop selection border + handles (positioned in screen px) -->
+        <!-- Crop selection box -->
         <div id="cropBox">
             <div class="crop-handle nw" data-handle="nw"></div>
             <div class="crop-handle n"  data-handle="n"></div>
@@ -573,40 +368,38 @@
     </div>
 
     <div class="crop-controls" id="cropControls">
-        <button class="btn btn-small btn-crop-reset"  id="resetCropBtn">Reset to Original</button>
-        <button class="btn btn-small btn-crop-cancel" id="cancelCropBtn">✕ Cancel</button>
-        <button class="btn btn-small btn-crop-apply"  id="applyCropBtn">Apply Crop</button>
+        <button class="btn-crop-reset"  id="resetCropBtn">Reset to Original</button>
+        <button class="btn-crop-cancel" id="cancelCropBtn">✕ Cancel</button>
+        <button class="btn-crop-apply"  id="applyCropBtn">Apply Crop</button>
     </div>
 </div>
 
-<! Page 4: Image Rebuild-->
+<!-- Page 4: Rebuild -->
 <div id="rebuildPage" class="page">
-    <div class="viewer-header">
-        <div style="display:flex; align-items:center; gap:20px;">
-            <button class="btn-rotate" onclick="showPage('grid')">← Back</button>
-            <h2 id="rebuildTitle">Rebuild Set</h2>
-        </div>
-        <div class="viewer-controls">
-            <button class="btn-rotate" id="applyRebuildBtn" style="background:var(--accent);">Confirm & Re-split</button>
+    <div class="viewer-controls-background">
+        <div class="viewer-controls-card">
+            <button class="btn btn-secondary btn-small" onclick="showPage('grid')">Return</button>
+            <div class="viewer-info">
+                <span id="rebuildTitle" class="viewer-filename">Rebuild Set</span>
+            </div>
+            <button class="btn btn-small" id="applyRebuildBtn">Confirm &amp; Re-split</button>
         </div>
     </div>
-    
     <div class="rebuild-workspace">
-        <div id="rebuildContainer" style="position:relative; margin:auto; background:#000; overflow:hidden; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
+        <div id="rebuildContainer">
             <canvas id="rebuildCanvas"></canvas>
-            
-            <div id="line-top" class="split-line vert"></div>
-            <div id="line-bottom" class="split-line vert"></div>
-            <div id="line-left" class="split-line horiz"></div>
-            <div id="line-right" class="split-line horiz"></div>
-            
-            <div id="split-center" class="split-handle"></div>
+            <div style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;">
+                <div id="line-top"    class="split-line vert"  style="pointer-events:auto;"></div>
+                <div id="line-bottom" class="split-line vert"  style="pointer-events:auto;"></div>
+                <div id="line-left"   class="split-line horiz" style="pointer-events:auto;"></div>
+                <div id="line-right"  class="split-line horiz" style="pointer-events:auto;"></div>
+                <div id="split-center" class="split-handle"    style="pointer-events:auto;"></div>
+            </div>
         </div>
-        
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- Delete Modal -->
 <div id="deleteModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-title">Confirm Delete</div>
@@ -618,7 +411,7 @@
     </div>
 </div>
 
-<!-- Done Confirmation Modal -->
+<!-- Done Modal -->
 <div id="doneModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-title">Confirm Done</div>
@@ -633,333 +426,141 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* ──────────── state ──────────── */
+    /* ─── State ─── */
     let uploadedFiles       = [];
     let processedImages     = [];   // { dataUrl, originalDataUrl, fileName }
-    let doneFiles           = [];   // { fileName, dataUrl }
+    let doneFiles           = [];
     let currentViewingIndex = -1;
 
-    // pan / zoom
+    // Pan / zoom
     let scale = 1, translateX = 0, translateY = 0;
     let isDragging = false, dragStartX = 0, dragStartY = 0, dragTranslateX = 0, dragTranslateY = 0;
     let dragOffScreenMode = false;
 
-    // crop – all in IMAGE pixels
-    let isCropping      = false;
+    // Crop (all in image pixels)
+    let isCropping = false, isDrawing = false, isDraggingCrop = false, isResizingCrop = false;
     let cropX = 0, cropY = 0, cropW = 0, cropH = 0;
-    let isDrawing       = false;
-    let drawOriginX     = 0, drawOriginY = 0;
-    let isDraggingCrop  = false;
-    let isResizingCrop  = false;
-    let resizeHandle    = null;
-    let cropDragStartX  = 0, cropDragStartY = 0;
+    let drawOriginX = 0, drawOriginY = 0;
+    let resizeHandle = null;
+    let cropDragStartX = 0, cropDragStartY = 0;
     let cropSnapX = 0, cropSnapY = 0, cropSnapW = 0, cropSnapH = 0;
-    let preCropDataUrl = null;   // snapshot of dataUrl when crop mode is entered
-    let currentRotation = 0;     // cumulative rotation in degrees (mod 360)
-    let dragThumbnailUsed = false; // track if user has dragged the thumbnail
+    let preCropDataUrl = null;
+    let currentRotation = 0;
+    let dragThumbnailUsed = false;
 
-    /* ──────────── DOM ──────────── */
-    const uploadPage          = document.getElementById('upload-page');
-    const gridPage            = document.getElementById('grid-page');
-    const viewerPage          = document.getElementById('viewer-page');
-    const fileInput           = document.getElementById('fileInput');
-    const fileCountEl         = document.getElementById('fileCount');
-    const processBtn          = document.getElementById('processBtn');
-    const imageGrid           = document.getElementById('imageGrid');
-    const loadingMessage      = document.getElementById('loadingMessage');
-    const viewerImage         = document.getElementById('viewerImage');
-    const viewerCanvas        = document.getElementById('viewerCanvas');
-    const canvasContainer     = document.getElementById('canvasContainer');
-    const backToGridBtn       = document.getElementById('backToGridBtn');
-    const doneBtn             = document.getElementById('doneBtn');
-    const doneList            = document.getElementById('doneList');
-    const deleteAllBtn        = document.getElementById('deleteAllBtn');
-    const uploadMoreInput     = document.getElementById('uploadMoreInput');
-    const uploadMoreDropZone  = document.getElementById('uploadMoreDropZone');
-    const dragThumbnail       = document.getElementById('dragThumbnail');
-    const viewerFileNameEl    = document.getElementById('viewerFileName');
-    const rotateRightBtn      = document.getElementById('rotateRightBtn');
-    const cropBtnEl           = document.getElementById('cropBtn');
-    const cropControls        = document.getElementById('cropControls');
-    const applyCropBtn        = document.getElementById('applyCropBtn');
-    const cancelCropBtn       = document.getElementById('cancelCropBtn');
-    const resetCropBtn        = document.getElementById('resetCropBtn');
-    const cropBoxEl           = document.getElementById('cropBox');
-    const cropSvg             = document.getElementById('cropSvg');
-    const maskCut             = document.getElementById('maskCut');
-    
-    // Modals
-    const deleteModal         = document.getElementById('deleteModal');
-    const deleteModalMessage  = document.getElementById('deleteModalMessage');
-    const deleteModalCancel   = document.getElementById('deleteModalCancel');
-    const deleteModalConfirm  = document.getElementById('deleteModalConfirm');
-    const doneModal           = document.getElementById('doneModal');
-    const doneModalCancel     = document.getElementById('doneModalCancel');
-    const doneModalConfirm    = document.getElementById('doneModalConfirm');
-    
+    // Rebuild
+    let currentRebuildSet = [];
+    let currentRebuildImgs = [];
+    let masterStitchedCanvas = null;
+    let splitPoints = { x:0, y:0, xTop:0, xBottom:0, yLeft:0, yRight:0 };
+    let dragTarget = null;
+
+    /* ─── DOM refs ─── */
+    const fileInput          = document.getElementById('fileInput');
+    const fileCountEl        = document.getElementById('fileCount');
+    const processBtn         = document.getElementById('processBtn');
+    const imageGrid          = document.getElementById('imageGrid');
+    const loadingMessage     = document.getElementById('loadingMessage');
+    const viewerImage        = document.getElementById('viewerImage');
+    const viewerCanvas       = document.getElementById('viewerCanvas');
+    const canvasContainer    = document.getElementById('canvasContainer');
+    const backToGridBtn      = document.getElementById('backToGridBtn');
+    const doneBtn            = document.getElementById('doneBtn');
+    const doneList           = document.getElementById('doneList');
+    const deleteAllBtn       = document.getElementById('deleteAllBtn');
+    const uploadMoreInput    = document.getElementById('uploadMoreInput');
+    const uploadMoreDropZone = document.getElementById('uploadMoreDropZone');
+    const dragThumbnail      = document.getElementById('dragThumbnail');
+    const viewerFileNameEl   = document.getElementById('viewerFileName');
+    const rotateRightBtn     = document.getElementById('rotateRightBtn');
+    const cropBtnEl          = document.getElementById('cropBtn');
+    const cropControls       = document.getElementById('cropControls');
+    const applyCropBtn       = document.getElementById('applyCropBtn');
+    const cancelCropBtn      = document.getElementById('cancelCropBtn');
+    const resetCropBtn       = document.getElementById('resetCropBtn');
+    const cropBoxEl          = document.getElementById('cropBox');
+    const cropSvg            = document.getElementById('cropSvg');
+    const maskCut            = document.getElementById('maskCut');
+    const deleteModal        = document.getElementById('deleteModal');
+    const deleteModalMessage = document.getElementById('deleteModalMessage');
+    const doneModal          = document.getElementById('doneModal');
+    const calcPopup          = document.getElementById('calcPopup');
+    const calcDisplay        = document.getElementById('calcDisplay');
+    const calcHeader         = document.getElementById('calcHeader');
+
+    /* ─── Page switcher ─── */
+    window.showPage = function(name) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        const map = { upload:'upload-page', grid:'grid-page', viewer:'viewer-page', rebuild:'rebuildPage' };
+        const el = document.getElementById(map[name]);
+        if (el) el.classList.add('active');
+    };
+
+    /* ─── Modals ─── */
     let pendingDeleteCallback = null;
-	let currentRebuildImgs = [];
-	let splitPoints = { x: 0, yLeft: 0, yRight: 0, xTop: 0, xBottom: 0 };
-	let currentRebuildSet = [];
-	let masterStitchedCanvas = null;
-	let isSplitting = false;
-	let dragTarget = null;
-	['line-top', 'line-bottom', 'line-left', 'line-right', 'split-center'].forEach(id => {
-		document.getElementById(id).addEventListener('mousedown', (e) => {
-			dragTarget = id;
-			e.stopPropagation();
-			e.preventDefault();
-		});
-	});
-	
-	document.addEventListener('mousemove', (e) => {
-		if (!dragTarget) return;
 
-		const canvas = document.getElementById('rebuildCanvas');
-		const rect = canvas.getBoundingClientRect();
-		const ratioX = canvas.width / rect.width;
-		const ratioY = canvas.height / rect.height;
-
-		let mx = (e.clientX - rect.left) * ratioX;
-		let my = (e.clientY - rect.top) * ratioY;
-
-		if (dragTarget === 'split-center') {
-			// Moves the whole intersection
-			splitPoints.xTop = mx;
-			splitPoints.xBottom = mx;
-			splitPoints.yLeft = my;
-			splitPoints.yRight = my;
-		} else if (dragTarget === 'line-top') {
-			splitPoints.xTop = mx; // Moves only the top vertical line
-		} else if (dragTarget === 'line-bottom') {
-			splitPoints.xBottom = mx; // Moves only the bottom vertical line
-		} else if (dragTarget === 'line-left') {
-			splitPoints.yLeft = my; // Moves only the left horizontal line
-		} else if (dragTarget === 'line-right') {
-			splitPoints.yRight = my; // Moves only the right horizontal line
-		}
-
-		updateSplitUI();
-	});
-
-	document.addEventListener('mouseup', () => { dragTarget = null; });
-
-    /* ──────────── modal functions ──────────── */
-    function showDeleteModal(message, onConfirm){
+    function showDeleteModal(message, onConfirm) {
         deleteModalMessage.textContent = message;
         pendingDeleteCallback = onConfirm;
         deleteModal.classList.add('active');
     }
-    
-    function hideDeleteModal(){
+    function hideDeleteModal() {
         deleteModal.classList.remove('active');
         pendingDeleteCallback = null;
     }
-    
-    function showDoneModal(onConfirm){
+    function showDoneModal(onConfirm) {
         doneModal.classList.add('active');
-        doneModal.dataset.confirmCallback = 'pending';
-        doneModalConfirm.onclick = function(){
-            hideDoneModal();
-            onConfirm();
-        };
+        document.getElementById('doneModalConfirm').onclick = () => { hideDoneModal(); onConfirm(); };
     }
-    
-    function hideDoneModal(){
-        doneModal.classList.remove('active');
-    }
-    
-    // Delete modal event listeners
-    deleteModalCancel.addEventListener('click', hideDeleteModal);
-    deleteModalConfirm.addEventListener('click', function(){
-        if(pendingDeleteCallback){
-            pendingDeleteCallback();
-            hideDeleteModal();
-        }
-    });
-    
-    // Done modal event listeners
-    doneModalCancel.addEventListener('click', hideDoneModal);
-    
-    // Close modals when clicking outside
-    deleteModal.addEventListener('click', function(e){
-        if(e.target === deleteModal) hideDeleteModal();
-    });
-    doneModal.addEventListener('click', function(e){
-        if(e.target === doneModal) hideDoneModal();
-    });
-    
-    /* ──────────── delete all done files ──────────── */
-    deleteAllBtn.addEventListener('click', function(){
-        if(doneFiles.length === 0) return;
-        
-        const count = doneFiles.length;
-        const message = count === 1 
-            ? 'Are you sure you want to delete this image?'
-            : `Are you sure you want to delete all ${count} images?`;
-        
-        showDeleteModal(message, function(){
-            doneFiles = [];
-            updateDoneList();
-        });
-    });
+    function hideDoneModal() { doneModal.classList.remove('active'); }
 
-    /* ──────────── upload page ──────────── */
-    fileInput.addEventListener('change', function (e) {
-        const newFiles = Array.from(e.target.files);
-		if (newFiles.length > 0) {
-			uploadedFiles = [...uploadedFiles, ...newFiles]; 
-			updateFileCount();
-			
-		}
-        
+    document.getElementById('deleteModalCancel').addEventListener('click', hideDeleteModal);
+    document.getElementById('deleteModalConfirm').addEventListener('click', () => { if (pendingDeleteCallback) { pendingDeleteCallback(); hideDeleteModal(); } });
+    document.getElementById('doneModalCancel').addEventListener('click', hideDoneModal);
+    deleteModal.addEventListener('click', e => { if (e.target === deleteModal) hideDeleteModal(); });
+    doneModal.addEventListener('click', e => { if (e.target === doneModal) hideDoneModal(); });
+
+    /* ─── Upload page ─── */
+    fileInput.addEventListener('change', function(e) {
+        uploadedFiles = [...uploadedFiles, ...Array.from(e.target.files)];
+        updateFileCount();
     });
     function updateFileCount() {
-        if (!uploadedFiles.length) { fileCountEl.textContent='No files selected'; processBtn.disabled=true; }
-        else { fileCountEl.textContent = uploadedFiles.length+' file'+(uploadedFiles.length>1?'s':'')+' selected'; processBtn.disabled=false; }
+        const n = uploadedFiles.length;
+        fileCountEl.textContent = n ? `${n} file${n > 1 ? 's' : ''} selected` : 'No files selected';
+        processBtn.disabled = !n;
     }
-    processBtn.addEventListener('click', async function () { await processImages(); });
+    processBtn.addEventListener('click', processImages);
 
-    const uploadContainer = document.querySelector('.upload-container');
-    uploadContainer.addEventListener('dragover',  e=>{ e.preventDefault(); e.stopPropagation(); });
-    uploadContainer.addEventListener('drop', function(e){
-        e.preventDefault(); e.stopPropagation();
-        const files = Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
-        if(files.length){ uploadedFiles=files; updateFileCount(); }
+    document.querySelector('.upload-container').addEventListener('drop', function(e) {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        if (files.length) { uploadedFiles = files; updateFileCount(); }
     });
+    document.querySelector('.upload-container').addEventListener('dragover', e => e.preventDefault());
 
-    /* ──────────── grid – upload more ──────────── */
-    uploadMoreDropZone.addEventListener('click', ()=> uploadMoreInput.click());
-    uploadMoreInput.addEventListener('change', async function(e){ const f=Array.from(e.target.files); if(f.length) await addMoreFiles(f); });
-    uploadMoreDropZone.addEventListener('dragover',  e=>{ e.preventDefault(); uploadMoreDropZone.classList.add('drag-over'); });
-    uploadMoreDropZone.addEventListener('dragleave', e=>{ e.preventDefault(); uploadMoreDropZone.classList.remove('drag-over'); });
-    uploadMoreDropZone.addEventListener('drop', async function(e){
+    /* ─── Grid – upload more ─── */
+    uploadMoreDropZone.addEventListener('click', () => uploadMoreInput.click());
+    uploadMoreInput.addEventListener('change', async e => { if (e.target.files.length) await addMoreFiles(Array.from(e.target.files)); });
+    uploadMoreDropZone.addEventListener('dragover',  e => { e.preventDefault(); uploadMoreDropZone.classList.add('drag-over'); });
+    uploadMoreDropZone.addEventListener('dragleave', e => { e.preventDefault(); uploadMoreDropZone.classList.remove('drag-over'); });
+    uploadMoreDropZone.addEventListener('drop', async function(e) {
         e.preventDefault(); uploadMoreDropZone.classList.remove('drag-over');
-        const f=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
-        if(f.length) await addMoreFiles(f);
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        if (files.length) await addMoreFiles(files);
     });
 
-	async function addMoreFiles(newFiles) {
-		loadingMessage.style.display = 'block';
+    async function addMoreFiles(files) {
+        loadingMessage.style.display = 'block';
+        for (const file of files) {
+            const rawData = await fileToDataUrl(file);
+            uploadedFiles.push(file);
+            processedImages.push(await autoRotateAndProcess(file, rawData));
+        }
+        loadingMessage.style.display = 'none';
+        displayGrid();
+    }
 
-		for (const file of newFiles) {
-			const rawData = await new Promise(resolve => {
-				const reader = new FileReader();
-				reader.onload = e => resolve(e.target.result);
-				reader.readAsDataURL(file);
-			});
-			uploadedFiles.push(file);
-			const processedObj = await autoRotateAndProcess(file, rawData);
-			processedImages.push(processedObj);
-		}
-
-		loadingMessage.style.display = 'none';
-		displayGrid();
-	}
-    
-    /* ──────────── auto-rotate + process function ──────────── */
-	async function autoRotateAndProcess(file, rawData) {
-		return new Promise((resolve) => {
-			const img = new Image();
-			img.onload = async () => {
-				let worker = null;
-				try {
-					// Initialize worker with legacy engine (OEM: 0) to avoid LSTM errors
-					worker = await Tesseract.createWorker('osd', 0, {
-						logger: () => {}, // Quiet the console logs
-						errorHandler: () => {} 
-					});
-
-					// Detect orientation using the loaded image element
-					const { data: { orientation_degrees } } = await worker.detect(img);
-					
-					const canvas = document.createElement('canvas');
-					const ctx = canvas.getContext('2d');
-					
-					if (orientation_degrees === 90 || orientation_degrees === 270) {
-						canvas.width = img.height;
-						canvas.height = img.width;
-					} else {
-						canvas.width = img.width;
-						canvas.height = img.height;
-					}
-
-					ctx.translate(canvas.width / 2, canvas.height / 2);
-					ctx.rotate((orientation_degrees * Math.PI) / 180);
-					ctx.drawImage(img, -img.width / 2, -img.height / 2);
-
-					const rotatedData = canvas.toDataURL('image/jpeg', 0.9);
-
-					resolve({
-						dataUrl: rotatedData,
-						originalDataUrl: rawData,
-						fileName: file.name,
-						rotation: orientation_degrees
-					});
-
-				} catch (err) {
-					console.warn("Tesseract skipped an image:", file.name);
-					// Fallback: If OCR fails, just use the image as-is
-					resolve({
-						dataUrl: rawData,
-						originalDataUrl: rawData,
-						fileName: file.name,
-						rotation: 0
-					});
-				} finally {
-					if (worker) await worker.terminate();
-				}
-			};
-			img.src = rawData;
-		});
-	}
-    
-    /* ──────────── process all images ──────────── */
-	async function processImages() {
-		if (!uploadedFiles || uploadedFiles.length === 0) return;
-    
-		showPage('grid');
-		loadingMessage.style.display = 'block';
-		await new Promise(resolve => setTimeout(resolve, 50));
-
-		// Define how many images to process at the exact same time
-		// 3 is usually the "Sweet Spot" for speed vs stability
-		const concurrencyLimit = 3;
-		const results = new Array(uploadedFiles.length);
-		
-		// We process in batches to keep the 3-digit ID order perfect
-		for (let i = 0; i < uploadedFiles.length; i += concurrencyLimit) {
-			const batch = uploadedFiles.slice(i, i + concurrencyLimit);
-			
-			const batchPromises = batch.map(async (file, index) => {
-				const globalIndex = i + index;
-				
-				// 1. Read File
-				const rawData = await new Promise((resolve) => {
-					const reader = new FileReader();
-					reader.onload = (e) => resolve(e.target.result);
-					reader.readAsDataURL(file);
-				});
-
-				// 2. Auto-Rotate (The heavy part)
-				const processedObj = await autoRotateAndProcess(file, rawData);
-				
-				// 3. Place in the exact correct slot to preserve ID order
-				results[globalIndex] = processedObj;
-			});
-
-			// Run this batch of 3 all at once
-			await Promise.all(batchPromises);
-			
-			// Update the grid so the user sees progress
-			processedImages = results.filter(img => img !== undefined);
-			displayGrid();
-		}
-
-		loadingMessage.style.display = 'none';
-	}
-    
-    // Keep your original helper function exactly as it was
     function fileToDataUrl(file) {
         return new Promise(resolve => {
             const r = new FileReader();
@@ -968,1077 +569,664 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    /* ──────────── grid display ──────────── */
-	function displayGrid() {
-		loadingMessage.style.display = 'none';
-		imageGrid.innerHTML = '';
-		
-		document.getElementById('imageCount').textContent =
-			processedImages.length + ' image' + (processedImages.length !== 1 ? 's' : '') + ' uploaded';
+    /* ─── Auto-rotate via Tesseract ─── */
+    async function autoRotateAndProcess(file, rawData) {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.onload = async () => {
+                let worker = null;
+                try {
+                    worker = await Tesseract.createWorker('osd', 0, { logger: () => {}, errorHandler: () => {} });
+                    const { data: { orientation_degrees } } = await worker.detect(img);
 
-		const groups = {};
-		processedImages.forEach((img, index) => {
-			if (!img || !img.fileName) return;
-			const match = img.fileName.match(/_(\d{3})-\d-R/);
-			const id = match ? match[1] : 'Misc';
-			if (!groups[id]) groups[id] = [];
-			groups[id].push({ ...img, originalIndex: index });
-		});
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    if (orientation_degrees === 90 || orientation_degrees === 270) {
+                        canvas.width = img.height; canvas.height = img.width;
+                    } else {
+                        canvas.width = img.width; canvas.height = img.height;
+                    }
+                    ctx.translate(canvas.width / 2, canvas.height / 2);
+                    ctx.rotate((orientation_degrees * Math.PI) / 180);
+                    ctx.drawImage(img, -img.width / 2, -img.height / 2);
 
-		Object.keys(groups).forEach(id => {
-			const rowData = groups[id];
-			const rowWrapper = document.createElement('div');
-			rowWrapper.style = "margin-bottom: 40px; width: 100%; grid-column: 1 / -1;";
+                    resolve({ dataUrl: canvas.toDataURL('image/jpeg', 0.9), originalDataUrl: rawData, fileName: file.name, rotation: orientation_degrees });
+                } catch {
+                    resolve({ dataUrl: rawData, originalDataUrl: rawData, fileName: file.name, rotation: 0 });
+                } finally {
+                    if (worker) await worker.terminate();
+                }
+            };
+            img.src = rawData;
+        });
+    }
 
-			const canMerge = rowData.length > 0;
-			const rowHeader = document.createElement('div');
-			rowHeader.style = "display: flex; align-items: center; margin-bottom: 15px; gap: 15px; padding: 0 5px;";
-			rowHeader.innerHTML = `
-				<span style="font-weight:bold; color:var(--accent); font-size: 14px; letter-spacing: 1px;">SET ID: ${id}</span>
-				<button class="btn-rotate" ${!canMerge ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} 
-						onclick="window.initiateRebuild('${id}')" style="padding: 8px 15px; font-size: 13px;">Merge Row</button>
-				${!canMerge ? `<span style="font-size:12px; color:var(--text-secondary); opacity: 0.7;">(${rowData.length}/4)</span>` : ''}
-			`;
+    /* ─── Process all images ─── */
+    async function processImages() {
+        if (!uploadedFiles.length) return;
+        showPage('grid');
+        loadingMessage.style.display = 'block';
+        await new Promise(r => setTimeout(r, 50));
 
-			const itemsContainer = document.createElement('div');
-			itemsContainer.className = 'image-grid';
+        const concurrencyLimit = 3;
+        const results = new Array(uploadedFiles.length);
 
-			rowData.forEach(img => {
-				const item = document.createElement('div');
-				item.className = 'grid-item';
-				item.innerHTML = `
-					<img src="${img.dataUrl}" class="grid-item-image" data-index="${img.originalIndex}" onclick="window.openViewer(${img.originalIndex})">
-					<div class="grid-item-name-container">
-						<div class="grid-item-name">${img.fileName.replace(/\.[^/.]+$/, '')}</div>
-						<button class="delete-btn" title="Delete" onclick="window.deleteImage(${img.originalIndex})">
-							<svg viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12z"/></svg>
-						</button>
-					</div>
-				`;
-				itemsContainer.appendChild(item);
-			});
+        for (let i = 0; i < uploadedFiles.length; i += concurrencyLimit) {
+            const batch = uploadedFiles.slice(i, i + concurrencyLimit);
+            await Promise.all(batch.map(async (file, j) => {
+                const idx = i + j;
+                const rawData = await fileToDataUrl(file);
+                results[idx] = await autoRotateAndProcess(file, rawData);
+            }));
+            processedImages = results.filter(Boolean);
+            displayGrid();
+        }
+        loadingMessage.style.display = 'none';
+    }
 
-			rowWrapper.appendChild(rowHeader);
-			rowWrapper.appendChild(itemsContainer);
-			imageGrid.appendChild(rowWrapper);
-		});
-		if (typeof updateDoneList === 'function') updateDoneList();
-	}
+    /* ─── Grid display ─── */
+    function displayGrid() {
+        loadingMessage.style.display = 'none';
+        imageGrid.innerHTML = '';
+        document.getElementById('imageCount').textContent =
+            `${processedImages.length} image${processedImages.length !== 1 ? 's' : ''} uploaded`;
 
-    function updateDoneList(){
-        if(doneFiles.length === 0){
+        const groups = {};
+        processedImages.forEach((img, index) => {
+            if (!img?.fileName) return;
+            const match = img.fileName.match(/_(\d{3})-\d-R/);
+            const id = match ? match[1] : 'Misc';
+            if (!groups[id]) groups[id] = [];
+            groups[id].push({ ...img, originalIndex: index });
+        });
+
+        Object.keys(groups).forEach(id => {
+            const rowData = groups[id];
+            const rowWrapper = document.createElement('div');
+            rowWrapper.style.cssText = 'margin-bottom:40px; width:100%; grid-column:1/-1;';
+
+            const rowHeader = document.createElement('div');
+            rowHeader.style.cssText = 'display:flex; align-items:center; margin-bottom:15px; gap:15px; padding:0 5px;';
+            rowHeader.innerHTML = `
+                <span style="font-weight:bold; color:var(--accent); font-size:14px; letter-spacing:1px;">SET ID: ${id}</span>
+                <button class="btn-rotate" onclick="window.initiateRebuild('${id}')" style="padding:8px 15px; font-size:13px;">Merge Row</button>
+            `;
+
+            const itemsContainer = document.createElement('div');
+            itemsContainer.className = 'image-grid';
+
+            rowData.forEach(img => {
+                const item = document.createElement('div');
+                item.className = 'grid-item';
+                item.innerHTML = `
+                    <img src="${img.dataUrl}" class="grid-item-image" data-index="${img.originalIndex}" onclick="window.openViewer(${img.originalIndex})">
+                    <div class="grid-item-name-container">
+                        <div class="grid-item-name">${img.fileName.replace(/\.[^/.]+$/, '')}</div>
+                        <button class="delete-btn" title="Delete" onclick="window.deleteImage(${img.originalIndex})">
+                            <svg viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12z"/></svg>
+                        </button>
+                    </div>
+                `;
+                itemsContainer.appendChild(item);
+            });
+
+            rowWrapper.appendChild(rowHeader);
+            rowWrapper.appendChild(itemsContainer);
+            imageGrid.appendChild(rowWrapper);
+        });
+        updateDoneList();
+    }
+
+    /* ─── Done list ─── */
+    function updateDoneList() {
+        if (!doneFiles.length) {
             doneList.innerHTML = '<em style="color:#6c757d">No completed files yet</em>';
             return;
         }
-        
         doneList.innerHTML = '';
         doneFiles.forEach((doneItem, index) => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'done-item';
-            
-            // Thumbnail
-            const thumbnail = document.createElement('img');
-            thumbnail.className = 'done-item-thumbnail';
-            thumbnail.src = doneItem.dataUrl;
-            
-            // Filename
-            const nameDiv = document.createElement('div');
-            nameDiv.className = 'done-item-name';
-            nameDiv.textContent = doneItem.fileName.replace(/\.[^/.]+$/, '');
-            
-            // Button container
-            const buttonsDiv = document.createElement('div');
-            buttonsDiv.className = 'done-item-buttons';
-            
-            // Undo button
-            const undoBtn = document.createElement('button');
-            undoBtn.className = 'done-item-undo';
-            undoBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>Undo';
-            undoBtn.addEventListener('click', () => undoDone(index));
-            
-            // Delete button
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'done-item-delete';
-            deleteBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12z"/></svg>Delete';
-            deleteBtn.addEventListener('click', () => deleteDone(index));
-            
-            buttonsDiv.appendChild(undoBtn);
-            buttonsDiv.appendChild(deleteBtn);
-            
-            itemDiv.appendChild(thumbnail);
-            itemDiv.appendChild(nameDiv);
-            itemDiv.appendChild(buttonsDiv);
-            doneList.appendChild(itemDiv);
-        });
-    }
-    
-    function undoDone(doneIndex){
-        const doneItem = doneFiles[doneIndex];
-        
-        // Add back to processedImages
-        processedImages.push({
-            dataUrl: processedObj.dataUrl,
-			originalDataUrl: processedObj.originalDataUrl, // Carry the raw data through
-			fileName: processedObj.fileName
-        });
-        
-        // Add back to uploadedFiles (create a dummy File object)
-        // Note: We can't recreate the exact File object, but we keep the structure consistent
-        
-        // Remove from doneFiles
-        doneFiles.splice(doneIndex, 1);
-        
-        // Refresh the display
-        displayGrid();
-    }
-    
-    function deleteDone(doneIndex){
-        const doneItem = doneFiles[doneIndex];
-        const fileName = doneItem.fileName.replace(/\.[^/.]+$/, '');
-        
-        showDeleteModal(
-            'Are you sure you want to delete this image?',
-            function(){
-                doneFiles.splice(doneIndex, 1);
-                updateDoneList();
-            }
-        );
-    }
-	
-    window.deleteImage = function(index){
-        const fileName = processedImages[index].fileName.replace(/\.[^/.]+$/,'');
-        showDeleteModal(
-            'Are you sure you want to delete this image?',
-            function(){
-                processedImages.splice(index,1);
-                uploadedFiles = Array.from(uploadedFiles).filter((_,i)=>i!==index);
+            const div = document.createElement('div');
+            div.className = 'done-item';
+            div.innerHTML = `
+                <img class="done-item-thumbnail" src="${doneItem.dataUrl}">
+                <div class="done-item-name">${doneItem.fileName.replace(/\.[^/.]+$/, '')}</div>
+                <div class="done-item-buttons">
+                    <button class="done-item-undo">
+                        <svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>Undo
+                    </button>
+                    <button class="done-item-delete">
+                        <svg viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12z"/></svg>Delete
+                    </button>
+                </div>
+            `;
+            div.querySelector('.done-item-undo').addEventListener('click', () => {
+                processedImages.push({ ...doneItem });
+                doneFiles.splice(index, 1);
                 displayGrid();
-            }
+            });
+            div.querySelector('.done-item-delete').addEventListener('click', () => {
+                showDeleteModal('Are you sure you want to delete this image?', () => {
+                    doneFiles.splice(index, 1);
+                    updateDoneList();
+                });
+            });
+            doneList.appendChild(div);
+        });
+    }
+
+    deleteAllBtn.addEventListener('click', function() {
+        if (!doneFiles.length) return;
+        const count = doneFiles.length;
+        showDeleteModal(
+            count === 1 ? 'Are you sure you want to delete this image?' : `Are you sure you want to delete all ${count} images?`,
+            () => { doneFiles = []; updateDoneList(); }
         );
-    }
+    });
 
-    /* ──────────── viewer open ──────────── */
-	window.openViewer = function(index){
-        currentViewingIndex=index;
-        currentRotation=0;   // fresh image, no rotation yet
-        dragThumbnailUsed=false; // reset drag tracking for new image
-        const img=processedImages[index];
-        viewerImage.src   = img.dataUrl;
+    /* ─── Delete from grid ─── */
+    window.deleteImage = function(index) {
+        showDeleteModal('Are you sure you want to delete this image?', function() {
+            processedImages.splice(index, 1);
+            uploadedFiles = Array.from(uploadedFiles).filter((_, i) => i !== index);
+            displayGrid();
+        });
+    };
+
+    /* ─── Viewer ─── */
+    window.openViewer = function(index) {
+        currentViewingIndex = index;
+        currentRotation = 0;
+        dragThumbnailUsed = false;
+        const img = processedImages[index];
+        viewerImage.src = img.dataUrl;
         dragThumbnail.src = img.dataUrl;
-        viewerFileNameEl.textContent = img.fileName.replace(/\.[^/.]+$/,'');
-        scale=1; translateX=0; translateY=0;
+        viewerFileNameEl.textContent = img.fileName.replace(/\.[^/.]+$/, '');
+        scale = 1; translateX = 0; translateY = 0;
         exitCropMode();
-        viewerImage.onload = ()=> centerImage();
+        viewerImage.onload = () => centerImage();
         showPage('viewer');
-        calcPopup.style.display = 'none'; // Add this line
-        showPage('viewer');
-    }
+        calcPopup.style.display = 'none';
+    };
 
-    function centerImage(){
-        const cw=canvasContainer.clientWidth, ch=canvasContainer.clientHeight;
-        const iw=viewerImage.naturalWidth,    ih=viewerImage.naturalHeight;
-        if(!iw||!ih) return;
-        
-        // Calculate available space based on mode
-        let availableHeight = ch;
-        let verticalOffset = 0;
-        
-        if(isCropping){
-            // In crop mode: center between viewer controls (top) and crop controls (bottom)
-            const viewerControlsHeight = 100; // Approximate top control bar height
-            const cropControlsHeight = 70;    // Approximate bottom crop controls height + margins
-            availableHeight = ch - viewerControlsHeight - cropControlsHeight;
-            verticalOffset = viewerControlsHeight;
-        }
-        
-        scale      = Math.min(cw/iw, availableHeight/ih, 1)*0.9;
-        translateX = (cw - iw*scale)/2;
-        translateY = verticalOffset + (availableHeight - ih*scale)/2;
+    function centerImage() {
+        const cw = canvasContainer.clientWidth, ch = canvasContainer.clientHeight;
+        const iw = viewerImage.naturalWidth, ih = viewerImage.naturalHeight;
+        if (!iw || !ih) return;
+        let availH = ch, vertOffset = 0;
+        if (isCropping) { availH = ch - 100 - 70; vertOffset = 100; }
+        scale = Math.min(cw / iw, availH / ih, 1) * 0.9;
+        translateX = (cw - iw * scale) / 2;
+        translateY = vertOffset + (availH - ih * scale) / 2;
         updateViewerTransform();
     }
-    function updateViewerTransform(){
-        viewerImage.style.transform = 'translate('+translateX+'px,'+translateY+'px) scale('+scale+')';
+    function updateViewerTransform() {
+        viewerImage.style.transform = `translate(${translateX}px,${translateY}px) scale(${scale})`;
     }
 
-    /* ──────────── zoom ──────────── */
-    canvasContainer.addEventListener('wheel', function(e){
+    /* ─── Zoom ─── */
+    canvasContainer.addEventListener('wheel', function(e) {
         e.preventDefault();
-        const rect=canvasContainer.getBoundingClientRect();
-        const mx=e.clientX-rect.left, my=e.clientY-rect.top;
-        const imgX=(mx-translateX)/scale, imgY=(my-translateY)/scale;
-        const ns = scale * (e.deltaY>0 ? 0.9 : 1.1);
-        if(ns<0.1||ns>10) return;
-        scale=ns;
-        translateX = mx - imgX*scale;
-        translateY = my - imgY*scale;
+        const rect = canvasContainer.getBoundingClientRect();
+        const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+        const imgX = (mx - translateX) / scale, imgY = (my - translateY) / scale;
+        const ns = scale * (e.deltaY > 0 ? 0.9 : 1.1);
+        if (ns < 0.1 || ns > 10) return;
+        scale = ns;
+        translateX = mx - imgX * scale;
+        translateY = my - imgY * scale;
         updateViewerTransform();
-        
-        // If in crop mode, update the crop display after zoom
-        if(isCropping && cropBoxEl.classList.contains('active')){
-            paintCrop();
-        }
+        if (isCropping && cropBoxEl.classList.contains('active')) paintCrop();
     });
 
-    /* ──────────── drag thumbnail (drag-to-upload) ──────────── */
-    dragThumbnail.addEventListener('dragstart', function(e){
-        if(currentViewingIndex<0) return;
-        dragThumbnailUsed = true; // mark that user has used drag feature
-        const img=processedImages[currentViewingIndex];
-        e.dataTransfer.effectAllowed='copy';
-        e.dataTransfer.setData('DownloadURL','image/jpeg:'+img.fileName+':'+img.dataUrl);
-    });
-
-    /* ──────────── mousedown – routes to crop / pan / shift-drag ──────────── */
-    canvasContainer.addEventListener('mousedown', function(e){
-        if(e.target===dragThumbnail) return;
-
-        /* ── crop mode intercept ── */
-        if(isCropping){
-            if(e.target.classList.contains('crop-handle')) return;  // handle has its own listener
-            if(e.target===cropBoxEl){ startDragCrop(e); return; }   // drag the box
-            startDrawCrop(e);                                        // draw a new rect
+    /* ─── Pan ─── */
+    canvasContainer.addEventListener('mousedown', function(e) {
+        if (e.target === dragThumbnail) return;
+        if (isCropping) {
+            if (e.target.classList.contains('crop-handle')) return;
+            if (e.target === cropBoxEl) { startDragCrop(e); return; }
+            startDrawCrop(e);
             return;
         }
-
-        /* ── normal modes ── */
-        if(e.button!==0) return;
-        if(e.shiftKey){
-            dragOffScreenMode=true;
-            viewerCanvas.setAttribute('draggable','true');
-            viewerImage.setAttribute('draggable','true');
+        if (e.button !== 0) return;
+        if (e.shiftKey) {
+            dragOffScreenMode = true;
+            viewerCanvas.setAttribute('draggable', 'true');
+            viewerImage.setAttribute('draggable', 'true');
         } else {
-            dragOffScreenMode=false;
-            viewerCanvas.setAttribute('draggable','false');
-            viewerImage.setAttribute('draggable','false');
-            isDragging=true;
-            dragStartX=e.clientX; dragStartY=e.clientY;
-            dragTranslateX=translateX; dragTranslateY=translateY;
+            dragOffScreenMode = false;
+            isDragging = true;
+            dragStartX = e.clientX; dragStartY = e.clientY;
+            dragTranslateX = translateX; dragTranslateY = translateY;
             canvasContainer.classList.add('dragging');
             e.preventDefault();
         }
     });
 
-    /* ──────────── pan mousemove / mouseup ──────────── */
-    document.addEventListener('mousemove', function(e){
-        if(isDragging && !dragOffScreenMode && !isCropping){
+    document.addEventListener('mousemove', function(e) {
+        if (isDragging && !dragOffScreenMode && !isCropping) {
             translateX = dragTranslateX + (e.clientX - dragStartX);
             translateY = dragTranslateY + (e.clientY - dragStartY);
             updateViewerTransform();
         }
     });
-    document.addEventListener('mouseup', function(e){
-        if(isDragging){ isDragging=false; canvasContainer.classList.remove('dragging'); }
-        if(dragOffScreenMode && !e.shiftKey){
-            viewerCanvas.setAttribute('draggable','false');
-            viewerImage.setAttribute('draggable','false');
-            canvasContainer.style.cursor='';
-            dragOffScreenMode=false;
+    document.addEventListener('mouseup', function(e) {
+        if (isDragging) { isDragging = false; canvasContainer.classList.remove('dragging'); }
+        if (dragOffScreenMode && !e.shiftKey) {
+            viewerCanvas.setAttribute('draggable', 'false');
+            viewerImage.setAttribute('draggable', 'false');
+            dragOffScreenMode = false;
         }
     });
 
-    /* ──────────── shift-drag file export ──────────── */
-    function setupDragHandler(el){
-        el.addEventListener('dragstart', function(e){
-            if(!dragOffScreenMode){ e.preventDefault(); return; }
-            if(currentViewingIndex<0){ e.preventDefault(); return; }
-            const img=processedImages[currentViewingIndex];
-            if(!img){ e.preventDefault(); return; }
-            dragThumbnailUsed = true; // mark that user has used drag feature
-            e.dataTransfer.effectAllowed='copy';
-            e.dataTransfer.setData('DownloadURL','image/jpeg:'+img.fileName+':'+img.dataUrl);
+    /* ─── Shift-drag to export ─── */
+    function setupDragHandler(el) {
+        el.addEventListener('dragstart', function(e) {
+            if (!dragOffScreenMode || currentViewingIndex < 0) { e.preventDefault(); return; }
+            const img = processedImages[currentViewingIndex];
+            if (!img) { e.preventDefault(); return; }
+            dragThumbnailUsed = true;
+            e.dataTransfer.effectAllowed = 'copy';
+            e.dataTransfer.setData('DownloadURL', `image/jpeg:${img.fileName}:${img.dataUrl}`);
         });
-        el.addEventListener('dragend', function(){
-            viewerCanvas.setAttribute('draggable','false');
-            viewerImage.setAttribute('draggable','false');
-            canvasContainer.style.cursor='';
-            dragOffScreenMode=false;
+        el.addEventListener('dragend', function() {
+            viewerCanvas.setAttribute('draggable', 'false');
+            viewerImage.setAttribute('draggable', 'false');
+            dragOffScreenMode = false;
         });
     }
     setupDragHandler(viewerCanvas);
     setupDragHandler(viewerImage);
 
-    /* ──────────── rotation ──────────── */
-    // Returns a promise that resolves to a dataUrl of srcUrl rotated by degrees.
-    // degrees can be 90, 180, 270, -90, etc.  0 → resolves with srcUrl unchanged.
-    function applyRotation(srcUrl, degrees){
-        degrees = ((degrees % 360) + 360) % 360;   // normalise to 0-359
-        if(degrees === 0) return Promise.resolve(srcUrl);
-        return new Promise(function(resolve){
+    dragThumbnail.addEventListener('dragstart', function(e) {
+        if (currentViewingIndex < 0) return;
+        dragThumbnailUsed = true;
+        const img = processedImages[currentViewingIndex];
+        e.dataTransfer.effectAllowed = 'copy';
+        e.dataTransfer.setData('DownloadURL', `image/jpeg:${img.fileName}:${img.dataUrl}`);
+    });
+
+    /* ─── Rotation ─── */
+    function applyRotation(srcUrl, degrees) {
+        degrees = ((degrees % 360) + 360) % 360;
+        if (degrees === 0) return Promise.resolve(srcUrl);
+        return new Promise(resolve => {
             const tmp = new Image();
-            tmp.onload = function(){
-                const c   = document.createElement('canvas');
+            tmp.onload = function() {
+                const c = document.createElement('canvas');
                 const ctx = c.getContext('2d');
-                if(degrees === 90 || degrees === 270){ c.width=tmp.height; c.height=tmp.width; }
-                else                                 { c.width=tmp.width;  c.height=tmp.height; }
-                ctx.translate(c.width/2, c.height/2);
+                if (degrees === 90 || degrees === 270) { c.width = tmp.height; c.height = tmp.width; }
+                else { c.width = tmp.width; c.height = tmp.height; }
+                ctx.translate(c.width / 2, c.height / 2);
                 ctx.rotate(degrees * Math.PI / 180);
-                ctx.drawImage(tmp, -tmp.width/2, -tmp.height/2);
+                ctx.drawImage(tmp, -tmp.width / 2, -tmp.height / 2);
                 resolve(c.toDataURL('image/jpeg', 0.95));
             };
             tmp.src = srcUrl;
         });
     }
 
-    rotateRightBtn.addEventListener('click', ()=> rotateCurrentImage(90));
-
-    function rotateCurrentImage(degrees){
-        if(currentViewingIndex<0) return;
-        currentRotation = ((currentRotation + degrees) % 360 + 360) % 360;
-        // rotate the current dataUrl by the single step (not the cumulative angle)
-        applyRotation(processedImages[currentViewingIndex].dataUrl, degrees).then(function(d){
+    rotateRightBtn.addEventListener('click', () => {
+        if (currentViewingIndex < 0) return;
+        currentRotation = ((currentRotation + 90) % 360 + 360) % 360;
+        applyRotation(processedImages[currentViewingIndex].dataUrl, 90).then(d => {
             processedImages[currentViewingIndex].dataUrl = d;
-            // originalDataUrl intentionally NOT touched
-            viewerImage.src=d; dragThumbnail.src=d;
+            viewerImage.src = d; dragThumbnail.src = d;
             const gi = imageGrid.querySelector(`.grid-item-image[data-index="${currentViewingIndex}"]`);
-			if(gi) gi.src = d;
-            viewerImage.onload=()=> centerImage();
+            if (gi) gi.src = d;
+            viewerImage.onload = () => centerImage();
         });
-    }
+    });
 
-    /* ──────────── back / done ──────────── */
-    backToGridBtn.addEventListener('click', ()=>{ exitCropMode(); showPage('grid'); });
-    doneBtn.addEventListener('click', function(){
-        if(currentViewingIndex<0||currentViewingIndex>=processedImages.length) return;
-        
-        // Function to actually mark as done
-        function markAsDone(){
-            const currentImage = processedImages[currentViewingIndex];
-            
-            // Add to doneFiles with the processed image data
-            doneFiles.push({
-                fileName: currentImage.fileName,
-                dataUrl: currentImage.dataUrl,
-                originalDataUrl: currentImage.originalDataUrl
-            });
-            
-            // Remove from processedImages
-            processedImages.splice(currentViewingIndex,1);
-            uploadedFiles = Array.from(uploadedFiles).filter((_,i)=>i!==currentViewingIndex);
+    /* ─── Back / Done ─── */
+    backToGridBtn.addEventListener('click', () => { exitCropMode(); showPage('grid'); });
+    doneBtn.addEventListener('click', function() {
+        if (currentViewingIndex < 0 || currentViewingIndex >= processedImages.length) return;
+        function markAsDone() {
+            const img = processedImages[currentViewingIndex];
+            doneFiles.push({ fileName: img.fileName, dataUrl: img.dataUrl, originalDataUrl: img.originalDataUrl });
+            processedImages.splice(currentViewingIndex, 1);
+            uploadedFiles = Array.from(uploadedFiles).filter((_, i) => i !== currentViewingIndex);
             exitCropMode(); showPage('grid'); displayGrid();
         }
-        
-        // Only show confirmation if user hasn't dragged the image
-        if(!dragThumbnailUsed){
-            showDoneModal(markAsDone);
-        } else {
-            markAsDone();
-        }
+        if (!dragThumbnailUsed) showDoneModal(markAsDone);
+        else markAsDone();
     });
 
-    /* ═══════════════════════════════════════════════════════
-       CROP SYSTEM
-       cropX / cropY / cropW / cropH  are in IMAGE pixels.
-       Screen conversion:  sx = imgPx * scale + translateX
-       ═══════════════════════════════════════════════════════ */
+    /* ─── Crop system ─── */
+    cropBtnEl.addEventListener('click', () => isCropping ? exitCropMode() : enterCropMode());
 
-    cropBtnEl.addEventListener('click', function(){
-        if(isCropping) exitCropMode();
-        else           enterCropMode();
-    });
-
-    function enterCropMode(){
-        isCropping=true;
+    function enterCropMode() {
+        isCropping = true;
         cropBtnEl.classList.add('active');
         canvasContainer.classList.add('cropping');
         cropControls.classList.add('active');
-        
-        // Disable other buttons during crop mode
-        backToGridBtn.disabled = true;
-        doneBtn.disabled = true;
-        rotateRightBtn.disabled = true;
-        cropBtnEl.disabled = true;
-
-        // snapshot the current working image – this is what we crop FROM and reset TO
+        backToGridBtn.disabled = doneBtn.disabled = rotateRightBtn.disabled = cropBtnEl.disabled = true;
         preCropDataUrl = processedImages[currentViewingIndex].dataUrl;
-        viewerImage.src   = preCropDataUrl;
-        dragThumbnail.src = preCropDataUrl;
-
-        // show dark overlay immediately; cutout 0-size until user draws
+        viewerImage.src = dragThumbnail.src = preCropDataUrl;
         cropSvg.classList.add('active');
-        maskCut.setAttribute('x',0);
-        maskCut.setAttribute('y',0);
-        maskCut.setAttribute('width',0);
-        maskCut.setAttribute('height',0);
+        maskCut.setAttribute('x', 0); maskCut.setAttribute('y', 0);
+        maskCut.setAttribute('width', 0); maskCut.setAttribute('height', 0);
         cropBoxEl.classList.remove('active');
-
-        // re-centre once image is ready (or now if already loaded)
-        viewerImage.onload = ()=> centerImage();
-        centerImage();   // in case onload already fired / won't fire
+        viewerImage.onload = () => centerImage();
+        centerImage();
     }
-
-    function exitCropMode(){
-        isCropping=false; isDrawing=false; isDraggingCrop=false; isResizingCrop=false;
+    function exitCropMode() {
+        isCropping = false; isDrawing = false; isDraggingCrop = false; isResizingCrop = false;
         cropBtnEl.classList.remove('active');
         canvasContainer.classList.remove('cropping');
         cropControls.classList.remove('active');
         cropSvg.classList.remove('active');
         cropBoxEl.classList.remove('active');
-        
-        // Re-enable other buttons
-        backToGridBtn.disabled = false;
-        doneBtn.disabled = false;
-        rotateRightBtn.disabled = false;
-        cropBtnEl.disabled = false;
+        backToGridBtn.disabled = doneBtn.disabled = rotateRightBtn.disabled = cropBtnEl.disabled = false;
     }
 
-    /* ── coordinate helpers ── */
-    function screenToImg(sx,sy){ return { x:(sx-translateX)/scale, y:(sy-translateY)/scale }; }
-
-   function normCrop(){
-    let x = cropX, y = cropY, w = cropW, h = cropH;
-    if(w < 0){ x += w; w = -w; }
-    if(h < 0){ y += h; h = -h; }
-
-    const iw = viewerImage.naturalWidth;
-    const ih = viewerImage.naturalHeight;
-
-    // Clamp values to image boundaries
-    const nx = Math.max(0, Math.min(x, iw));
-    const ny = Math.max(0, Math.min(y, ih));
-    const nw = Math.min(w, iw - nx);
-    const nh = Math.min(h, ih - ny);
-
-    return { x: nx, y: ny, w: nw, h: nh };
-}
-   
-    /* ── paint the overlay + selection box ── */
-    function paintCrop(){
-        const n=normCrop();
-        const sx = n.x*scale + translateX;
-        const sy = n.y*scale + translateY;
-        const sw = n.w*scale;
-        const sh = n.h*scale;
-
-        // SVG cutout
-        maskCut.setAttribute('x',      sx);
-        maskCut.setAttribute('y',      sy);
-        maskCut.setAttribute('width',  sw);
-        maskCut.setAttribute('height', sh);
-
-        // border + handles
-        cropBoxEl.style.left   = sx+'px';
-        cropBoxEl.style.top    = sy+'px';
-        cropBoxEl.style.width  = sw+'px';
-        cropBoxEl.style.height = sh+'px';
+    function screenToImg(sx, sy) { return { x: (sx - translateX) / scale, y: (sy - translateY) / scale }; }
+    function normCrop() {
+        let x = cropX, y = cropY, w = cropW, h = cropH;
+        if (w < 0) { x += w; w = -w; }
+        if (h < 0) { y += h; h = -h; }
+        const iw = viewerImage.naturalWidth, ih = viewerImage.naturalHeight;
+        const nx = Math.max(0, Math.min(x, iw)), ny = Math.max(0, Math.min(y, ih));
+        return { x: nx, y: ny, w: Math.min(w, iw - nx), h: Math.min(h, ih - ny) };
+    }
+    function paintCrop() {
+        const n = normCrop();
+        const sx = n.x * scale + translateX, sy = n.y * scale + translateY;
+        const sw = n.w * scale, sh = n.h * scale;
+        maskCut.setAttribute('x', sx); maskCut.setAttribute('y', sy);
+        maskCut.setAttribute('width', sw); maskCut.setAttribute('height', sh);
+        cropBoxEl.style.left = sx + 'px'; cropBoxEl.style.top = sy + 'px';
+        cropBoxEl.style.width = sw + 'px'; cropBoxEl.style.height = sh + 'px';
         cropBoxEl.classList.add('active');
     }
 
-    /* ── DRAW a new crop rect ── */
-    function startDrawCrop(e){
+    function startDrawCrop(e) {
         const rect = canvasContainer.getBoundingClientRect();
-        const sp   = screenToImg(e.clientX-rect.left, e.clientY-rect.top);
-        drawOriginX = sp.x;
-        drawOriginY = sp.y;
-        cropX=sp.x; cropY=sp.y; cropW=0; cropH=0;
-        isDrawing=true;
-        e.preventDefault();
+        const sp = screenToImg(e.clientX - rect.left, e.clientY - rect.top);
+        drawOriginX = sp.x; drawOriginY = sp.y;
+        cropX = sp.x; cropY = sp.y; cropW = 0; cropH = 0;
+        isDrawing = true; e.preventDefault();
         document.addEventListener('mousemove', onDrawMove);
-        document.addEventListener('mouseup',   onDrawUp);
+        document.addEventListener('mouseup', onDrawUp);
     }
-
-    function onDrawMove(e){
-        if(!isDrawing) return;
+    function onDrawMove(e) {
+        if (!isDrawing) return;
         const rect = canvasContainer.getBoundingClientRect();
-        const sp   = screenToImg(e.clientX-rect.left, e.clientY-rect.top);
-        cropX = drawOriginX;
-        cropY = drawOriginY;
-        cropW = sp.x - drawOriginX;
-        cropH = sp.y - drawOriginY;
+        const sp = screenToImg(e.clientX - rect.left, e.clientY - rect.top);
+        cropX = drawOriginX; cropY = drawOriginY;
+        cropW = sp.x - drawOriginX; cropH = sp.y - drawOriginY;
         paintCrop();
     }
-
-    function onDrawUp(e){
-    document.removeEventListener('mousemove', onDrawMove);
-    document.removeEventListener('mouseup',   onDrawUp);
-    isDrawing = false;
-
-    const n = normCrop();
-    // If it was just a click (less than 5px), don't create a box.
-    // This keeps the image fully "grayed out" as you preferred.
-    if(n.w < 5 || n.h < 5){
-        cropW = 0;
-        cropH = 0;
-        cropBoxEl.classList.remove('active');
-        maskCut.setAttribute('width', 0);
-        maskCut.setAttribute('height', 0);
-    } else {
-        paintCrop();
+    function onDrawUp() {
+        document.removeEventListener('mousemove', onDrawMove);
+        document.removeEventListener('mouseup', onDrawUp);
+        isDrawing = false;
+        const n = normCrop();
+        if (n.w < 5 || n.h < 5) {
+            cropW = 0; cropH = 0;
+            cropBoxEl.classList.remove('active');
+            maskCut.setAttribute('width', 0); maskCut.setAttribute('height', 0);
+        } else paintCrop();
     }
-}
-    
-    /* ── DRAG the box ── */
-    function startDragCrop(e){
-        isDraggingCrop=true;
-        cropDragStartX=e.clientX; cropDragStartY=e.clientY;
-        // normalise first so dragging doesn't flip
-        const n=normCrop();
-        cropX=n.x; cropY=n.y; cropW=n.w; cropH=n.h;
-        cropSnapX=n.x; cropSnapY=n.y;
+
+    function startDragCrop(e) {
+        isDraggingCrop = true;
+        cropDragStartX = e.clientX; cropDragStartY = e.clientY;
+        const n = normCrop();
+        cropX = n.x; cropY = n.y; cropW = n.w; cropH = n.h;
+        cropSnapX = n.x; cropSnapY = n.y;
         e.stopPropagation(); e.preventDefault();
         document.addEventListener('mousemove', onDragCropMove);
-        document.addEventListener('mouseup',   onDragCropUp);
+        document.addEventListener('mouseup', onDragCropUp);
     }
-    function onDragCropMove(e){
+    function onDragCropMove(e) {
         if (!isDraggingCrop) return;
-    
-    const iw = viewerImage.naturalWidth;
-    const ih = viewerImage.naturalHeight;
-
-    let newX = cropSnapX + (e.clientX - cropDragStartX) / scale;
-    let newY = cropSnapY + (e.clientY - cropDragStartY) / scale;
-
-    // Constrain X and Y so the box stays inside
-    newX = Math.max(0, Math.min(newX, iw - cropW));
-    newY = Math.max(0, Math.min(newY, ih - cropH));
-
-    cropX = newX;
-    cropY = newY;
-    paintCrop();
+        const iw = viewerImage.naturalWidth, ih = viewerImage.naturalHeight;
+        cropX = Math.max(0, Math.min(cropSnapX + (e.clientX - cropDragStartX) / scale, iw - cropW));
+        cropY = Math.max(0, Math.min(cropSnapY + (e.clientY - cropDragStartY) / scale, ih - cropH));
+        paintCrop();
     }
-    function onDragCropUp(){
-        isDraggingCrop=false;
+    function onDragCropUp() {
+        isDraggingCrop = false;
         document.removeEventListener('mousemove', onDragCropMove);
-        document.removeEventListener('mouseup',   onDragCropUp);
+        document.removeEventListener('mouseup', onDragCropUp);
     }
 
-    /* ── RESIZE via handles ── */
-    cropBoxEl.querySelectorAll('.crop-handle').forEach(function(handle){
-        handle.addEventListener('mousedown', function(e){
+    cropBoxEl.querySelectorAll('.crop-handle').forEach(function(handle) {
+        handle.addEventListener('mousedown', function(e) {
             e.stopPropagation(); e.preventDefault();
-            isResizingCrop=true;
-            resizeHandle   = handle.dataset.handle;
-            cropDragStartX = e.clientX;
-            cropDragStartY = e.clientY;
-            // normalise so all deltas are positive-based
-            const n=normCrop();
-            cropX=n.x; cropY=n.y; cropW=n.w; cropH=n.h;
-            cropSnapX=n.x; cropSnapY=n.y; cropSnapW=n.w; cropSnapH=n.h;
+            isResizingCrop = true;
+            resizeHandle = handle.dataset.handle;
+            cropDragStartX = e.clientX; cropDragStartY = e.clientY;
+            const n = normCrop();
+            cropX = n.x; cropY = n.y; cropW = n.w; cropH = n.h;
+            cropSnapX = n.x; cropSnapY = n.y; cropSnapW = n.w; cropSnapH = n.h;
             document.addEventListener('mousemove', onResizeMove);
-            document.addEventListener('mouseup',   onResizeUp);
+            document.addEventListener('mouseup', onResizeUp);
         });
     });
-
-    function onResizeMove(e){
-        if(!isResizingCrop) return;
-        const dx=(e.clientX-cropDragStartX)/scale;
-        const dy=(e.clientY-cropDragStartY)/scale;
-        switch(resizeHandle){
+    function onResizeMove(e) {
+        if (!isResizingCrop) return;
+        const dx = (e.clientX - cropDragStartX) / scale, dy = (e.clientY - cropDragStartY) / scale;
+        switch (resizeHandle) {
             case 'nw': cropX=cropSnapX+dx; cropY=cropSnapY+dy; cropW=cropSnapW-dx; cropH=cropSnapH-dy; break;
-            case 'n':                      cropY=cropSnapY+dy;                     cropH=cropSnapH-dy; break;
-            case 'ne':                     cropY=cropSnapY+dy; cropW=cropSnapW+dx; cropH=cropSnapH-dy; break;
-            case 'w':  cropX=cropSnapX+dx;                     cropW=cropSnapW-dx;                    break;
-            case 'e':                                          cropW=cropSnapW+dx;                    break;
-            case 'sw': cropX=cropSnapX+dx;                     cropW=cropSnapW-dx; cropH=cropSnapH+dy; break;
-            case 's':                                                              cropH=cropSnapH+dy; break;
-            case 'se':                                         cropW=cropSnapW+dx; cropH=cropSnapH+dy; break;
+            case 'n':                       cropY=cropSnapY+dy;                     cropH=cropSnapH-dy; break;
+            case 'ne':                      cropY=cropSnapY+dy; cropW=cropSnapW+dx; cropH=cropSnapH-dy; break;
+            case 'w':  cropX=cropSnapX+dx;                      cropW=cropSnapW-dx;                    break;
+            case 'e':                                           cropW=cropSnapW+dx;                    break;
+            case 'sw': cropX=cropSnapX+dx;                      cropW=cropSnapW-dx; cropH=cropSnapH+dy; break;
+            case 's':                                                               cropH=cropSnapH+dy; break;
+            case 'se':                                          cropW=cropSnapW+dx; cropH=cropSnapH+dy; break;
         }
         paintCrop();
     }
-    function onResizeUp(){
-        isResizingCrop=false; resizeHandle=null;
+    function onResizeUp() {
+        isResizingCrop = false; resizeHandle = null;
         document.removeEventListener('mousemove', onResizeMove);
-        document.removeEventListener('mouseup',   onResizeUp);
+        document.removeEventListener('mouseup', onResizeUp);
     }
 
-    /* ── Apply crop ── */
-   applyCropBtn.addEventListener('click', function(){
-        if(currentViewingIndex < 0) return;
-    
-		let n = normCrop();
-		const iw = viewerImage.naturalWidth;
-		const ih = viewerImage.naturalHeight;
-
-		// NEW CHECK: If the user hasn't drawn a box (width or height is 0), 
-		// set the crop area to the full dimensions of the image.
-		if (n.w <= 0 || n.h <= 0) {
-			n = { x: 0, y: 0, w: iw, h: ih };
-    }
-
-    const src = preCropDataUrl; 
-
-    const tmp = new Image();
-    tmp.onload = function(){
-        const c = document.createElement('canvas');
-        const ctx = c.getContext('2d');
-        c.width = n.w; 
-        c.height = n.h;
-        ctx.drawImage(tmp, n.x, n.y, n.w, n.h, 0, 0, n.w, n.h);
-        const d = c.toDataURL('image/jpeg', 0.95);
-
-        processedImages[currentViewingIndex].dataUrl = d;
-
-        viewerImage.src = d; 
-        dragThumbnail.src = d;
-        const gi = imageGrid.querySelector(`.grid-item-image[data-index="${currentViewingIndex}"]`);
-		if(gi) gi.src = d;
-        
-        viewerImage.onload = () => { 
-            centerImage(); 
-            exitCropMode(); 
-         };
+    applyCropBtn.addEventListener('click', function() {
+        if (currentViewingIndex < 0) return;
+        let n = normCrop();
+        const iw = viewerImage.naturalWidth, ih = viewerImage.naturalHeight;
+        if (n.w <= 0 || n.h <= 0) n = { x:0, y:0, w:iw, h:ih };
+        const tmp = new Image();
+        tmp.onload = function() {
+            const c = document.createElement('canvas');
+            c.width = n.w; c.height = n.h;
+            c.getContext('2d').drawImage(tmp, n.x, n.y, n.w, n.h, 0, 0, n.w, n.h);
+            const d = c.toDataURL('image/jpeg', 0.95);
+            processedImages[currentViewingIndex].dataUrl = d;
+            viewerImage.src = dragThumbnail.src = d;
+            const gi = imageGrid.querySelector(`.grid-item-image[data-index="${currentViewingIndex}"]`);
+            if (gi) gi.src = d;
+            viewerImage.onload = () => { centerImage(); exitCropMode(); };
         };
-        tmp.src = src;
+        tmp.src = preCropDataUrl;
     });
-    /* ── Cancel crop (go back to what was shown before) ── */
-    cancelCropBtn.addEventListener('click', function(){
+
+    cancelCropBtn.addEventListener('click', function() {
         const d = processedImages[currentViewingIndex].dataUrl;
-        viewerImage.src=d; dragThumbnail.src=d;
-        viewerImage.onload=()=> centerImage();
+        viewerImage.src = dragThumbnail.src = d;
+        viewerImage.onload = () => centerImage();
         exitCropMode();
     });
 
-    /* ── Reset to original (restore upload-time pixels, keep current orientation) ── */
-    resetCropBtn.addEventListener('click', function(){
-        if(currentViewingIndex<0) return;
-        const orig = processedImages[currentViewingIndex].originalDataUrl;
-
-        // bake the current rotation onto the original so orientation is preserved
-        applyRotation(orig, currentRotation).then(function(rotated){
-            // write it back as the working copy
+    resetCropBtn.addEventListener('click', function() {
+        if (currentViewingIndex < 0) return;
+        applyRotation(processedImages[currentViewingIndex].originalDataUrl, currentRotation).then(rotated => {
             processedImages[currentViewingIndex].dataUrl = rotated;
             preCropDataUrl = rotated;
-
-            // clear crop selection immediately
-            maskCut.setAttribute('x',0); maskCut.setAttribute('y',0);
-            maskCut.setAttribute('width',0); maskCut.setAttribute('height',0);
+            maskCut.setAttribute('width', 0); maskCut.setAttribute('height', 0);
             cropBoxEl.classList.remove('active');
-
-            // update everything visible
-            viewerImage.src   = rotated;
-            dragThumbnail.src = rotated;
+            viewerImage.src = dragThumbnail.src = rotated;
             const gi = imageGrid.querySelector(`.grid-item-image[data-index="${currentViewingIndex}"]`);
-			if(gi) gi.src = rotated;
-
-            viewerImage.onload = ()=> centerImage();
+            if (gi) gi.src = rotated;
+            viewerImage.onload = () => centerImage();
             centerImage();
         });
     });
-	
-	function applyCrop() {
-		if (!cropperCanvas || currentImageIdx === -1) return;
 
-		// 1. Get the data from the cropper tool
-		const croppedData = cropperCanvas.toDataURL('image/jpeg', 0.9);
-
-		// 2. Save it to the EXACT slot in the master array
-		processedImages[currentImageIdx].dataUrl = croppedData;
-
-		// 3. Update the Grid
-		closeViewer();
-		displayGrid(); 
-	}
-
-    /* ──────────── page switcher ──────────── */
-    window.showPage = function(name){
-        document.querySelectorAll('.page').forEach(p=> p.classList.remove('active'));
-		const targetPage = document.getElementById(name + 'Page');
-		if (targetPage) {
-			targetPage.classList.add('active');
-		}
-        if(name==='upload') uploadPage.classList.add('active');
-        else if(name==='grid')   gridPage.classList.add('active');
-        else if(name==='viewer') viewerPage.classList.add('active');
-		else if (name === 'rebuild') document.getElementById('rebuildPage').classList.add('active');
-    }
-
-   /* ──────────── Fixed Calculator Logic ──────────── */
-    const calcBtn = document.getElementById('calcBtn');
-    const calcPopup = document.getElementById('calcPopup');
-    const calcDisplay = document.getElementById('calcDisplay');
-    const closeCalc = document.getElementById('closeCalc');
-    const calcHeader = document.getElementById('calcHeader');
-    let calcInput = "0";
-
-    // 1 & 4. Toggle Visibility and Set Position
-    calcBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (calcPopup.style.display === 'none' || !calcPopup.style.display) {
-            calcPopup.style.display = 'block';
-            // Match the 140px top of the drag-thumbnail
-            calcPopup.style.top = '140px'; 
-            calcPopup.style.left = '15px';
-            resetCalc();
-        } else {
-            calcPopup.style.display = 'none';
-        }
-    });
-
-    closeCalc.addEventListener('click', (e) => {
-        e.stopPropagation();
-        calcPopup.style.display = 'none';
-    });
-
-    function resetCalc() {
-        calcInput = "0";
-        updateCalcDisplay();
-    }
-
-    function updateCalcDisplay() {
-        calcDisplay.textContent = calcInput;
-    }
-    // Handle Clicks
+    /* ─── Calculator ─── */
+    let calcInput = '0';
     document.getElementById('calcButtons').innerHTML = `
         <button class="btn-clear">C</button>
-    <button class="op">/</button>
-    <button class="op">*</button>
-    <button class="op">-</button>
-    
-    <button>7</button>
-    <button>8</button>
-    <button>9</button>
-    <button class="op btn-plus">+</button>
-    
-    <button>4</button>
-    <button>5</button>
-    <button>6</button>
-    <button>1</button>
-    <button>2</button>
-    <button>3</button>
-    <button class="btn-enter">=</button>
-    
-    <button class="btn-zero">0</button>
-    <button>.</button>
+        <button class="op">/</button>
+        <button class="op">*</button>
+        <button class="op">-</button>
+        <button>7</button><button>8</button><button>9</button>
+        <button class="op btn-plus">+</button>
+        <button>4</button><button>5</button><button>6</button>
+        <button>1</button><button>2</button><button>3</button>
+        <button class="btn-enter">=</button>
+        <button class="btn-zero">0</button>
+        <button>.</button>
     `;
 
-    document.getElementById('calcButtons').addEventListener('click', (e) => {
+    document.getElementById('calcBtn').addEventListener('click', e => {
+        e.stopPropagation();
+        const visible = calcPopup.style.display === 'block';
+        calcPopup.style.display = visible ? 'none' : 'block';
+        if (!visible) { calcInput = '0'; calcDisplay.textContent = '0'; }
+    });
+    document.getElementById('closeCalc').addEventListener('click', e => { e.stopPropagation(); calcPopup.style.display = 'none'; });
+
+    document.getElementById('calcButtons').addEventListener('click', e => {
         if (e.target.tagName !== 'BUTTON') return;
         handleCalcInput(e.target.textContent);
     });
-
-    // 3. Smart Operator Handling
     function handleCalcInput(val) {
-        const operators = ['+', '-', '*', '/'];
-        const lastChar = calcInput.slice(-1);
-
-        if (val === 'C') {
-            calcInput = "0";
-        } else if (val === '=' || val === 'Enter') {
+        const ops = ['+', '-', '*', '/'];
+        if (val === 'C') { calcInput = '0'; }
+        else if (val === '=' || val === 'Enter') {
             try {
-                // Calculate and round to 2 decimals if needed
-                let result = new Function('return ' + calcInput)();
+                const result = new Function('return ' + calcInput)();
                 calcInput = Number.isInteger(result) ? result.toString() : result.toFixed(2).toString();
-            } catch {
-                calcInput = "Error";
-            }
-        } else if (operators.includes(val)) {
-            // If last char is already an operator, replace it with the new one
-            if (operators.includes(lastChar)) {
-                calcInput = calcInput.slice(0, -1) + val;
-            } else {
-                calcInput += val;
-            }
-        } else {
-            if (calcInput === "0" || calcInput === "Error") calcInput = val;
+            } catch { calcInput = 'Error'; }
+        } else if (ops.includes(val)) {
+            if (ops.includes(calcInput.slice(-1))) calcInput = calcInput.slice(0, -1) + val;
             else calcInput += val;
+        } else {
+            calcInput = (calcInput === '0' || calcInput === 'Error') ? val : calcInput + val;
         }
-        updateCalcDisplay();
+        calcDisplay.textContent = calcInput;
     }
 
-    // 1. Fixed Keyboard Support
-    document.addEventListener('keydown', (e) => {
-        if (calcPopup.style.display === 'block') {
-            const key = e.key;
-            if (/[0-9\.\+\-\*\/]/.test(key)) {
-                e.preventDefault(); // Stop page from reacting
-                handleCalcInput(key);
-            }
-            if (key === 'Enter') {
-                e.preventDefault(); // STOP popup from closing
-                handleCalcInput('=');
-            }
-            if (key === 'Escape') {
-                calcPopup.style.display = 'none';
-            }
-            if (key === 'Backspace') {
-                e.preventDefault();
-                calcInput = calcInput.length > 1 ? calcInput.slice(0, -1) : "0";
-                updateCalcDisplay();
-            }
-        }
-    }, true); // Use capture phase to intercept Enter
+    document.addEventListener('keydown', function(e) {
+        if (calcPopup.style.display !== 'block') return;
+        if (/[0-9.+\-*/]/.test(e.key)) { e.preventDefault(); handleCalcInput(e.key); }
+        else if (e.key === 'Enter') { e.preventDefault(); handleCalcInput('='); }
+        else if (e.key === 'Escape') calcPopup.style.display = 'none';
+        else if (e.key === 'Backspace') { e.preventDefault(); calcInput = calcInput.length > 1 ? calcInput.slice(0, -1) : '0'; calcDisplay.textContent = calcInput; }
+    }, true);
 
-    // 2. Fixed Draggable Logic (Stop propagation to image)
-    let isCalcDragging = false;
-    let calcOffsetX, calcOffsetY;
-
-    calcHeader.addEventListener('mousedown', (e) => {
-        e.stopPropagation(); // STOP the image from dragging
-        isCalcDragging = true;
-        calcOffsetX = e.clientX - calcPopup.offsetLeft;
-        calcOffsetY = e.clientY - calcPopup.offsetTop;
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (!isCalcDragging) return;
-        calcPopup.style.left = (e.clientX - calcOffsetX) + 'px';
-        calcPopup.style.top = (e.clientY - calcOffsetY) + 'px';
-    });
-
+    let isCalcDragging = false, calcOffsetX, calcOffsetY;
+    calcHeader.addEventListener('mousedown', e => { e.stopPropagation(); isCalcDragging = true; calcOffsetX = e.clientX - calcPopup.offsetLeft; calcOffsetY = e.clientY - calcPopup.offsetTop; });
+    document.addEventListener('mousemove', e => { if (!isCalcDragging) return; calcPopup.style.left = (e.clientX - calcOffsetX) + 'px'; calcPopup.style.top = (e.clientY - calcOffsetY) + 'px'; });
     document.addEventListener('mouseup', () => isCalcDragging = false);
+    calcPopup.addEventListener('mousedown', e => e.stopPropagation());
 
-    // Prevent clicks on the calc buttons from dragging the image too
-    document.getElementById('calcPopup').addEventListener('mousedown', (e) => {
-        e.stopPropagation();
+    /* ─── Rebuild / Merge ─── */
+    window.initiateRebuild = function(id) {
+        const set = processedImages.filter(img => {
+            const m = img.fileName.match(/_(\d{3})-\d-R/);
+            return m && m[1] === id;
+        });
+        if (!set.length) return alert('No images found for this set.');
+
+        const sortedSet = new Array(4);
+        set.forEach(img => {
+            if (img.fileName.includes('R001-C001')) sortedSet[0] = img;
+            else if (img.fileName.includes('R001-C002')) sortedSet[1] = img;
+            else if (img.fileName.includes('R002-C001')) sortedSet[2] = img;
+            else if (img.fileName.includes('R002-C002')) sortedSet[3] = img;
+        });
+
+        currentRebuildSet = sortedSet;
+        document.getElementById('rebuildTitle').textContent = `Rebuilding Set: ${id}`;
+        showPage('rebuild');
+        setTimeout(setupRebuildCanvas, 100);
+    };
+
+    function setupRebuildCanvas() {
+        const canvas = document.getElementById('rebuildCanvas');
+        currentRebuildImgs = currentRebuildSet.map(item => {
+            if (!item) return null;
+            const img = new Image();
+            img.src = item.originalDataUrl || item.dataUrl;
+            return img;
+        });
+
+        const loadPromises = currentRebuildImgs.map(img =>
+            img ? new Promise(resolve => { img.onload = resolve; img.onerror = resolve; }) : Promise.resolve()
+        );
+
+        Promise.all(loadPromises).then(() => {
+            const dims = currentRebuildImgs.map(img => img ? [img.naturalWidth, img.naturalHeight] : [0, 0]);
+            const colW0 = Math.max(dims[0][0], dims[2][0]);
+            const colW1 = Math.max(dims[1][0], dims[3][0]);
+            const rowH0 = Math.max(dims[0][1], dims[1][1]);
+            const rowH1 = Math.max(dims[2][1], dims[3][1]);
+            const totalW = colW0 + colW1 || 1600;
+            const totalH = rowH0 + rowH1 || 2200;
+
+            canvas.width = totalW; canvas.height = totalH;
+            masterStitchedCanvas = document.createElement('canvas');
+            masterStitchedCanvas.width = totalW; masterStitchedCanvas.height = totalH;
+            const sCtx = masterStitchedCanvas.getContext('2d');
+
+            if (currentRebuildImgs[0]) sCtx.drawImage(currentRebuildImgs[0], 0,      0,     colW0, rowH0);
+            if (currentRebuildImgs[1]) sCtx.drawImage(currentRebuildImgs[1], colW0,  0,     colW1, rowH0);
+            if (currentRebuildImgs[2]) sCtx.drawImage(currentRebuildImgs[2], 0,      rowH0, colW0, rowH1);
+            if (currentRebuildImgs[3]) sCtx.drawImage(currentRebuildImgs[3], colW0,  rowH0, colW1, rowH1);
+
+            splitPoints = { x:colW0, y:rowH0, xTop:colW0, xBottom:colW0, yLeft:rowH0, yRight:rowH0 };
+            canvas.getContext('2d').drawImage(masterStitchedCanvas, 0, 0);
+            updateSplitUI();
+        });
+    }
+
+    function updateSplitUI() {
+        const canvas = document.getElementById('rebuildCanvas');
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const sx = rect.width / canvas.width, sy = rect.height / canvas.height;
+        document.getElementById('line-top').style.left    = (splitPoints.xTop    * sx) + 'px';
+        document.getElementById('line-bottom').style.left = (splitPoints.xBottom * sx) + 'px';
+        document.getElementById('line-left').style.top    = (splitPoints.yLeft   * sy) + 'px';
+        document.getElementById('line-right').style.top   = (splitPoints.yRight  * sy) + 'px';
+        const dot = document.getElementById('split-center');
+        dot.style.left = (splitPoints.x * sx) + 'px';
+        dot.style.top  = (splitPoints.y * sy) + 'px';
+    }
+
+    ['split-center','line-top','line-bottom','line-left','line-right'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('mousedown', e => {
+            dragTarget = id;
+            e.stopPropagation(); e.preventDefault();
+        });
     });
-    
-	function initiateRebuild(id) {
-    // 1. Filter out the 4 images belonging to this ID
-    const imagesToMerge = processedImages.filter(img => {
-        const match = img.name.match(/_(\d{3})-\d-R/);
-        return match && match[1] === id;
+
+    document.addEventListener('mousemove', function(e) {
+        if (!dragTarget) return;
+        const canvas = document.getElementById('rebuildCanvas');
+        const rect = canvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const my = (e.clientY - rect.top)  * (canvas.height / rect.height);
+        if (dragTarget === 'split-center') {
+            splitPoints.x = splitPoints.xTop = splitPoints.xBottom = mx;
+            splitPoints.y = splitPoints.yLeft = splitPoints.yRight  = my;
+        } else if (dragTarget === 'line-top')    splitPoints.xTop    = mx;
+        else if (dragTarget === 'line-bottom') splitPoints.xBottom = mx;
+        else if (dragTarget === 'line-left')   splitPoints.yLeft   = my;
+        else if (dragTarget === 'line-right')  splitPoints.yRight  = my;
+        updateSplitUI();
     });
+    document.addEventListener('mouseup', () => dragTarget = null);
 
-    console.log("Merging images for ID:", id, imagesToMerge);
-    
-    // 2. Switch to a new 'rebuild' page (we will build this next)
-    // showPage('rebuild');
-    // loadRebuildWorkspace(imagesToMerge);
-	}
-	window.initiateRebuild = function(id) {
-		alert("Set " + id + " selected. Next step: Building the Jointed-Cross workspace!");
-	};
-
-	
-
-	window.initiateRebuild = function(id) {
-		console.log("Starting rebuild for ID:", id);
-		
-		// 1. Filter the set
-		const set = processedImages.filter(img => {
-			const m = img.fileName.match(/_(\d{3})-\d-R/);
-			return m && m[1] === id;
-		});
-		
-		if(set.length < 1) {
-			return alert("No Images found fro this set.");
-		}
-
-		// 2. Sort them into the 2x2 grid based on R and C codes
-		// We create a fixed-size array: [TopLeft, TopRight, BottomLeft, BottomRight]
-		const sortedSet = new Array(4);
-		set.forEach(img => {
-			if (img.fileName.includes('R001-C001')) sortedSet[0] = img;
-			else if (img.fileName.includes('R001-C002')) sortedSet[1] = img;
-			else if (img.fileName.includes('R002-C001')) sortedSet[2] = img;
-			else if (img.fileName.includes('R002-C002')) sortedSet[3] = img;
-		});
-
-		currentRebuildSet = sortedSet;
-		console.log("Sorted Set:", currentRebuildSet);
-
-		// 3. Show the page
-		const rbPage = document.getElementById('rebuildPage');
-		if (!rbPage) {
-			console.error("Could not find rebuildPage element in HTML!");
-			return;
-		}
-		
-		document.getElementById('rebuildTitle').textContent = `Rebuilding Set: ${id}`;
-		showPage('rebuild');
-		
-		// 4. Fire the canvas setup
-		setTimeout(setupRebuildCanvas, 100); // Small delay to ensure CSS renders
-	};
-
-	function setupRebuildCanvas() {
-		const canvas = document.getElementById('rebuildCanvas');
-
-		// Build image list — null for missing slots
-		currentRebuildImgs = currentRebuildSet.map(item => {
-			if (!item) return null;
-			const img = new Image();
-			img.src = item.originalDataUrl || item.dataUrl;
-			return img;
-		});
-
-		// Wait for all present images to load
-		const loadPromises = currentRebuildImgs.map(img =>
-			img ? new Promise(resolve => { img.onload = resolve; img.onerror = resolve; })
-				: Promise.resolve()
-		);
-
-		Promise.all(loadPromises).then(() => {
-			// Measure actual image dimensions from the loaded images
-			// Top row: slots 0 and 1 — bottom row: slots 2 and 3
-			const w0 = currentRebuildImgs[0] ? currentRebuildImgs[0].naturalWidth  : 0;
-			const h0 = currentRebuildImgs[0] ? currentRebuildImgs[0].naturalHeight : 0;
-			const w1 = currentRebuildImgs[1] ? currentRebuildImgs[1].naturalWidth  : 0;
-			const h1 = currentRebuildImgs[1] ? currentRebuildImgs[1].naturalHeight : 0;
-			const w2 = currentRebuildImgs[2] ? currentRebuildImgs[2].naturalWidth  : 0;
-			const h2 = currentRebuildImgs[2] ? currentRebuildImgs[2].naturalHeight : 0;
-			const w3 = currentRebuildImgs[3] ? currentRebuildImgs[3].naturalWidth  : 0;
-			const h3 = currentRebuildImgs[3] ? currentRebuildImgs[3].naturalHeight : 0;
-
-			// Column widths = widest image in that column
-			const colW0 = Math.max(w0, w2);
-			const colW1 = Math.max(w1, w3);
-			// Row heights = tallest image in that row
-			const rowH0 = Math.max(h0, h1);
-			const rowH1 = Math.max(h2, h3);
-
-			// Total canvas size driven by actual content
-			const totalW = colW0 + colW1 || 1600;
-			const totalH = rowH0 + rowH1 || 2200;
-
-			canvas.width  = totalW;
-			canvas.height = totalH;
-
-			masterStitchedCanvas = document.createElement('canvas');
-			masterStitchedCanvas.width  = totalW;
-			masterStitchedCanvas.height = totalH;
-			const sCtx = masterStitchedCanvas.getContext('2d');
-
-			// Draw each image flush into its quadrant — no letterboxing, no gaps
-			if (currentRebuildImgs[0]) sCtx.drawImage(currentRebuildImgs[0], 0,      0,      colW0, rowH0);
-			if (currentRebuildImgs[1]) sCtx.drawImage(currentRebuildImgs[1], colW0,  0,      colW1, rowH0);
-			if (currentRebuildImgs[2]) sCtx.drawImage(currentRebuildImgs[2], 0,      rowH0,  colW0, rowH1);
-			if (currentRebuildImgs[3]) sCtx.drawImage(currentRebuildImgs[3], colW0,  rowH0,  colW1, rowH1);
-
-			splitPoints = { xTop: colW0, xBottom: colW0, yLeft: rowH0, yRight: rowH0 };
-
-			drawRebuildCanvas();
-			updateSplitUI();
-		});
-	}
-
-	function drawRebuildCanvas() {
-		const canvas = document.getElementById('rebuildCanvas');
-		const ctx = canvas.getContext('2d');
-		if (!masterStitchedCanvas) return;
-
-		// Simply draw the static master sheet
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.drawImage(masterStitchedCanvas, 0, 0);
-	}
-
-	function updateSplitUI() {
-		const canvas = document.getElementById('rebuildCanvas');
-		const rect = canvas.getBoundingClientRect();
-		const ratioX = rect.width / canvas.width;
-		const ratioY = rect.height / canvas.height;
-
-		// Update the 4 "Independent Arms"
-		const lineTop = document.getElementById('line-top');
-		const lineBottom = document.getElementById('line-bottom');
-		const lineLeft = document.getElementById('line-left');
-		const lineRight = document.getElementById('line-right');
-		const center = document.getElementById('split-center');
-
-		// Visual placement
-		lineTop.style.left = (splitPoints.xTop * ratioX) + 'px';
-		lineTop.style.height = (splitPoints.yLeft * ratioY) + 'px';
-
-		lineBottom.style.left = (splitPoints.xBottom * ratioX) + 'px';
-		lineBottom.style.top = (splitPoints.yLeft * ratioY) + 'px';
-		lineBottom.style.height = (rect.height - (splitPoints.yLeft * ratioY)) + 'px';
-
-		lineLeft.style.top = (splitPoints.yLeft * ratioY) + 'px';
-		lineLeft.style.width = (splitPoints.xTop * ratioX) + 'px';
-
-		lineRight.style.top = (splitPoints.yRight * ratioY) + 'px';
-		lineRight.style.left = (splitPoints.xTop * ratioX) + 'px';
-		lineRight.style.width = (rect.width - (splitPoints.xTop * ratioX)) + 'px';
-
-		// Center handle sits where the Top and Left lines meet
-		center.style.left = (splitPoints.xTop * ratioX) + 'px';
-		center.style.top = (splitPoints.yLeft * ratioY) + 'px';
-	}
-
-	function updateSplitUI() {
-		const container = document.getElementById('rebuildContainer');
-		const canvas = document.getElementById('rebuildCanvas');
-		const center = document.getElementById('split-center');
-		
-		const lineTop = document.getElementById('line-top');
-		const lineBottom = document.getElementById('line-bottom');
-		const lineLeft = document.getElementById('line-left');
-		const lineRight = document.getElementById('line-right');
-
-		// Calculate the scale ratio between the high-res canvas and the screen display
-		const rect = canvas.getBoundingClientRect();
-		const ratioX = rect.width / canvas.width;
-		const ratioY = rect.height / canvas.height;
-
-		// Position Center Handle
-		center.style.left = (splitPoints.x * ratioX) + 'px';
-		center.style.top = (splitPoints.yLeft * ratioY) + 'px'; // Using yLeft as anchor
-
-		// Position Vertical Lines (Arms)
-		lineTop.style.left = (splitPoints.xTop * ratioX) + 'px';
-		lineTop.style.top = '0px';
-		lineTop.style.height = (splitPoints.yLeft * ratioY) + 'px';
-
-		lineBottom.style.left = (splitPoints.xBottom * ratioX) + 'px';
-		lineBottom.style.top = (splitPoints.yLeft * ratioY) + 'px';
-		lineBottom.style.height = (rect.height - (splitPoints.yLeft * ratioY)) + 'px';
-
-		// Position Horizontal Lines (Arms)
-		lineLeft.style.top = (splitPoints.yLeft * ratioY) + 'px';
-		lineLeft.style.left = '0px';
-		lineLeft.style.width = (splitPoints.xTop * ratioX) + 'px';
-
-		lineRight.style.top = (splitPoints.yRight * ratioY) + 'px';
-		lineRight.style.left = (splitPoints.xTop * ratioX) + 'px';
-		lineRight.style.width = (rect.width - (splitPoints.xTop * ratioX)) + 'px';
-	}
-	
-	function initRebuildControls() {
-		const ids = ['line-top', 'line-bottom', 'line-left', 'line-right', 'split-center'];
-		ids.forEach(id => {
-			const el = document.getElementById(id);
-			if (el) {
-				el.addEventListener('mousedown', (e) => {
-					dragTarget = id;
-					e.stopPropagation();
-					e.preventDefault();
-				});
-			}
-		});
-	}
-
-	document.addEventListener('mousemove', (e) => {
-		if (!dragTarget) return;
-
-		const canvas = document.getElementById('rebuildCanvas');
-		const rect = canvas.getBoundingClientRect();
-		
-		// Calculate mouse position relative to image scale
-		const ratioX = canvas.width / rect.width;
-		const ratioY = canvas.height / rect.height;
-
-		let mx = (e.clientX - rect.left) * ratioX;
-		let my = (e.clientY - rect.top) * ratioY;
-
-		if (dragTarget === 'split-center') {
-			splitPoints.xTop = mx;
-			splitPoints.xBottom = mx;
-			splitPoints.yLeft = my;
-			splitPoints.yRight = my;
-		} else if (dragTarget === 'line-top') splitPoints.xTop = mx;
-		else if (dragTarget === 'line-bottom') splitPoints.xBottom = mx;
-		else if (dragTarget === 'line-left') splitPoints.yLeft = my;
-		else if (dragTarget === 'line-right') splitPoints.yRight = my;
-
-		updateSplitUI();
-	});
-
-	document.addEventListener('mouseup', () => { dragTarget = null; });
-
-	// Call this once when the window loads
-	document.addEventListener('DOMContentLoaded', initRebuildControls);
-
-	function initiateRebuild(id) {
-		// Finds all images that share the same ID in their filename
-		currentRebuildSet = processedImages.filter(img => img.fileName.includes(`_${id}-`));
-		
-		if (currentRebuildSet.length > 0) {
-			showPage('rebuild');
-			setupRebuildCanvas();
-		} else {
-			alert("No images found for this ID.");
-		}
-	}
-	});
+});
 </script>
 </body>
 </html>
