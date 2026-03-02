@@ -1,0 +1,313 @@
+<html>
+<head>
+<title>Obituary Indexing Assistant</title>
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<hta:application id="oApp" scroll="yes" windowstate="maximize" border="thin" selection="no">
+
+<style>
+    body { 
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: #e9ecef; 
+        margin: 20px;
+        display: block; /* Changed from flex to allow stacking cards */
+    }
+
+    /* Top Header Card */
+    .header-card { 
+        background: white; 
+        padding: 20px; 
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);		
+        width: 100%;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+    }
+
+    .header-content {
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+    }
+
+    h2 { color: #2c3e50; margin: 0; font-size: 24px; }
+    #welcomeMsg { color: #7f8c8d; margin-top: 5px; font-weight: bold; }
+
+    /* Main Working Card */
+    .work-card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        width: 100%;
+        min-height: 400px;
+        box-sizing: border-box;
+        position: relative;
+    }
+
+    /* Request Controls - Centered */
+    .request-controls {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .request-controls input {
+        padding: 8px;
+        width: 60px;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    /* Image Grid - 4 Across */
+    .image-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 15px;
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    .img-container {
+        flex: 0 0 23%; /* Forces roughly 4 items per row (23% + gaps) */
+        border: 1px solid #ddd;
+        padding: 5px;
+        background: #f9f9f9;
+        box-sizing: border-box;
+    }
+
+    .img-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    /* Buttons */
+    button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .get-btn { background: #3498db; color: white; }
+    .cancel-btn { 
+        background: #e74c3c; 
+        color: white; 
+        position: absolute; 
+        top: 20px; 
+        right: 20px; 
+    }
+
+    /* Login View (Centered) */
+    #loginWrapper {
+        height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .login-card { background: white; padding: 40px; border-radius: 12px; width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center;}
+    
+    .hidden { display: none !important; }
+</style>
+
+<script language="javascript">
+	var currentUserFolder = ""; // Global variable to store the name
+
+    function btnContinue_onclick() {
+        var fn = document.getElementById("fname").value;
+        var ln = document.getElementById("lname").value;
+        
+        if (fn === "" || ln === "") {
+            alert("Please enter both names.");
+            return;
+        }
+        
+        // Store the folder name (e.g., "John Doe")
+        currentUserFolder = fn + " " + ln;
+        
+        document.getElementById("welcomeMsg").innerText = "Welcome, " + currentUserFolder;
+        document.getElementById("loginWrapper").className = "hidden";
+        document.getElementById("mainWorkArea").className = "";
+    }
+
+    function btnRequest_onclick() {
+        var count = parseInt(document.getElementById("pCount").value);
+        var grid = document.getElementById("imageGrid");
+        var objFSO = new ActiveXObject("Scripting.FileSystemObject");
+
+        var sourcePath = "M:\\OBITUARY CARDS\\To Be Indexed -Your Personal File\\Indexers\\Matthew Hale\\Test\\";
+        var baseWorkingPath = "M:\\OBITUARY CARDS\\To Be Indexed -Your Personal File\\Indexers\\Matthew Hale\\Test\\Working\\";
+        var userWorkingPath = baseWorkingPath + currentUserFolder + "\\";
+
+        if (!objFSO.FolderExists(userWorkingPath)) {
+            objFSO.CreateFolder(userWorkingPath);
+        }
+
+        if (objFSO.FolderExists(sourcePath)) {
+            var folder = objFSO.GetFolder(sourcePath);
+            var fc = new Enumerator(folder.Files);
+            var i = 0;
+
+            while (!fc.atEnd() && i < count) {
+                var file = fc.item();
+                
+                // Check if file is an image
+                if (/(jpg|jpeg|png|gif|bmp)$/i.test(file.Name)) {
+                    var destPath = userWorkingPath + file.Name;
+                    
+                    try {
+                        // Move file
+                        objFSO.MoveFile(file.Path, destPath);
+
+                        // Build UI elements
+                        var container = document.createElement("div");
+                        container.className = "img-container";
+                        
+                        var img = document.createElement("img");
+                        // Adding random query string helps HTA refresh the image view
+                        img.src = destPath + "?" + new Date().getTime(); 
+                        
+                        container.appendChild(img);
+                        grid.appendChild(container);
+                        
+                        i++; // Increment count only if a file was moved/added
+                    } catch (e) {
+                        // Skip if file is locked or busy
+                    }
+                }
+                fc.moveNext();
+            }
+            
+            if (i === 0) {
+                alert("No images found in the source folder.");
+            }
+            
+            document.getElementById("btnCancel").className = "cancel-btn";
+        } else {
+            alert("Source folder not found.");
+        }
+    }
+	
+	function btnCancel_onclick() {
+		var objFSO = new ActiveXObject("Scripting.FileSystemObject");
+		var baseWorkingPath = "M:\\OBITUARY CARDS\\To Be Indexed -Your Personal File\\Indexers\\Matthew Hale\\Test\\Working\\";
+		var userWorkingPath = baseWorkingPath + currentUserFolder + "\\";
+		var sourcePath = "M:\\OBITUARY CARDS\\To Be Indexed -Your Personal File\\Indexers\\Matthew Hale\\Test\\";
+		
+		if (currentUserFolder !== "" && objFSO.FolderExists(userWorkingPath)) {
+			var folder = objFSO.GetFolder(userWorkingPath);
+			
+			if (folder.Files.Count > 0) {
+				var msg = "Return all images to source and reset?";
+				if (!confirm(msg)) {
+					return; // Just exits the function, window stays open
+				}
+
+				try {
+					// Wildcard move is the fastest way to ensure it completes
+					objFSO.MoveFile(userWorkingPath + "*.*", sourcePath);
+				} catch (e) {
+					var fc = new Enumerator(folder.Files);
+					while (!fc.atEnd()) {
+						var file = fc.item();
+						objFSO.MoveFile(file.Path, sourcePath + file.Name);
+						fc.moveNext();
+					}
+				}
+			}
+
+			// Delete folder after files are confirmed moved
+			try {
+				if (objFSO.FolderExists(userWorkingPath) && folder.Files.Count === 0) {
+					objFSO.DeleteFolder(userWorkingPath, true);
+				}
+			} catch (e) {}
+		}
+
+		// Reset UI only after files are moved
+		document.getElementById("imageGrid").innerHTML = "";
+		document.getElementById("btnCancel").className = "hidden";
+		document.getElementById("mainWorkArea").className = "hidden";
+		document.getElementById("loginWrapper").className = "";
+		currentUserFolder = ""; 
+	}
+	
+	var isClosingConfirmed = false; // Flag to track if the user clicked OK
+
+    function handleBeforeUnload() {
+        var objFSO = new ActiveXObject("Scripting.FileSystemObject");
+        var userWorkingPath = "M:\\OBITUARY CARDS\\To Be Indexed -Your Personal File\\Indexers\\Matthew Hale\\Test\\Working\\" + currentUserFolder + "\\";
+
+        if (currentUserFolder !== "" && objFSO.FolderExists(userWorkingPath)) {
+            var folder = objFSO.GetFolder(userWorkingPath);
+            if (folder.Files.Count > 0) {
+                // Set the flag and return the warning string
+                isClosingConfirmed = true; 
+                return "You still have images in your work folder. Clicking OK will move them back to source and exit.";
+            }
+        }
+    }
+
+    function handleUnload() {
+        // This runs AFTER the user clicks OK on the beforeunload prompt
+        if (!isClosingConfirmed) return;
+
+        var objFSO = new ActiveXObject("Scripting.FileSystemObject");
+        var userWorkingPath = "M:\\OBITUARY CARDS\\To Be Indexed -Your Personal File\\Indexers\\Matthew Hale\\Test\\Working\\" + currentUserFolder + "\\";
+        var sourcePath = "M:\\OBITUARY CARDS\\To Be Indexed -Your Personal File\\Indexers\\Matthew Hale\\Test\\";
+
+        if (objFSO.FolderExists(userWorkingPath)) {
+            try {
+                // Perform the wildcard move immediately before the process ends
+                objFSO.MoveFile(userWorkingPath + "*.*", sourcePath);
+                
+                // Final attempt to delete the folder
+                objFSO.DeleteFolder(userWorkingPath, true);
+            } catch (e) {
+                // Fallback loop if wildcard is blocked
+                var folder = objFSO.GetFolder(userWorkingPath);
+                var fc = new Enumerator(folder.Files);
+                while (!fc.atEnd()) {
+                    var file = fc.item();
+                    objFSO.MoveFile(file.Path, sourcePath + file.Name);
+                    fc.moveNext();
+                }
+            }
+        }
+    }
+	
+</script>
+</head>
+
+<body onbeforeunload="return handleBeforeUnload();" onunload="handleUnload();">
+
+    <div id="loginWrapper">
+        <div class="login-card">
+            <h2 style="border-bottom: 2px solid #3498db; padding-bottom:10px; margin-bottom:20px;">Indexer Assistant</h2>
+            <label style="display:block; margin-bottom:5px; font-weight:bold;">First Name:</label>
+            <input type="text" id="fname" style="width:100%; padding:8px; margin-bottom:15px;">
+            <label style="display:block; margin-bottom:5px; font-weight:bold;">Last Name:</label>
+            <input type="text" id="lname" style="width:100%; padding:8px; margin-bottom:20px;">
+            <button class="get-btn" style="width:100%" onclick="btnContinue_onclick()">CONTINUE</button>
+        </div>
+    </div>
+
+    <div id="mainWorkArea" class="hidden">
+        
+        <div class="header-card">
+            <div class="header-content">
+                <h2>Indexer Assistant</h2>
+            </div>
+            <div id="welcomeMsg">Welcome, [Name]</div>
+        </div>
+
+        <div class="work-card">
+            <button id="btnCancel" class="hidden" onclick="btnCancel_onclick()">Cancel</button>
+
+            <div class="request-controls">
+                <label>Number of images to take: </label>
+                <input type="number" id="pCount" value="8">
+                <button class="get-btn" onclick="btnRequest_onclick()">Request Images</button>
+            </div>
+
+            <div id="imageGrid" class="image-grid">
+                </div>
+        </div>
+    </div>
+
+</body>
+</html>
