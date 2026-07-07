@@ -1,0 +1,3680 @@
+<html>
+<head>
+<title>Obituary Indexing Assistant</title>
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<hta:application id="oApp" scroll="yes" border="thin" selection="no" caption="yes" sysmenu="yes" icon="M:\Obituary Project\Colored Icons\ObituaryIcon.png">
+
+<style>
+    :root {
+        --main-text-size: 18px;
+    }
+
+    body { 
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: #161618; 
+        margin: 0px;
+		padding: 20px;
+        display: block;
+        user-select: none;
+    }
+
+    .header-card { 
+        background: #242529; 
+        padding: 20px; 
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);		
+        width: 100%;
+        /*margin-bottom: 20px;*/
+        box-sizing: border-box;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        min-height: 40px;
+        margin-right: 20px;
+    }
+
+    h2 { color: white; margin: 0; font-size: 30px; }
+    #welcomeMsg { color: white; margin-top: 2px; font-size: 15px; font-weight: normal; }
+
+    .work-card {
+        background: transparent;
+        padding: 20px;
+        width: 100%;
+        min-height: 400px;
+        box-sizing: border-box;
+    }
+
+    .image-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        margin-top: 10px;
+        width: 940px;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .image-card {
+        background: #444;
+        margin: 5px;
+        width: 200px;
+        height: 260px;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+        position: relative;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        margin-bottom: 30px;
+    }
+
+    .image-card:hover {
+        transform: scale(1.03);
+        border-color: #27ae60;
+    }
+
+    .image-card.is-done {
+        border-color: #27ae60;
+    }
+
+    .image-card.is-done:hover {
+        border-color: #2ecc71;
+    }
+
+    .image-card.is-partial {
+        border-color: #e67e22;
+    }
+
+    .image-card.is-partial:hover {
+        border-color: #f39c12;
+    }
+
+    .image-card img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        background: #000;
+        -ms-flex: 1;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .card-label-bar {
+        background: #1a1a1c;
+        color: #aaa;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px 8px;
+        text-align: center;
+        letter-spacing: 1px;
+        -ms-flex-negative: 0;
+        flex-shrink: 0;
+    }
+
+    .done-pill {
+        position: absolute;
+        bottom: 30px;
+        left: 8px;
+        background: #27ae60;
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 1.5px solid white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .done-overlay {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(39, 174, 96, 0.15);
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    .partial-pill {
+        position: absolute;
+        bottom: 30px;
+        left: 8px;
+        background: #e67e22;
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 1.5px solid white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .partial-overlay {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(230, 126, 34, 0.15);
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    .done-badge {
+        display: none;
+    }
+
+    .undo-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #e74c3c;
+        color: white;
+        border: 1.5px solid white;
+        padding: 3px 10px;
+        border-radius: 20px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 20;
+    }
+
+    .undo-btn:hover { background: #c0392b; }
+
+    .modal-cancel-btn {
+        background: #e74c3c !important;
+        width: 140px;
+        font-size: var(--main-text-size);
+    }
+
+    .modal-cancel-btn:hover {
+        background: #c0392b !important;
+    }
+
+    .get-btn {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 15px;
+    }
+
+    .get-btn:hover { background: #2980b9; }
+
+    .done-btn {
+        background: #27ae60;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 15px;
+    }
+
+    .done-btn:hover { background: #239653}
+
+    .batch-done-btn {
+        background: #27ae60 !important;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 15px;
+        margin-left: auto;
+        margin-right: 10px; /* Space between Done and Partial */
+    }
+
+    .batch-done-btn:hover { background: #239653 !important; }
+
+    .batch-header-card {
+        background: #242529;
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin: 8px 0 4px 10px;
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .batch-header-title {
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .batch-header-title span {
+        color: #27ae60;
+    }
+
+    .batch-header-btns {
+        display: flex;
+        gap: 10px;
+    }
+
+    .batch-pill-btn {
+        display: inline-flex;
+        align-items: center;
+        background: #242529;
+        border: 2px solid #27ae60;
+        border-radius: 50px;
+        padding: 5px 14px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: bold;
+        color: #27ae60;
+    }
+
+    .batch-pill-btn:hover { background: #41434a; }
+
+    .batch-pill-btn:disabled {
+        border-color: #555;
+        color: #555;
+        cursor: not-allowed;
+        background: #242529;
+    }
+
+    .tool-row {
+        display: block;      
+        text-align: center;   
+        margin-top: 15px;
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    .edit-control-btn { 
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        background: transparent;
+        border: none;
+        transition: background 0.2s;
+        margin: 0 10px 0 0;
+        font-size: 15px;
+        font-weight: bold;
+        width: 80px;
+        height: 90px;
+        box-sizing: border-box;
+    }
+
+    .edit-control-btn:hover {
+        background: rgba(39,174,96,0.15);
+        cursor: pointer;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 5px; 
+    }
+
+    .login-card {
+        position: relative;
+        width: 400px;
+        margin: 100px auto;
+        background: #242529;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        border: 1px solid #27ae60;
+    }
+
+    /* Transparent green button matching the existing app style */
+    .login-splitscreen-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: transparent;
+        border: 1px solid #27ae60;
+        border-radius: 5px;
+        padding: 4px 12px;
+        cursor: pointer;
+        font-size: 12px;
+        color: #27ae60;
+        transition: background 0.2s;
+    }
+
+    .login-splitscreen-btn:hover {
+        background: rgba(39, 174, 96, 0.15);
+    }
+
+    .folder-list {
+        max-height: 300px;
+        overflow-y: auto;
+        background: #41434a;
+        border-radius: 8px;
+        margin-top: 15px;
+        padding: 5px;
+        border: 1px solid #27ae60;
+    }
+
+    #loginSearchBox {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: 2px solid #27ae60;
+        background: #41434a;
+        color: white;
+        font-size: 1em;
+        box-sizing: border-box;
+        margin-top: 8px;
+        outline: none;
+    }
+
+    #loginNotFoundMsg {
+        color: white;
+        margin-top: 12px;
+        font-size: 0.9em;
+        display: none;
+    }
+
+    .folder-item {
+        padding: 12px;
+        color: white;
+        border-bottom: 1px solid #555;
+        cursor: pointer;
+        text-align: left;
+    }
+
+    .folder-item:hover { background: #3498db; }
+
+    .hidden { display: none !important; }
+
+    .placeholder-active {
+        color: #999 !important;
+    }
+
+    .field-wrapper {
+        position: relative;
+        display: flex;
+        flex: 1;
+    }
+
+    .field-label {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 1em;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    #viewerContainer {
+        width: 100%;
+        height: 70vh;
+        background: #000; /* Set to pure black */
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        cursor: default;
+        border: 2px solid #333;
+    }
+
+    #editImage {
+        position: absolute;
+        cursor: move;
+        display: block;
+        z-index: 5;
+        image-rendering: pixelated;
+        -ms-interpolation-mode: nearest-neighbor;
+    }
+
+    #calcPopup {
+        display: none;
+        position: fixed;
+        width: 230px;
+        background: #242529;
+        border: 1px solid #3a3a3f;
+        border-radius: 12px;
+        z-index: 500;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        user-select: none;
+    }
+    #calcHeader {
+        padding: 10px 14px;
+        background: #1a1a1c;
+        cursor: move;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #3a3a3f;
+        border-radius: 12px 12px 0 0;
+    }
+    #calcDisplay {
+        padding: 14px 16px;
+        text-align: right;
+        font-size: 26px;
+        background: #161618;
+        color: white;
+        font-family: monospace;
+        overflow: hidden;
+        white-space: nowrap;
+        border-bottom: 1px solid #3a3a3f;
+        min-height: 54px;
+    }
+    #calcButtons {
+        padding: 8px;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    #calcButtons button {
+        padding: 0;
+        height: 52px;
+        background: #2e2e33;
+        border: 1px solid #3a3a3f;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 15px;
+        transition: background 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+    #calcButtons button:hover { background: #41434a; }
+    #calcButtons button.op   { color: #27ae60; }
+    #calcButtons button.clr  { color: #e74c3c; }
+    .calc-enter { grid-row: span 2; height: 109px !important; background: #27ae60 !important; color: white !important; }
+    .calc-enter:hover { background: #239653 !important; }
+    .calc-zero  { grid-column: span 2; }
+
+    #debugConsole {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 200px;
+        background: #000;
+        color: #0f0;
+        font-family: monospace;
+        font-size: 11px;
+        overflow-y: scroll;
+        padding: 10px;
+        opacity: 0.9;
+        border-top: 2px solid #3498db;
+        z-index: 10000;
+        display: none;
+        box-sizing: border-box;
+    }
+
+    #debugToggleBtn {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        z-index: 10001;
+        background: #1a1a1a;
+        color: #3498db;
+        border: 1.5px solid #3498db;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-family: monospace;
+        cursor: pointer;
+        opacity: 0.75;
+    }
+
+    #debugToggleBtn:hover {
+        opacity: 1;
+        background: #0d2a3a;
+    }
+
+    #debugResizeHandle {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: #3498db;
+        cursor: ns-resize;
+        z-index: 10002;
+        display: none;
+    }
+
+    #debugCloseBtn {
+        position: fixed;
+        left: 8px;
+        background: #1a1a1a;
+        color: #e74c3c;
+        border: 1.5px solid #e74c3c;
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-family: monospace;
+        cursor: pointer;
+        z-index: 10003;
+        display: none;
+    }
+
+    #debugCloseBtn:hover {
+        background: #2a0a0a;
+    }
+		
+	#modalOverlay { 
+        display: flex; 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        right: 0; 
+        bottom: 0; 
+        align-items: center; 
+        justify-content: center;
+    }
+
+    .crop-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.5); /* The "graying out" effect */
+        z-index: 50;
+        cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><line x1="16" y1="0" x2="16" y2="32" stroke="white" stroke-width="2"/><line x1="0" y1="16" x2="32" y2="16" stroke="white" stroke-width="2"/><line x1="16" y1="0" x2="16" y2="32" stroke="black" stroke-width="4" stroke-dasharray="4,4" stroke-dashoffset="2"/><line x1="0" y1="16" x2="32" y2="16" stroke="black" stroke-width="4" stroke-dasharray="4,4" stroke-dashoffset="2"/></svg>') 16 16, crosshair;
+    }
+
+    .merge-rotate-btn {
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        background: rgba(39,174,96,0.85);
+        border: 1.5px solid white;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 30;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-align: center;
+        align-items: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        font-size: 15px;
+        color: white;
+        line-height: 1;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        pointer-events: auto;
+        padding-top: 5px; /* nudges the glyph down to visually center it — tweak this value up/down as needed */
+        box-sizing: border-box;
+    }
+    .merge-rotate-btn:hover { background: rgba(39,174,96,1); }
+
+    #cropBox {
+        position: absolute;
+        border: 2px dashed #fff;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); /* Creates the spotlight effect */
+        cursor: move;
+        z-index: 51;
+        overflow: visible;
+    }
+
+    #cropPanel {
+        position: absolute;
+        top: 0; /* Aligns it to the top of the button row */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #404040; /* Matches your background color */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        z-index: 100;
+        border-radius: 12px;
+    }
+
+    .crop-btn {
+        padding: 8px 20px;
+        border-radius: 20px;
+        border: none;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .resize-handle { 
+        position:absolute; 
+        width:10px; 
+        height:10px; 
+        background:white; 
+        border:1px solid black; 
+    }
+
+    .edge-handle {
+        position: absolute;
+        background: white;
+        border: 1px solid black;
+    }
+
+    #dragHandle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 80px;
+        height: 80px;
+        border: 1px solid #27ae60;
+        border-radius: 4px;
+        overflow: hidden;
+        z-index: 100;
+        cursor: grab;
+        background: #000;
+    }
+
+    #dragPreview {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        pointer-events: auto;
+        cursor: grab;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+
+</style>
+
+<script language="javascript">
+    // --- Error Tracking ---
+    window.onerror = function(msg, url, line) {
+        logDebug("JS ERROR: " + msg + " (Line: " + line + ")");
+        return true;
+    };
+
+    // Edit this one line to move the entire project location
+    var BASE_PATH = "M:\\Obituary Project\\";
+    var WORKERS_PATH = BASE_PATH + "Workers\\";
+    var SOURCE_PATH  = BASE_PATH + "Obituaries\\";
+    var DONE_PATH    = BASE_PATH + "Done\\";
+
+    var currentUserFolder = "";
+    var currentEditImagePath = ""; 
+    
+    // Transform State
+    var scale = 1.0;
+    var posX = 0;
+    var posY = 0;
+    var rotationValue = 0; // 0, 1, 2, 3 (for 0, 90, 180, 270) — pending save
+    var displayRotation = 0; // what is currently shown on screen
+    var imgOrigWidth = 0;
+    var imgOrigHeight = 0;
+    
+    // Dragging State
+    var isDragging = false;
+    var startX = 0;
+    var startY = 0;
+
+    var isCropping = false;
+    var cropStartX, cropStartY;
+    var isResizing = false;
+
+    var pendingPartialPath = "";
+    var pendingPartialName = "";
+
+    function toggleLabel(labelId, field) {
+        var lbl = document.getElementById(labelId);
+        if (!lbl) return;
+        if (field.value === "") {
+            lbl.style.display = "";
+        } else {
+            lbl.style.display = "none";
+        }
+    }
+
+    function logDebug(msg) {
+        var consoleDiv = document.getElementById("debugConsole");
+        if (consoleDiv) {
+            var d = new Date();
+            var ts = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+            consoleDiv.innerHTML += "<div>[" + ts + "] " + msg + "</div>";
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+    }
+
+    function toggleDebugConsole() {
+        var con = document.getElementById("debugConsole");
+        var btn = document.getElementById("debugToggleBtn");
+        var handle = document.getElementById("debugResizeHandle");
+        var closeBtn = document.getElementById("debugCloseBtn");
+        if (con.style.display === "none" || con.style.display === "") {
+            con.style.display = "block";
+            handle.style.display = "block";
+            var conH = con.offsetHeight || 200;
+            handle.style.bottom = conH + "px";
+            closeBtn.style.display = "block";
+            closeBtn.style.bottom = (conH + 10) + "px";
+            btn.style.display = "none";
+            con.scrollTop = con.scrollHeight;
+        } else {
+            con.style.display = "none";
+            handle.style.display = "none";
+            closeBtn.style.display = "none";
+            btn.style.display = "block";
+        }
+    }
+
+    (function initDebugResize() {
+        var dragging = false;
+        var startY = 0;
+        var startH = 0;
+
+        document.addEventListener("mousedown", function(e) {
+            var handle = document.getElementById("debugResizeHandle");
+            if (!handle || handle.style.display === "none") return;
+            var r = handle.getBoundingClientRect();
+            if (e.clientY >= r.top && e.clientY <= r.bottom) {
+                dragging = true;
+                startY = e.clientY;
+                var con = document.getElementById("debugConsole");
+                startH = con.offsetHeight;
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener("mousemove", function(e) {
+            if (!dragging) return;
+            var con = document.getElementById("debugConsole");
+            var handle = document.getElementById("debugResizeHandle");
+            var closeBtn = document.getElementById("debugCloseBtn");
+            var delta = startY - e.clientY;
+            var newH = Math.max(60, Math.min(startH + delta, window.innerHeight - 40));
+            con.style.height = newH + "px";
+            handle.style.bottom = newH + "px";
+            closeBtn.style.bottom = (newH + 10) + "px";
+        });
+
+        document.addEventListener("mouseup", function() { dragging = false; });
+    })();
+
+    function makeFullScreen() {
+        try {
+            var screenW = screen.availWidth;
+            var screenH = screen.availHeight;
+            var halfW = Math.floor(screenW / 2);
+
+            // Fine-tuned window padding modifier to hide invisible boundaries
+            var pad = 8; 
+
+            window.moveTo(halfW - pad, 0);
+            window.resizeTo(halfW + (pad * 2), screenH);    
+
+            var shell = new ActiveXObject("WScript.Shell");
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+            // --- Find Chrome Executable ---
+            var chromePaths = [
+                shell.ExpandEnvironmentStrings("%ProgramFiles%") + "\\Google\\Chrome\\Application\\chrome.exe",
+                shell.ExpandEnvironmentStrings("%ProgramFiles(x86)%") + "\\Google\\Chrome\\Application\\chrome.exe",
+                shell.ExpandEnvironmentStrings("%LocalAppData%") + "\\Google\\Chrome\\Application\\chrome.exe"
+            ];
+            var chromeExe = "";
+            for (var i = 0; i < chromePaths.length; i++) {
+                if (fso.FileExists(chromePaths[i])) {
+                    chromeExe = chromePaths[i];
+                    break;
+                }
+            }
+
+            var familySearchUrl = "https://ident.familysearch.org/en/identity/login/?state=https://www.familysearch.org/en/united-states/";
+            var baseFolder = shell.ExpandEnvironmentStrings("%LocalAppData%") + "\\ObituaryProgram";
+            var chromeProfileDir = baseFolder + "\\ChromeProfile";
+
+            if (!fso.FolderExists(baseFolder)) { fso.CreateFolder(baseFolder); }
+            if (!fso.FolderExists(chromeProfileDir)) { fso.CreateFolder(chromeProfileDir); }
+
+            // --- Optimized Parallel Layout Engine ---
+            // --- Optimized Parallel Layout Engine with Aero-Snap Simulation ---
+            var htaTitle = document.title;
+            var psSnapController =
+                "Add-Type @'\n" +
+                "using System;\n" +
+                "using System.Runtime.InteropServices;\n" +
+                "public class Win32Snap {\n" +
+                "  [DllImport(\"user32.dll\")] public static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);\n" +
+                "  [DllImport(\"user32.dll\")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);\n" +
+                "}\n" +
+                "'@\n" +
+                "\n" +
+                "# 1. Force-lock the HTA window to the true right bounds\n" +
+                "for ($j = 0; $j -lt 15; $j++) {\n" +
+                "  $hta = Get-Process mshta -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -eq '" + htaTitle + "' } | Select-Object -First 1\n" +
+                "  if ($hta -and $hta.MainWindowHandle -ne 0) {\n" +
+                "    [Win32Snap]::ShowWindow($hta.MainWindowHandle, 1)\n" +
+                "    [Win32Snap]::MoveWindow($hta.MainWindowHandle, " + (halfW - pad) + ", -4, " + (halfW + pad * 2) + ", " + (screenH + 8) + ", $true)\n" +
+                "  }\n" +
+                "  Start-Sleep -Milliseconds 40\n" +
+                "}\n" +
+                "\n" +
+                "# 2. Find and layout Chrome (whether existing or freshly launched)\n" +
+                "for ($i = 0; $i -lt 25; $i++) {\n" +
+                "  # Target Chrome instances that have a visible window handle\n" +
+                "  $chromeProcesses = Get-Process chrome -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 }\n" +
+                "  if ($chromeProcesses) {\n" +
+                "    foreach ($ch in $chromeProcesses) {\n" +
+                "      [Win32Snap]::ShowWindow($ch.MainWindowHandle, 1)\n" +
+                "      [Win32Snap]::MoveWindow($ch.MainWindowHandle, -" + pad + ", -4, " + (halfW + pad * 2) + ", " + (screenH + 8) + ", $true)\n" +
+                "    }\n" +
+                "  }\n" +
+                "  Start-Sleep -Milliseconds 40\n" +
+                "}\n";
+
+            // Write out the controller script first
+            var selfPsPath = shell.ExpandEnvironmentStrings("%TEMP%") + "\\snap_controller.ps1";
+            var selfTs = fso.CreateTextFile(selfPsPath, true);
+            selfTs.Write(psSnapController);
+            selfTs.Close();
+
+            // Fire Chrome execution path (Safe handling: Chrome handles routing to an open window natively if active)
+            if (chromeExe !== "") {
+                var chromeCmd = '"' + chromeExe + '" --user-data-dir="' + chromeProfileDir + '" "' + familySearchUrl + '"';
+                shell.Run(chromeCmd, 1, false);
+            } else {
+                shell.Run('"' + familySearchUrl + '"', 1, false);
+            }
+
+            // Launch layout engine instantly to take full control in parallel
+            shell.Run('powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + selfPsPath + '"', 0, false);
+
+        } catch(e) { logDebug("Init Error: " + e.description); }
+    }
+
+    function filterFolderList() {
+        var rawVal = document.getElementById("loginSearchBox").value;
+        var searchVal = rawVal.toLowerCase();
+        var items = document.getElementById("folderListContainer").getElementsByClassName("folder-item");
+        var visibleCount = 0;
+        var container = document.getElementById("folderListContainer");
+
+        if (searchVal === "") {
+            container.style.display = "none";
+            document.getElementById("loginNotFoundMsg").style.display = "none";
+            document.getElementById("addNewBtn").style.display = "none";
+            return;
+        }
+
+        if (rawVal === "ALL") {
+            container.style.display = "block";
+            for (var i = 0; i < items.length; i++) {
+                items[i].style.display = "flex";
+            }
+            document.getElementById("loginNotFoundMsg").style.display = "none";
+            document.getElementById("addNewBtn").style.display = "none";
+            return;
+        }
+
+        container.style.display = "block";
+
+        for (var i = 0; i < items.length; i++) {
+            var name = items[i].getAttribute("data-name").toLowerCase();
+            if (searchVal === "") {
+                items[i].style.display = "none";
+            } else if (name.indexOf(searchVal) === 0) {
+                items[i].style.display = "flex";
+                visibleCount++;
+            } else {
+                items[i].style.display = "none";
+            }
+        }
+
+        var notFound = document.getElementById("loginNotFoundMsg");
+        var addBtn = document.getElementById("addNewBtn");
+
+        if (searchVal.length > 0 && visibleCount === 0) {
+            notFound.style.display = "block";
+            addBtn.style.display = "inline-block";
+        } else {
+            notFound.style.display = "none";
+            addBtn.style.display = "none";
+        }
+    }
+
+    function loadFolderList() {
+        try {
+            var listContainer = document.getElementById("folderListContainer");
+            listContainer.innerHTML = "";
+            var objFSO = new ActiveXObject("Scripting.FileSystemObject");
+            
+            // Now looks in the centralized Workers folder [cite: 51]
+            if (objFSO.FolderExists(WORKERS_PATH)) {
+                var folder = objFSO.GetFolder(WORKERS_PATH);
+                var subfolders = new Enumerator(folder.SubFolders);
+                for (; !subfolders.atEnd(); subfolders.moveNext()) {
+                    var sf = subfolders.item();
+                    var count = countUserObituaries(sf.Path); // Get the number of obits
+                    
+                    var div = document.createElement("div");
+                    div.className = "folder-item";
+                    div.setAttribute("data-name", sf.Name);
+                    div.style.display = "flex";
+                    div.style.justifyContent = "space-between";
+
+                    div.innerHTML = "<span>" + sf.Name + "</span>" + 
+                                    "<span style='opacity: 0.7; font-size: 0.9em;'>" + count;
+                    
+                    div.onclick = (function(n) {
+                        return function() {
+                            var searchBox = document.getElementById("loginSearchBox");
+                            if (searchBox && searchBox.value === "ALL") {
+                                completeLogin(n);
+                            } else {
+                                selectUserFolder(n);
+                            }
+                        };
+                    })(sf.Name);
+                    listContainer.appendChild(div);
+                }
+            } else {
+                logDebug("Worker directory not found at: " + WORKERS_PATH);
+            }
+        } catch(e) { logDebug("Folder List Error: " + e.description); }
+    }
+
+    function selectUserFolder(folderName) {
+        // 1. Prepare the UI
+        document.getElementById("loginPassInput").value = "";
+        document.getElementById("lbl_loginPass").style.display = "";
+        document.getElementById("passPopupTitle").innerText = "Login: " + folderName;
+        
+        // 2. Show the Overlay and the Password section
+        document.getElementById("newUserPopup").className = "login-card hidden";
+        document.getElementById("passwordPopup").className = "login-card";
+        document.getElementById("modalOverlay").className = "";
+        document.getElementById("modalOverlay").style.display = "flex";
+        setTimeout(function() { document.getElementById("loginPassInput").focus(); }, 50);
+        
+        // 3. Define what happens when they click the green Login button
+        document.getElementById("passSubmitBtn").onclick = function() {
+            var inputYear = document.getElementById("loginPassInput").value;
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            var loginFilePath = BASE_PATH + "Logins.txt";
+            var authorized = false;
+
+            try {
+                if (fso.FileExists(loginFilePath)) {
+                    var file = fso.OpenTextFile(loginFilePath, 1);
+                    while (!file.AtEndOfStream) {
+                        var line = file.ReadLine();
+                        var parts = line.split("|");
+                        if (parts[0] === folderName && parts[1] === inputYear) {
+                            authorized = true;
+                            break;
+                        }
+                    }
+                    file.Close();
+                } else { authorized = true; } // Bypass if file missing
+            } catch(e) {}
+
+            if (authorized) {
+                completeLogin(folderName);
+            } else {
+                alert("Incorrect birth year. Access denied.");
+            }
+        };
+    }
+
+    function completeLogin(folderName) {
+        currentUserFolder = folderName;
+        document.getElementById("welcomeMsg").innerText = "Welcome, " + currentUserFolder;
+        document.getElementById("loginWrapper").className = "hidden";
+        document.getElementById("mainWorkArea").className = "";
+        closeModal();
+        refreshGrid();
+        resizeCards();
+    }
+
+    // Strips (working)/(working)(done) tags + extension to get a key that
+    // identifies "which original this working copy belongs to".
+    function getWorkingBaseKey(fileName) {
+        var dot = fileName.lastIndexOf(".");
+        var base = dot !== -1 ? fileName.substring(0, dot) : fileName;
+        base = base.replace("(working)(done)", "").replace("(working)", "");
+        return base.toLowerCase();
+    }
+
+    // Removes any plain (working) files from a freshly-pulled-in batch folder
+    // before auto-rotation runs, so a stray leftover can't cause a second
+    // working copy to be created alongside it. Originals and any
+    // (working)(done) files are left completely alone (failsafe).
+    function cleanNewBatchWorkingFiles(folderPath) {
+        try {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            if (!fso.FolderExists(folderPath)) return;
+
+            var folder = fso.GetFolder(folderPath);
+            var filesEnum = new Enumerator(folder.Files);
+            var toDelete = [];
+
+            for (; !filesEnum.atEnd(); filesEnum.moveNext()) {
+                var f = filesEnum.item();
+                var nameLower = f.Name.toLowerCase();
+                if (!nameLower.match(/\.(jpg|jpeg|png)$/)) continue;
+
+                // Failsafe: never touch a (working)(done) file.
+                if (nameLower.indexOf("(done)") !== -1) continue;
+
+                if (nameLower.indexOf("(working)") !== -1) {
+                    toDelete.push(f.Path);
+                }
+            }
+
+            for (var i = 0; i < toDelete.length; i++) {
+                try {
+                    fso.DeleteFile(toDelete[i], true);
+                    logDebug("Pre-clean: removed stray working file " + toDelete[i]);
+                } catch (e) {
+                    logDebug("Pre-clean delete error: " + e.description);
+                }
+            }
+        } catch (e) {
+            logDebug("cleanNewBatchWorkingFiles error: " + e.description);
+        }
+    }
+
+    // Finds groups of duplicate (working) files for the same underlying
+    // original (matched by stripped base name / r-c slot) within a batch
+    // folder, and removes the extras. A (working)(done) file always wins
+    // and is kept; if no (done) exists in a duplicate group, the most
+    // recently modified file is kept. Originals are never touched.
+    function dedupeFolderWorkingFiles(folderPath) {
+        try {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            if (!fso.FolderExists(folderPath)) return;
+
+            var folder = fso.GetFolder(folderPath);
+            var filesEnum = new Enumerator(folder.Files);
+            var groups = {};
+
+            for (; !filesEnum.atEnd(); filesEnum.moveNext()) {
+                var f = filesEnum.item();
+                var nameLower = f.Name.toLowerCase();
+                if (!nameLower.match(/\.(jpg|jpeg|png)$/)) continue;
+
+                // Only working/done copies count toward duplicates —
+                // the original itself is never part of this comparison.
+                if (nameLower.indexOf("(working)") === -1) continue;
+
+                var key = getWorkingBaseKey(f.Name);
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(f);
+            }
+
+            for (var key in groups) {
+                if (!groups.hasOwnProperty(key)) continue;
+                var group = groups[key];
+                if (group.length <= 1) continue;
+
+                // Pick which one to keep.
+                var keeper = null;
+                for (var i = 0; i < group.length; i++) {
+                    if (group[i].Name.toLowerCase().indexOf("(done)") !== -1) {
+                        keeper = group[i];
+                        break;
+                    }
+                }
+                if (!keeper) {
+                    // No (done) file in this group — we can't safely guess which
+                    // duplicate is "correct", so wipe ALL of them. The original
+                    // (untouched on disk) will reappear in the grid and a fresh
+                    // working copy will be created next time it's opened/requested,
+                    // forcing that slot to be redone rather than risking the wrong copy.
+                    for (var k = 0; k < group.length; k++) {
+                        try {
+                            fso.DeleteFile(group[k].Path, true);
+                            logDebug("Dedupe: no (done) tag found among duplicates for " + key + " — wiped all, will need to be redone: " + group[k].Path);
+                        } catch (e) {
+                            logDebug("Dedupe delete error: " + e.description);
+                        }
+                    }
+                    continue;
+                }
+
+                for (var k = 0; k < group.length; k++) {
+                    if (group[k].Path === keeper.Path) continue;
+                    try {
+                        fso.DeleteFile(group[k].Path, true);
+                        logDebug("Dedupe: removed duplicate working file " + group[k].Path + " (kept " + keeper.Path + ")");
+                    } catch (e) {
+                        logDebug("Dedupe delete error: " + e.description);
+                    }
+                }
+            }
+        } catch (e) {
+            logDebug("dedupeFolderWorkingFiles error: " + e.description);
+        }
+    }
+
+    function refreshGrid() {
+        var grid = document.getElementById("imageGrid");
+        grid.innerHTML = ""; 
+        var objFSO = new ActiveXObject("Scripting.FileSystemObject");
+        var userPath = WORKERS_PATH + currentUserFolder + "\\";
+
+        var tempFolder = WORKERS_PATH + currentUserFolder + "\\Temp\\";
+        if (objFSO.FolderExists(tempFolder)) {
+            var tempFiles = new Enumerator(objFSO.GetFolder(tempFolder).Files);
+            for (; !tempFiles.atEnd(); tempFiles.moveNext()) {
+                try { objFSO.DeleteFile(tempFiles.item().Path, true); } catch(e) {}
+            }
+        }
+
+        if (objFSO.FolderExists(userPath)) {
+            var userFolder = objFSO.GetFolder(userPath);
+            
+            // Process Subfolders (Batches)
+            var subEnum = new Enumerator(userFolder.SubFolders);
+            for (; !subEnum.atEnd(); subEnum.moveNext()) {
+                var subFolder = subEnum.item();
+                if (subFolder.Name.toLowerCase() === "temp") continue;
+
+                // Clean up any duplicate (working) files for this batch
+                // before we count/display anything, so stale duplicates
+                // never show up or block the batch Done button.
+                dedupeFolderWorkingFiles(subFolder.Path);
+
+                var headerContainer = document.createElement("div");
+                headerContainer.style.cssText = "width:100%;";
+
+                // --- NEW BATCH HEADER CARD ---
+                var batchCard = document.createElement("div");
+                batchCard.className = "batch-header-card";
+
+                var match = subFolder.Name.match(/_(\d{3})-/);
+                var displayName = match ? match[1] : subFolder.Name;
+
+                var titleEl = document.createElement("div");
+                titleEl.className = "batch-header-title";
+                titleEl.innerHTML = "Batch<span style='padding-left: 5px;'> " + displayName + "</span>";
+
+                var btnGroup = document.createElement("div");
+                btnGroup.className = "batch-header-btns";
+                btnGroup.style.display = "inline-flex";
+                titleEl.appendChild(btnGroup);
+                batchCard.appendChild(titleEl);
+
+                // Merge Button
+                var mergeBtn = document.createElement("button");
+                mergeBtn.className = "batch-pill-btn";
+                mergeBtn.innerText = "Merge";
+                mergeBtn.style.marginLeft = "10px";
+                mergeBtn.onclick = (function(path, name) {
+                    return function() {
+                        openMergeMode(path, name);
+                    };
+                })(subFolder.Path, subFolder.Name);
+                btnGroup.appendChild(mergeBtn);
+
+                // Done Button (only shown when all images are done)
+                var originalCount = 0;
+                var doneCount = 0;
+                try {
+                    var fso = new ActiveXObject("Scripting.FileSystemObject");
+                    if (fso.FolderExists(subFolder.Path)) {
+                        var folderObj = fso.GetFolder(subFolder.Path);
+                        var files = new Enumerator(folderObj.Files);
+                        for (; !files.atEnd(); files.moveNext()) {
+                            var fileName = files.item().Name.toLowerCase();
+                            if (fileName.indexOf("(done)") !== -1 || fileName.indexOf("(partial)") !== -1) {
+                                doneCount++;
+                            } else if ((fileName.indexOf(".jpg") !== -1 ||
+                                        fileName.indexOf(".png") !== -1 ||
+                                        fileName.indexOf(".jpeg") !== -1) &&
+                                        fileName.indexOf("(crop)") === -1) {
+                                originalCount++;
+                            }
+                        }
+                    }
+                } catch(e) {
+                    logDebug("Error scanning folder: " + e.description);
+                }
+
+                var doneBatchBtn = document.createElement("button");
+                doneBatchBtn.className = "batch-pill-btn";
+                doneBatchBtn.innerText = "Done";
+                doneBatchBtn.style.marginLeft = "10px";
+                if (originalCount > 0 && doneCount >= originalCount) {
+                    doneBatchBtn.onclick = (function(path, name) {
+                        return function() {
+                            pendingPartialPath = path;
+                            pendingPartialName = name;
+                            showBatchDoneModal();
+                        };
+                    })(subFolder.Path, subFolder.Name);
+                } else {
+                    doneBatchBtn.disabled = true;
+                    doneBatchBtn.style.opacity = "0.4";
+                    doneBatchBtn.style.cursor = "not-allowed";
+                }
+                btnGroup.appendChild(doneBatchBtn);
+
+                headerContainer.appendChild(batchCard);
+
+
+                grid.appendChild(headerContainer);
+
+                var rowContainer = document.createElement("div");
+                rowContainer.className = "image-grid";
+                rowContainer.style.marginBottom = "30px";
+                grid.appendChild(rowContainer);
+
+                // --- SMART FILTERING LOGIC ---
+                var filesArray = [];
+                var filesEnum = new Enumerator(subFolder.Files);
+                for (; !filesEnum.atEnd(); filesEnum.moveNext()) {
+                    filesArray.push(filesEnum.item());
+                }
+
+                for (var i = 0; i < filesArray.length; i++) {
+                    var f = filesArray[i];
+                    if (f.Name.toLowerCase().match(/\.(jpg|jpeg|png)$/)) {
+                        var fileName = f.Name;
+                        var path = f.Path;
+                        
+                        // 1. If it's already a working/done file, show it [cite: 85, 105]
+                        if (fileName.indexOf("(working)") !== -1 || fileName.indexOf("(done)") !== -1 || fileName.indexOf("(partial)") !== -1) {
+                            createImageCard(f, rowContainer);
+                        } 
+                        // 2. If it's an original, only show if no (working) version exists [cite: 86]
+                        else {
+                            var dotPos = path.lastIndexOf(".");
+                            var workingPath = path.substring(0, dotPos) + "(working)" + path.substring(dotPos);
+                            var donePath = path.substring(0, dotPos) + "(working)(done)" + path.substring(dotPos);
+                            var partialPath = path.substring(0, dotPos) + "(working)(partial)" + path.substring(dotPos);
+
+                            
+                            if (!objFSO.FileExists(workingPath) && !objFSO.FileExists(donePath) && !objFSO.FileExists(partialPath)) {
+                                createImageCard(f, rowContainer);
+                            }
+                        }
+                    }
+                }
+            }
+            // (Optional: Repeat similar logic for loose root files if you use them)
+        }
+    }
+
+    function undoDone(path) {
+        try {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            if (path.indexOf("(done)") !== -1 || path.indexOf("(partial)") !== -1) {
+                var newPath = path.replace("(done)", "").replace("(partial)", "");
+                if (!fso.FileExists(newPath)) {
+                    fso.MoveFile(path, newPath);
+                    logDebug("Restored: " + newPath);
+                    refreshGrid();
+                    resizeCards();
+                } else {
+                    logDebug("Error: Original file name already exists.");
+                }
+            }
+        } catch(e) {
+            logDebug("Undo Error: " + e.description);
+        }
+    }
+
+    function createImageCard(file, container) {
+        var card = document.createElement("div");
+        var nameLower = file.Name.toLowerCase();
+        var isDone = nameLower.indexOf("(done)") !== -1;
+        var isPartial = !isDone && nameLower.indexOf("(partial)") !== -1;
+
+        card.className = isDone ? "image-card is-done" : (isPartial ? "image-card is-partial" : "image-card");
+
+        // Image
+        var img = document.createElement("img");
+        img.src = "file:///" + file.Path.replace(/\\/g, "/") + "?t=" + new Date().getTime();
+        card.appendChild(img);
+
+        // Done / Partial pill — sits just above the label bar
+        if (isDone || isPartial) {
+            var tint = document.createElement("div");
+            tint.className = isDone ? "done-overlay" : "partial-overlay";
+            card.appendChild(tint);
+
+            var pill = document.createElement("div");
+            pill.className = isDone ? "done-pill" : "partial-pill";
+            pill.innerText = isDone ? "DONE" : "PARTIAL";
+            card.appendChild(pill);
+
+            var undo = document.createElement("button");
+            undo.className = "undo-btn";
+            undo.innerText = "Undo";
+            undo.onclick = function(e) {
+                var event = e || window.event;
+                if (event.stopPropagation) event.stopPropagation();
+                event.cancelBubble = true;
+                undoDone(file.Path);
+                return false;
+            };
+            card.appendChild(undo);
+        }
+
+        // Label bar — extract scan ID from filename e.g. r001-c002 → R1 · C2
+        var labelText = "";
+        var scanMatch = file.Name.match(/r0*(\d+)-c0*(\d+)/i);
+        if (scanMatch) {
+            labelText = "R" + scanMatch[1] + "  \xB7  C" + scanMatch[2];
+        }
+        var labelBar = document.createElement("div");
+        labelBar.className = "card-label-bar";
+        labelBar.innerText = labelText || "\xA0";
+        card.appendChild(labelBar);
+
+        card.onclick = (function(p) { return function() { openEditMode(p); }; })(file.Path);
+        container.appendChild(card);
+    }
+
+    function openEditMode(path) {
+        closeCalc();
+        var fso = new ActiveXObject("Scripting.FileSystemObject");
+        var folderPath = fso.GetParentFolderName(path) + "\\";
+        var fileName = fso.GetFileName(path);
+        var extension = fso.GetExtensionName(path);
+        var baseName = fileName.substring(0, fileName.lastIndexOf("."));
+
+        // If we are opening a file that isn't already a "working" file [cite: 42, 60]
+        if (fileName.indexOf("(working)") !== -1) {
+                currentEditImagePath = path;
+            } else {
+                // It's an original; check if a working copy exists before making a new one
+                var baseName = fileName.substring(0, fileName.lastIndexOf("."));
+                var workingPath = folderPath + baseName + "(working)." + extension;
+
+                if (fso.FileExists(workingPath)) {
+                    currentEditImagePath = workingPath;
+                    logDebug("Found existing working copy.");
+                } else {
+                    fso.CopyFile(path, workingPath);
+                    currentEditImagePath = workingPath;
+                    logDebug("Created new working copy.");
+                }
+            }
+
+        var img = document.getElementById("editImage");
+        var container = document.getElementById("viewerContainer");
+
+        img.onload = function() {
+            // Store the true original dimensions
+            imgOrigWidth = img.width;
+            imgOrigHeight = img.height;
+            
+            var containerW = container.clientWidth - 40;
+            var containerH = container.clientHeight - 40;
+            
+            // Calculate scale for both width and height
+            var scaleW = containerW / imgOrigWidth;
+            var scaleH = containerH / imgOrigHeight;
+            
+            // Use the SMALLER scale. This ensures a wide image 
+            // stays wide and fits inside the box without stretching.
+            scale = Math.min(scaleW, scaleH);
+            
+            // Calculate starting position to center the image
+            posX = (container.clientWidth - (imgOrigWidth * scale)) / 2;
+            posY = (container.clientHeight - (imgOrigHeight * scale)) / 2;
+            
+            rotationValue = 0;
+            displayRotation = 0; // clear any leftover rotation from a previously edited image
+            applyTransform();
+        };
+        img.src = currentEditImagePath + "?t=" + new Date().getTime();
+
+        // Update the drag thumbnail with the actual working file
+        refreshDragThumbnail();
+		document.getElementById("mainWorkArea").className = "hidden";
+        document.getElementById("editArea").className = "";
+    }
+
+    function resetTransform() {
+        var container = document.getElementById("viewerContainer");
+        // We use the 'scale' calculated in openEditMode instead of forcing 1.0
+        // This prevents the image from jumping to its "giant" original size
+        rotationValue = 0;
+        
+        // This math keeps the image centered and correctly sized
+        posX = (container.clientWidth - (imgOrigWidth * scale)) / 2;
+        posY = (container.clientHeight - (imgOrigHeight * scale)) / 2;
+        
+        applyTransform()
+    }
+
+    function applyTransform() {
+        var img = document.getElementById("editImage");
+        if (!img) return;
+        
+        // This ensures the image keeps its natural proportions
+        var currentW = Math.round(imgOrigWidth * scale);
+        var currentH = Math.round(imgOrigHeight * scale);
+        
+        img.style.width = currentW + "px";
+        img.style.height = "auto"; // Changing this to 'auto' prevents the squish
+        
+        // Position the image for dragging
+        img.style.left = Math.round(posX) + "px";
+        img.style.top = Math.round(posY) + "px";
+        
+        // Handle Rotation
+        var deg = displayRotation * 90;
+        img.style.transform = "rotate(" + deg + "deg)";
+        img.style.filter = "progid:DXImageTransform.Microsoft.BasicImage(rotation=" + displayRotation + ")";
+    }
+
+    var rotationSaveTimer = null;
+
+    function rotateImage() {
+        rotationValue = (rotationValue + 1) % 4;
+        displayRotation = rotationValue;
+        applyTransform();
+
+        // Cancel any pending save and restart the 3-second countdown
+        if (rotationSaveTimer) clearTimeout(rotationSaveTimer);
+        rotationSaveTimer = setTimeout(function() {
+            rotationSaveTimer = null;
+            silentSaveRotation();
+        }, 3000);
+    }
+
+    function silentSaveRotation() {
+        if (rotationValue === 0) return;
+        if (isCropping) return;
+        saveWorkingFileChanges(); // sets rotationValue = 0, file is now physically rotated
+        // displayRotation stays as-is so the canvas keeps showing the correct orientation
+        refreshDragThumbnail();
+    }
+    
+    function refreshDragThumbnail() {
+        try {
+            var dragImg = document.getElementById("dragPreview");
+            if (!dragImg || !currentEditImagePath) return;
+            // Load a fresh copy of the current working file into the thumbnail
+            var t = new Date().getTime();
+            dragImg.src = "about:blank";
+            setTimeout(function() {
+                dragImg.src = currentEditImagePath + "?t=" + t;
+            }, 100);
+            // Wire the img itself for drag — the IE/HTA engine can drag a file:/// img as a real file
+            dragImg.ondragstart = function() {
+                // Returning true lets the browser handle this as a native image/file drag
+                return true;
+            };
+            logDebug("Drag thumbnail refreshed: " + currentEditImagePath);
+        } catch(ex) { logDebug("DragHandle error: " + ex.description); }
+    }
+
+    function closeEditMode() {
+        closeCalc();
+        // Switch the screen IMMEDIATELY so it feels fast
+        document.getElementById("editArea").className = "hidden";
+        document.getElementById("mainWorkArea").className = "";
+        
+        setTimeout(function() {
+            saveWorkingFileChanges();
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            var tempFolder = WORKERS_PATH + currentUserFolder + "\\Temp\\";
+            if (fso.FolderExists(tempFolder)) {
+                try {
+                    // Delete all files in temp
+                    var folder = fso.GetFolder(tempFolder);
+                    var files = new Enumerator(folder.Files);
+                    for (; !files.atEnd(); files.moveNext()) {
+                        fso.DeleteFile(files.item().Path, true);
+                    }
+                } catch(e) {}
+            }
+            refreshGrid();
+            resizeCards();
+        }, 100); 
+    }
+
+	function markAsDone() {
+		if (!currentEditImagePath) return;
+        if (currentEditImagePath.toLowerCase().indexOf("(done)") !== -1) {
+            closeEditMode();
+            return;
+        }
+        document.getElementById("confirmPartialPopup").className = "login-card hidden";
+        document.getElementById("confirmBatchDonePopup").className = "login-card hidden";
+        document.getElementById("confirmDonePopup").className = "login-card";
+        document.getElementById("passwordPopup").className = "login-card hidden";
+        document.getElementById("newUserPopup").className = "login-card hidden";
+        document.getElementById("modalOverlay").className = "";
+        document.getElementById("modalOverlay").style.display = "flex";
+    }
+
+    function confirmMarkAsDone() {
+        closeModal();
+        try {
+			var fso = new ActiveXObject("Scripting.FileSystemObject");
+			var ext = currentEditImagePath.substring(currentEditImagePath.lastIndexOf("."));
+			var base = currentEditImagePath.substring(0, currentEditImagePath.lastIndexOf("."));
+			var newPath = base + "(done)" + ext;
+			fso.MoveFile(currentEditImagePath, newPath);
+
+			// Check if the parent batch folder is now fully done
+			var parentFolder = fso.GetFolder(fso.GetParentFolderName(newPath));
+			var allDone = true;
+			var fileCount = 0;
+			var filesEnum = new Enumerator(parentFolder.Files);
+			for (; !filesEnum.atEnd(); filesEnum.moveNext()) {
+				var f = filesEnum.item();
+				if (f.Name.toLowerCase().match(/\.(jpg|jpeg|png)$/)) {
+					fileCount++;
+					if (f.Name.toLowerCase().indexOf("(done)") === -1) {
+						allDone = false;
+					}
+				}
+			}
+
+			// Only move if folder has images (2 or 4) and all are done
+			if (fileCount >= 2 && allDone) {
+				var doneBase = DONE_PATH;
+				if (!fso.FolderExists(doneBase)) {
+					fso.CreateFolder(doneBase);
+				}
+				var destPath = doneBase + parentFolder.Name;
+				// Avoid collision if folder name already exists at destination
+				if (fso.FolderExists(destPath)) {
+					destPath = doneBase + parentFolder.Name + "_" + (new Date()).getTime();
+				}
+				logDebug("All files done in " + parentFolder.Name + ". Moving to Indexed folder.");
+				fso.MoveFolder(parentFolder.Path, destPath);
+			}
+
+			closeEditMode();
+		} catch(e) { 
+			logDebug("MarkDone Error: " + e.description);
+			closeEditMode();
+		}
+	}
+
+    // ── Calculator ──────────────────────────────────────────────
+    var calcState = { display: "0", first: null, op: null, fresh: true };
+
+    function buildCalc() {
+        // Build a proper 4-column grid using a table — HTA uses IE engine which has poor CSS grid support
+        // Layout:
+        // Row 1: C  | +/- | %  | /
+        // Row 2: 7  |  8  | 9  | *
+        // Row 3: 4  |  5  | 6  | -
+        // Row 4: 1  |  2  | 3  | = (rowspan 2)
+        // Row 5: 0 (colspan 2) | .  | (= continues)
+
+        var container = document.getElementById("calcButtons");
+        container.innerHTML = "";
+
+        var tbl = document.createElement("table");
+        tbl.style.cssText = "width:100%; border-collapse:separate; border-spacing:5px; table-layout:fixed;";
+
+        function makeBtn(label, cls, handler, rs, cs) {
+            var td = document.createElement("td");
+            if (rs) { td.rowSpan = rs; td.style.height = "1px"; }  // height:1px lets child use height:100%
+            if (cs) td.colSpan = cs;
+            td.style.padding = "0";
+            var btn = document.createElement("button");
+            btn.innerText = label;
+            // rowspan buttons use height:100% to fill their td; normal buttons use fixed 48px
+            var h = rs ? "100%" : "48px";
+            btn.style.cssText = "width:100%; height:" + h + "; min-height:48px; font-size:15px; font-weight:bold; cursor:pointer; border-radius:6px; border:1px solid #3a3a3f; box-sizing:border-box; display:block;";
+            if (cls === "clr")        { btn.style.background = "#2e2e33"; btn.style.color = "#e74c3c"; }
+            else if (cls === "op")    { btn.style.background = "#2e2e33"; btn.style.color = "#27ae60"; }
+            else if (cls === "enter") { btn.style.background = "#27ae60"; btn.style.color = "white"; }
+            else                      { btn.style.background = "#2e2e33"; btn.style.color = "white"; }
+            btn.onmouseover = function() { if (cls !== "enter") this.style.background = "#41434a"; };
+            btn.onmouseout  = function() {
+                if (cls === "clr")        this.style.background = "#2e2e33";
+                else if (cls === "op")    this.style.background = "#2e2e33";
+                else if (cls === "enter") this.style.background = "#27ae60";
+                else                      this.style.background = "#2e2e33";
+            };
+            btn.onclick = handler;
+            td.appendChild(btn);
+            return td;
+        }
+
+        // Layout:
+        // Row 1: C  |  /  |  *  |  -
+        // Row 2: 7  |  8  |  9  |  + (rowspan 2)
+        // Row 3: 4  |  5  |  6  |  (+ continues)
+        // Row 4: 1  |  2  |  3  |  = (rowspan 2)
+        // Row 5: 0 (colspan 2) | .  |  (= continues)
+
+        var rows = [
+            [
+                makeBtn("C", "clr", function(){ calcClear(); }),
+                makeBtn("/", "op",  function(){ calcOp("/"); }),
+                makeBtn("*", "op",  function(){ calcOp("*"); }),
+                makeBtn("-", "op",  function(){ calcOp("-"); })
+            ],
+            [
+                makeBtn("7", "", function(){ calcDigit("7"); }),
+                makeBtn("8", "", function(){ calcDigit("8"); }),
+                makeBtn("9", "", function(){ calcDigit("9"); }),
+                makeBtn("+", "op", function(){ calcOp("+"); }, 2)   // rowspan 2
+            ],
+            [
+                makeBtn("4", "", function(){ calcDigit("4"); }),
+                makeBtn("5", "", function(){ calcDigit("5"); }),
+                makeBtn("6", "", function(){ calcDigit("6"); })
+                // 4th cell is + rowspan continuation
+            ],
+            [
+                makeBtn("1", "", function(){ calcDigit("1"); }),
+                makeBtn("2", "", function(){ calcDigit("2"); }),
+                makeBtn("3", "", function(){ calcDigit("3"); }),
+                makeBtn("=", "enter", function(){ calcEquals(); }, 2)  // rowspan 2
+            ],
+            [
+                makeBtn("0", "", function(){ calcDigit("0"); }, null, 2),  // colspan 2
+                makeBtn(".", "", function(){ calcDot(); })
+                // 4th cell is = rowspan continuation
+            ]
+        ];
+
+        for (var r = 0; r < rows.length; r++) {
+            var tr = document.createElement("tr");
+            for (var c = 0; c < rows[r].length; c++) {
+                tr.appendChild(rows[r][c]);
+            }
+            tbl.appendChild(tr);
+        }
+
+        container.appendChild(tbl);
+    }
+
+    function calcUpdateDisplay() {
+        document.getElementById("calcDisplay").innerText = calcState.display;
+    }
+
+    function calcClear() {
+        calcState = { display: "0", first: null, op: null, fresh: true };
+        calcUpdateDisplay();
+    }
+
+    function calcDigit(d) {
+        if (calcState.fresh) { calcState.display = d; calcState.fresh = false; }
+        else if (calcState.display === "0") calcState.display = d;
+        else calcState.display += d;
+        calcUpdateDisplay();
+    }
+
+    function calcDot() {
+        if (calcState.fresh) { calcState.display = "0."; calcState.fresh = false; return; }
+        if (calcState.display.indexOf(".") === -1) calcState.display += ".";
+        calcUpdateDisplay();
+    }
+
+    function calcNegate() {
+        var v = parseFloat(calcState.display) || 0;
+        calcState.display = String(-v);
+        calcUpdateDisplay();
+    }
+
+    function calcPercent() {
+        var v = parseFloat(calcState.display) || 0;
+        calcState.display = String(v / 100);
+        calcUpdateDisplay();
+    }
+
+    function calcOp(op) {
+        calcState.first = parseFloat(calcState.display) || 0;
+        calcState.op    = op;
+        calcState.fresh = true;
+    }
+
+    function calcEquals() {
+        if (calcState.op === null || calcState.first === null) return;
+        var a = calcState.first;
+        var b = parseFloat(calcState.display) || 0;
+        var r = 0;
+        if      (calcState.op === "+") r = a + b;
+        else if (calcState.op === "-") r = a - b;
+        else if (calcState.op === "*") r = a * b;
+        else if (calcState.op === "/") r = b !== 0 ? a / b : 0;
+        // Round to avoid floating point noise
+        r = Math.round(r * 1e10) / 1e10;
+        calcState.display = String(r);
+        calcState.first   = null;
+        calcState.op      = null;
+        calcState.fresh   = true;
+        calcUpdateDisplay();
+    }
+
+    function runCalc() {
+        var popup = document.getElementById("calcPopup");
+        if (popup.style.display === "none" || popup.style.display === "") {
+            // Position near the Calc button on first open
+            popup.style.display = "block";
+            popup.style.top  = "150px";
+            popup.style.left = "20px";
+            buildCalc();
+            calcClear();
+            setupCalcDrag();
+            setupCalcKeys();
+        } else {
+            closeCalc();
+        }
+    }
+
+    function closeCalc() {
+        document.getElementById("calcPopup").style.display = "none";
+    }
+
+    function setupCalcKeys() {
+        document.onkeydown = function() {
+            var e = window.event;
+            var popup = document.getElementById("calcPopup");
+            if (!popup || popup.style.display === "none") return;
+
+            var k = e.keyCode;
+
+            // Block Enter from activating any focused button
+            if (k === 13) {
+                e.returnValue = false;
+                if (e.preventDefault) e.preventDefault();
+                calcEquals();
+                // Blur whatever button may have focus so it can't intercept next Enter
+                if (document.activeElement && document.activeElement.blur) {
+                    document.activeElement.blur();
+                }
+                return false;
+            }
+
+            if (k >= 48 && k <= 57)     { calcDigit(String.fromCharCode(k)); return; }
+            if (k >= 96 && k <= 105)    { calcDigit(String(k - 96));         return; }
+            if (k === 110 || k === 190) { calcDot();        return; }
+            if (k === 107 || k === 187) { calcOp("+");      return; }
+            if (k === 109 || k === 189) { calcOp("-");      return; }
+            if (k === 106)              { calcOp("*");      return; }
+            if (k === 111)              { calcOp("/");      return; }
+            if (k === 8)                { calcBackspace();  return; }
+            if (k === 46 || k === 27)   { calcClear();      return; }
+        };
+
+        // Prevent all calc buttons from receiving keyboard focus
+        // so Enter can never accidentally trigger a button click
+        var calcBtns = document.getElementById("calcButtons").getElementsByTagName("button");
+        for (var i = 0; i < calcBtns.length; i++) {
+            calcBtns[i].tabIndex = -1;
+        }
+    }
+
+    function calcBackspace() {
+        if (calcState.fresh) return;
+        if (calcState.display.length <= 1) { calcState.display = "0"; calcState.fresh = true; }
+        else calcState.display = calcState.display.substring(0, calcState.display.length - 1);
+        calcUpdateDisplay();
+    }
+
+    function setupCalcDrag() {
+        var popup  = document.getElementById("calcPopup");
+        var header = document.getElementById("calcHeader");
+        header.onmousedown = function(e) {
+            e = e || window.event;
+            var startX  = e.clientX;
+            var startY  = e.clientY;
+            var startL  = parseInt(popup.style.left)  || 0;
+            var startT  = parseInt(popup.style.top)   || 0;
+            document.onmousemove = function(e2) {
+                e2 = e2 || window.event;
+                popup.style.left = (startL + e2.clientX - startX) + "px";
+                popup.style.top  = (startT + e2.clientY - startY) + "px";
+            };
+            document.onmouseup = function() {
+                document.onmousemove = null;
+                document.onmouseup   = null;
+            };
+        };
+    }
+    // ── End Calculator ───────────────────────────────────────────
+
+    function applyCrop() {
+        var box = document.getElementById("cropBox");
+        var img = document.getElementById("editImage");
+        
+        if (!box || !img) return;
+
+        // 1. Get the positions on the screen
+        var imgRect = img.getBoundingClientRect();
+        var boxRect = box.getBoundingClientRect();
+
+        // 2. Account for current rotation when mapping screen->file coordinates
+        var isRotated = (rotationValue === 1 || rotationValue === 3);
+        var fileW = isRotated ? img.naturalHeight : img.naturalWidth;
+        var fileH = isRotated ? img.naturalWidth : img.naturalHeight;
+        var scaleX = fileW / img.offsetWidth;
+        var scaleY = fileH / img.offsetHeight;
+
+        // 3. Translate screen box to file coordinates, correcting for rotation
+        var relX = (boxRect.left - imgRect.left) * scaleX;
+        var relY = (boxRect.top - imgRect.top) * scaleY;
+        var relW = box.offsetWidth * scaleX;
+        var relH = box.offsetHeight * scaleY;
+
+        var rX, rY, rW, rH;
+        if (rotationValue === 0) {
+            rX = relX; rY = relY; rW = relW; rH = relH;
+        } else if (rotationValue === 1) {
+            rX = relY; rY = fileH - relX - relW; rW = relH; rH = relW;
+        } else if (rotationValue === 2) {
+            rX = fileW - relX - relW; rY = fileH - relY - relH; rW = relW; rH = relH;
+        } else if (rotationValue === 3) {
+            rX = fileW - relY - relH; rY = relX; rW = relH; rH = relW;
+        }
+        rX = Math.round(rX); rY = Math.round(rY);
+        rW = Math.round(rW); rH = Math.round(rH);
+
+        // 4. Show loading FIRST, then exit crop UI
+        showLoading("Applying crop...");
+
+        try {
+            var shell = new ActiveXObject("WScript.Shell");
+            var p = currentEditImagePath.replace(/\\/g, "\\\\");
+            
+            var cmd = "powershell -windowstyle hidden -command \"[void][Reflection.Assembly]::LoadWithPartialName('System.Drawing'); " +
+                "$src = [System.Drawing.Image]::FromFile('" + p + "'); " +
+                "$dest = New-Object System.Drawing.Bitmap(" + rW + "," + rH + "); " + 
+                "$dest.SetResolution($src.HorizontalResolution, $src.VerticalResolution); " +
+                "$g = [System.Drawing.Graphics]::FromImage($dest); " +
+                "$g.InterpolationMode = 'HighQualityBicubic'; " +
+                "$g.SmoothingMode = 'HighQuality'; " +
+                "$g.PixelOffsetMode = 'HighQuality'; " +
+                "$rect = New-Object System.Drawing.Rectangle(" + rX + "," + rY + "," + rW + "," + rH + "); " +
+                "$g.DrawImage($src, 0, 0, $rect, [System.Drawing.GraphicsUnit]::Pixel); " +
+                "$g.Dispose(); $src.Dispose(); " +
+                "$dest.Save('" + p + ".tmp', [System.Drawing.Imaging.ImageFormat]::Jpeg); " +
+                "$dest.Dispose(); " +
+                "Move-Item -Force '" + p + ".tmp' '" + p + "'\"";
+
+            shell.Run(cmd, 0, true);
+
+            // 5. NOW exit crop mode and hide loading, AFTER the save is complete
+            exitCropUI();
+            hideLoading();
+
+            // 6. Reload the image and fit-and-center it to the viewer
+            var container = document.getElementById("viewerContainer");
+            img.onload = function() {
+                imgOrigWidth = img.naturalWidth;
+                imgOrigHeight = img.naturalHeight;
+
+                var containerW = container.clientWidth - 40;
+                var containerH = container.clientHeight - 40;
+                var scaleW = containerW / imgOrigWidth;
+                var scaleH = containerH / imgOrigHeight;
+                scale = Math.min(scaleW, scaleH);
+
+                posX = (container.clientWidth - (imgOrigWidth * scale)) / 2;
+                posY = (container.clientHeight - (imgOrigHeight * scale)) / 2;
+
+                rotationValue = 0;
+                displayRotation = 0; // the cropped file already has any rotation baked in, so clear leftover CSS rotation
+                applyTransform();
+            };
+            img.src = "about:blank";
+            setTimeout(function() {
+                img.src = currentEditImagePath + "?t=" + new Date().getTime();
+                refreshDragThumbnail();
+            }, 300);
+
+        } catch(e) {
+            exitCropUI();
+            hideLoading();
+            alert("Error applying crop: " + e.description);
+        }
+    }
+
+    function startCropDraw() {
+        var e = window.event;
+        if (!isCropping) return;
+        window.event.cancelBubble = true;
+
+        // STOP the click from reaching the image panning logic
+        e.cancelBubble = true; 
+        if (e.stopPropagation) e.stopPropagation();
+
+        var container = document.getElementById("viewerContainer");
+        var box = document.getElementById("cropBox");
+        var rect = container.getBoundingClientRect();
+
+        // If we clicked inside the box to move it, handle that instead
+        if (e.srcElement.id === "cropBox") {
+            startCropMove(e);
+            return;
+        }
+
+        // If a box is already drawn, ignore any click outside it — don't restart
+        if (box.className.indexOf("hidden") === -1 && parseInt(box.style.width) > 5) {
+            return;
+        }
+
+        cropStartX = e.clientX - rect.left;
+        cropStartY = e.clientY - rect.top;
+
+        box.style.left = cropStartX + "px";
+        box.style.top = cropStartY + "px";
+        box.style.width = "0px";
+        box.style.height = "0px";
+        box.className = ""; 
+
+        document.onmousemove = function() {
+            var moveE = window.event;
+            var curX = moveE.clientX - rect.left;
+            var curY = moveE.clientY - rect.top;
+            
+            box.style.width = Math.abs(curX - cropStartX) + "px";
+            box.style.height = Math.abs(curY - cropStartY) + "px";
+            box.style.left = Math.min(curX, cropStartX) + "px";
+            box.style.top = Math.min(curY, cropStartY) + "px";
+        };
+
+        document.onmouseup = function() {
+            document.onmousemove = null;
+        };
+    }
+
+    function startCropMove(e) {
+        var box = document.getElementById("cropBox");
+        var startMouseX = e.clientX;
+        var startMouseY = e.clientY;
+        
+        // Use || 0 to handle cases where style.left isn't set yet
+        var startBoxX = parseInt(box.style.left) || 0;
+        var startBoxY = parseInt(box.style.top) || 0;
+
+        document.onmousemove = function() {
+            var moveE = window.event;
+            box.style.left = (startBoxX + (moveE.clientX - startMouseX)) + "px";
+            box.style.top = (startBoxY + (moveE.clientY - startMouseY)) + "px";
+        };
+
+        document.onmouseup = function() {
+            document.onmousemove = null;
+        };
+    }
+
+    function enterCropUI() {
+        // Flush any pending rotation to disk BEFORE cropping starts, so the
+        // crop math always works against the image's true current orientation.
+        if (rotationSaveTimer) {
+            clearTimeout(rotationSaveTimer);
+            rotationSaveTimer = null;
+        }
+        if (rotationValue !== 0) {
+            saveWorkingFileChanges();
+        }
+
+        isCropping = true;
+
+        // Reset hover state on all buttons first
+        var allBtns = document.getElementById("editArea").getElementsByTagName("button");
+        for (var i = 0; i < allBtns.length; i++) { allBtns[i].style.backgroundColor = "transparent"; }
+
+        document.getElementById("btnLeft").className = "edit-control-btn hidden";
+
+        // Button 2: Cancel (red transparent style)
+        var b2 = document.getElementById("btnCenter");
+        b2.innerHTML = '<img src="M:\\Obituary Project\\Colored Icons\\Cancel.png" class="btn-icon"><span>Cancel</span>';
+        b2.style.backgroundColor = "transparent";
+        b2.style.border = "2px solid #e74c3c";
+        b2.style.color = "#e74c3c";
+        b2.onmouseover = function() { this.style.backgroundColor = "rgba(231,76,60,0.15)"; };
+        b2.onmouseout = function() { this.style.backgroundColor = "transparent"; };
+
+        // Button 3: Apply (green transparent style)
+        var b3 = document.getElementById("btnRight");
+        b3.innerHTML = '<img src="M:\\Obituary Project\\Colored Icons\\Apply.png" class="btn-icon"><span>Apply</span>';
+        b3.style.backgroundColor = "transparent";
+        b3.style.border = "2px solid #27ae60";
+        b3.style.color = "#27ae60";
+        b3.onmouseover = function() { this.style.backgroundColor = "rgba(39,174,96,0.15)"; };
+        b3.onmouseout = function() { this.style.backgroundColor = "transparent"; };
+
+        // Hide Upload and the main Reset button
+
+        document.getElementById("btnReset").style.display = "none";
+        document.getElementById("btnPartial").style.display = "none";
+        document.getElementById("btnDone").style.display = "none";
+        document.getElementById("btnReturn").style.display = "none";
+
+        // Show the crop overlay
+        document.getElementById("cropOverlay").className = "crop-overlay";
+        var box = document.getElementById("cropBox");
+        box.style.left = "0px";
+        box.style.top = "0px";
+        box.style.width = "0px";
+        box.style.height = "0px";
+        box.className = "hidden";
+
+        box.innerHTML = '<div class="resize-handle" style="top:-5px; left:-5px; cursor:nw-resize;" onmousedown="startResize(\'nw\')"></div>' + 
+                        '<div class="resize-handle" style="top:-5px; right:-5px; cursor:ne-resize;" onmousedown="startResize(\'ne\')"></div>' + 
+                        '<div class="resize-handle" style="bottom:-5px; left:-5px; cursor:sw-resize;" onmousedown="startResize(\'sw\')"></div>' + 
+                        '<div class="resize-handle" style="bottom:-5px; right:-5px; cursor:se-resize;" onmousedown="startResize(\'se\')"></div>' +
+                        '<div class="edge-handle" style="width:24px; height:8px; top:-4px; left:50%; margin-left:-12px; cursor:n-resize;" onmousedown="startResize(\'n\')"></div>' +
+                        '<div class="edge-handle" style="width:24px; height:8px; bottom:-4px; left:50%; margin-left:-12px; cursor:s-resize;" onmousedown="startResize(\'s\')"></div>' +
+                        '<div class="edge-handle" style="width:8px; height:24px; left:-4px; top:50%; margin-top:-12px; cursor:w-resize;" onmousedown="startResize(\'w\')"></div>' +
+                        '<div class="edge-handle" style="width:8px; height:24px; right:-4px; top:50%; margin-top:-12px; cursor:e-resize;" onmousedown="startResize(\'e\')"></div>';
+    }
+
+    function exitCropUI() {
+        isCropping = false;
+
+        // Reset hover state on all buttons first
+        var allBtns = document.getElementById("editArea").getElementsByTagName("button");
+        for (var i = 0; i < allBtns.length; i++) { allBtns[i].style.backgroundColor = "transparent"; }
+
+        document.getElementById("btnLeft").className = "edit-control-btn";
+
+        // Restore Button 1: Calc (green transparent style)
+        var b1 = document.getElementById("btnLeft");
+        b1.innerHTML = '<img src="M:\\Obituary Project\\Colored Icons\\Calc.png" class="btn-icon"><span>Calc</span>';
+        b1.style.backgroundColor = "transparent";
+        b1.style.border = "2px solid #27ae60";
+        b1.style.color = "#27ae60";
+        b1.onmouseover = function() { this.style.backgroundColor = "rgba(39,174,96,0.15)"; };
+        b1.onmouseout = function() { this.style.backgroundColor = "transparent"; };
+
+        // Restore Button 2: Rotate (green transparent style)
+        var b2 = document.getElementById("btnCenter");
+        b2.innerHTML = '<img src="M:\\Obituary Project\\Colored Icons\\Rotate.png" style="transform: scaleX(-1);" class="btn-icon"><span>Rotate</span>';
+        b2.style.backgroundColor = "transparent";
+        b2.style.border = "2px solid #27ae60";
+        b2.style.color = "#27ae60";
+        b2.onmouseover = function() { this.style.backgroundColor = "rgba(39,174,96,0.15)"; };
+        b2.onmouseout = function() { this.style.backgroundColor = "transparent"; };
+
+        // Restore Button 3: Crop (green transparent style)
+        var b3 = document.getElementById("btnRight");
+        b3.innerHTML = '<img src="M:\\Obituary Project\\Colored Icons\\Crop.png" class="btn-icon"><span>Crop</span>';
+        b3.style.backgroundColor = "transparent";
+        b3.style.border = "2px solid #27ae60";
+        b3.style.color = "#27ae60";
+        b3.onmouseover = function() { this.style.backgroundColor = "rgba(39,174,96,0.15)"; };
+        b3.onmouseout = function() { this.style.backgroundColor = "transparent"; };
+
+        document.getElementById("cropOverlay").className = "hidden";
+        document.getElementById("cropBox").className = "hidden";
+        document.getElementById("btnPartial").style.display = "";
+        document.getElementById("btnReset").style.display = "";
+        document.getElementById("btnDone").style.display = "";
+        document.getElementById("btnReturn").style.display = "";
+        
+    }
+
+    function handleLeftBtn() {
+        if (isCropping) {
+            alert("Reset feature coming soon.");
+        } else {
+            runCalc();
+        }
+    }
+
+    function handleCenterBtn() {
+        if (isCropping) {
+            exitCropUI();
+        } else {
+            rotateImage();
+        }
+    }
+
+    function handleRightBtn() {
+        if (isCropping) {
+            applyCrop();
+        } else {
+            // Step 1: Stop any pending auto-save timer
+            if (rotationSaveTimer) { clearTimeout(rotationSaveTimer); rotationSaveTimer = null; }
+
+            // Step 2: Always save if there is any unsaved rotation on screen
+            // We check displayRotation because that's the source of truth for what's visible
+            if (displayRotation !== 0) {
+                showLoading("Saving rotation before crop...");
+                setTimeout(function() {
+                    // Force rotationValue to match what's displayed so saveWorkingFileChanges saves correctly
+                    rotationValue = displayRotation;
+                    saveWorkingFileChanges(); // This saves and sets rotationValue = 0
+                    displayRotation = 0;
+
+                    // Step 3: Reload the image from the newly saved file then enter crop
+                    var img = document.getElementById("editImage");
+                    img.onload = function() {
+                        imgOrigWidth = img.naturalWidth;
+                        imgOrigHeight = img.naturalHeight;
+                        applyTransform();
+                        hideLoading();
+                        enterCropUI();
+                    };
+                    img.src = currentEditImagePath + "?t=" + new Date().getTime();
+                }, 50);
+            } else {
+                // No unsaved rotation — safe to enter crop immediately
+                enterCropUI();
+            }
+        }
+    }
+
+    function startResize(dir) {
+        isResizing = true;
+        var e = window.event;
+        e.cancelBubble = true; // Stop event from triggering 'startCropDraw'
+
+        var box = document.getElementById("cropBox");
+        var startW = parseInt(box.style.width);
+        var startH = parseInt(box.style.height);
+        var startL = parseInt(box.style.left);
+        var startT = parseInt(box.style.top);
+        var startX = e.clientX;
+        var startY = e.clientY;
+
+        document.onmousemove = function() {
+            var m = window.event;
+            var diffX = m.clientX - startX;
+            var diffY = m.clientY - startY;
+
+            if (dir.indexOf('e') !== -1) box.style.width = (startW + diffX) + "px";
+            if (dir.indexOf('s') !== -1) box.style.height = (startH + diffY) + "px";
+            if (dir.indexOf('w') !== -1) {
+                box.style.left = (startL + diffX) + "px";
+                box.style.width = (startW - diffX) + "px";
+            }
+            if (dir.indexOf('n') !== -1) {
+                box.style.top = (startT + diffY) + "px";
+                box.style.height = (startH - diffY) + "px";
+            }
+        };
+
+        document.onmouseup = function() {
+            document.onmousemove = null;
+            isResizing = false;
+        };
+    }
+
+	function setupViewerEvents() {
+		var container = document.getElementById("viewerContainer");
+
+		container.onmousedown = function() {
+			if (isCropping) return;
+			var e = window.event;
+
+			if (e.srcElement.id === "dragHandle" || e.srcElement.id === "dragPreview") {
+				return; 
+			}
+
+			isDragging = true;
+			startX = e.clientX - posX;
+			startY = e.clientY - posY;
+
+            try {
+				container.setCapture();
+			} catch(err) {}
+
+			return false;
+		};
+
+		container.onmousemove = function() {
+			if (!isDragging) return;
+			var e = window.event;
+			posX = e.clientX - startX;
+			posY = e.clientY - startY;
+			applyTransform();
+		};
+
+		container.onmouseup = function() {
+			isDragging = false;
+			container.releaseCapture();
+		};
+
+		container.onmousewheel = handleZoom;
+	}
+	
+	function handleZoom() {
+		var e = window.event;
+		var delta = e.wheelDelta / 120;
+		var oldScale = scale;
+
+		if (delta > 0) scale *= 1.1;
+		else scale *= 0.9;
+		scale = Math.max(0.1, Math.min(scale, 10));
+
+		var container = document.getElementById("viewerContainer");
+		var centerX = container.clientWidth / 2;
+		var centerY = container.clientHeight / 2;
+
+		posX = centerX - (centerX - posX) * (scale / oldScale);
+		posY = centerY - (centerY - posY) * (scale / oldScale);
+
+		applyTransform();
+		return false;
+	}	
+
+    var resizeTimer = null;
+
+    function resizeCards() {
+        var grid = document.getElementById("imageGrid");
+        if (!grid) return;
+        var gridWidth = grid.offsetWidth;
+        if (gridWidth === 0) return;
+
+        var minGap = 5;
+        var maxGap = 15;
+
+        var cardWidthAtMinGap = Math.floor((gridWidth - (4 * minGap * 2)) / 4);
+
+        var cardWidth, gap;
+
+        if (cardWidthAtMinGap >= 220) {
+            cardWidth = 220;
+            gap = Math.floor((gridWidth - (4 * 220)) / (4 * 2));
+            if (gap > maxGap) gap = maxGap;
+        } else {
+            cardWidth = cardWidthAtMinGap;
+            gap = minGap;
+        }
+
+        var cards = document.getElementsByClassName("image-card");
+        for (var i = 0; i < cards.length; i++) {
+            cards[i].style.width = cardWidth + "px";
+            cards[i].style.margin = gap + "px";
+        }
+    }
+
+    window.onload = function() {
+        window.resizeTo(screen.availWidth, screen.availHeight);
+        window.moveTo(0, 0);
+        setupViewerEvents();
+        loadFolderList();
+        logDebug("App Initialized.");
+    };
+
+    window.onresize = function() {
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            resizeCards();
+        }, 200);
+    };
+	
+	function requestNewBatch() {
+		if (!currentUserFolder) {
+			alert("Please log in first.");
+			return;
+		}
+
+		var fso = new ActiveXObject("Scripting.FileSystemObject");
+		var sourcePools = [
+            SOURCE_PATH + "2025",
+            SOURCE_PATH + "2026_01",
+            SOURCE_PATH + "2026_02"
+        ];
+
+        var userDestination = WORKERS_PATH + currentUserFolder + "\\";
+		var folderToMove = ""; // Variable to store the path safely [cite: 224]
+        var folderToMoveName = "";
+
+		try {
+			if (!fso.FolderExists(userDestination)) {
+				alert("Your personal folder does not exist on the M: drive.");
+				return;
+			}
+
+			// --- STEP 1: Find a folder without moving it yet ---
+			for (var i = 0; i < sourcePools.length; i++) {
+				var poolPath = sourcePools[i];
+				if (fso.FolderExists(poolPath)) {
+					var poolFolder = fso.GetFolder(poolPath);
+					var subFolders = new Enumerator(poolFolder.SubFolders);
+
+					for (; !subFolders.atEnd(); subFolders.moveNext()) {
+						var sub = subFolders.item();
+						if (sub.Files.Count > 0) {
+							var checkPath = userDestination + sub.Name;
+							if (!fso.FolderExists(checkPath)) {
+								folderToMove = sub.Path; // Store the path [cite: 228]
+                                folderToMoveName = sub.Name;
+								break; // Break the inner loop
+							}
+						}
+					}
+				}
+				if (folderToMove !== "") break; // Break the outer loop
+			}
+            subFolders = null;
+            poolFolder = null;
+
+			// --- STEP 2: Perform the move OUTSIDE the loop ---
+			if (folderToMove !== "") {
+                logDebug("Found batch: " + folderToMove + ". Moving now...");
+
+                logDebug("SOURCE: " + folderToMove);
+                logDebug("DEST: " + userDestination);
+                subFolders = null;
+                poolFolder = null;
+                var fso2 = new ActiveXObject("Scripting.FileSystemObject");
+                fso2.MoveFolder(folderToMove, userDestination + folderToMoveName);
+                logDebug("Move complete. Starting auto-rotation...");
+
+                var movedFolderPath = userDestination + folderToMoveName;
+
+                // Failsafe pre-clean: remove any stray plain (working) files
+                // from this newly-moved folder before auto-rotation creates
+                // fresh ones. (working)(done) files are never touched.
+                cleanNewBatchWorkingFiles(movedFolderPath);
+
+                showLoading("Auto Rotating...");
+
+                setTimeout(function() {
+                    autoRotateBatch(movedFolderPath, function() {
+                        hideLoading();
+                        refreshGrid();
+                        resizeCards();
+                        logDebug("Auto-rotation complete. Grid refreshed.");
+                    });
+                }, 800);
+
+            } else {
+                alert("No new batches found.");
+            }
+
+		} catch (e) {
+			logDebug("Path Error: " + e.description); // Catch the path error here [cite: 231]
+		}
+	}
+	
+    function autoRotateBatch(folderPath, callback) {
+        try {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            if (!fso.FolderExists(folderPath)) { callback(); return; }
+
+            var folder = fso.GetFolder(folderPath);
+            var filesEnum = new Enumerator(folder.Files);
+            var imageFiles = [];
+
+            for (; !filesEnum.atEnd(); filesEnum.moveNext()) {
+                var f = filesEnum.item();
+                var name = f.Name.toLowerCase();
+                if (name.match(/\.(jpg|jpeg|png)$/) && name.indexOf("(working)") === -1) {
+                    imageFiles.push({ path: f.Path, name: f.Name });
+                }
+            }
+
+            var shell = new ActiveXObject("WScript.Shell");
+
+            // Step 1: copy every original into its working file (fast, local disk copy)
+            var toRotate = []; // { path, rot }
+            for (var i = 0; i < imageFiles.length; i++) {
+                var file = imageFiles[i];
+                var nameLower = file.name.toLowerCase();
+
+                var rotIndex = 0;
+                if (nameLower.indexOf("r001-c001") !== -1) { rotIndex = 1; }
+                else if (nameLower.indexOf("r001-c002") !== -1) { rotIndex = 3; }
+                else if (nameLower.indexOf("r002-c001") !== -1) { rotIndex = 1; }
+                else if (nameLower.indexOf("r002-c002") !== -1) { rotIndex = 3; }
+
+                var ext = fso.GetExtensionName(file.name);
+                var baseName = file.name.substring(0, file.name.lastIndexOf("."));
+                var workingPath = folderPath + "\\" + baseName + "(working)." + ext;
+
+                if (fso.FileExists(workingPath)) continue; // already has a working copy
+
+                fso.CopyFile(file.path, workingPath);
+                logDebug("Created working copy: " + workingPath);
+
+                if (rotIndex !== 0) {
+                    toRotate.push({ path: workingPath, rot: rotIndex });
+                }
+            }
+
+            // Step 2: rotate ALL of them in ONE PowerShell process instead of
+            // launching a separate powershell.exe per image (this was the
+            // "one at a time" delay)
+            if (toRotate.length > 0) {
+                var psLines = ["[Reflection.Assembly]::LoadWithPartialName('System.Drawing') | Out-Null;"];
+                for (var j = 0; j < toRotate.length; j++) {
+                    var p = toRotate[j].path;
+                    var r = toRotate[j].rot;
+                    psLines.push(
+                        "$img = [System.Drawing.Image]::FromFile('" + p + "'); " +
+                        "$img.RotateFlip(" + r + "); " +
+                        "$img.Save('" + p + ".tmp', [System.Drawing.Imaging.ImageFormat]::Jpeg); " +
+                        "$img.Dispose(); " +
+                        "if (Test-Path '" + p + ".tmp') { Remove-Item '" + p + "' -Force; Move-Item '" + p + ".tmp' -Destination '" + p + "' -Force };"
+                    );
+                }
+                var psCmd = "powershell -Command \"" + psLines.join(" ") + "\"";
+                shell.Run(psCmd, 0, true); // waits ONCE for all images together
+                logDebug("Auto-rotated " + toRotate.length + " image(s) in a single batch.");
+            }
+
+            callback();
+
+        } catch(e) {
+            logDebug("Auto-rotate error: " + e.description);
+            callback();
+        }
+    }
+
+    function openModal() {
+        // Clear all fields and reset labels
+        document.getElementById("firstName").value = "";
+        document.getElementById("lastName").value = "";
+        document.getElementById("newUserYear").value = "";
+        document.getElementById("lbl_firstName").style.display = "";
+        document.getElementById("lbl_lastName").style.display = "";
+        document.getElementById("lbl_newUserYear").style.display = "";
+
+        // Show the New User popup, hide the Password one
+        document.getElementById("newUserPopup").className = "login-card";
+        document.getElementById("passwordPopup").className = "login-card hidden";
+        setTimeout(function() { document.getElementById("firstName").focus(); }, 50);
+        
+        var el = document.getElementById("modalOverlay");
+        el.className = "";
+        el.style.display = "flex";
+    }
+	
+	function closeModal() {
+        var popups = ["newUserPopup","confirmDonePopup","confirmPartialPopup","passwordPopup","confirmBatchDonePopup","fileCompletedPopup"];
+        for (var i = 0; i < popups.length; i++) {
+            var p = document.getElementById(popups[i]);
+            if (p) p.className = "login-card hidden";
+        }
+        document.getElementById("modalOverlay").className = "hidden";
+        document.getElementById("modalOverlay").style.display = "none";
+    }
+
+    function createNewWorkspace() {
+        var first = document.getElementById("firstName").value.trim();
+        var last = document.getElementById("lastName").value.trim();
+        var year = document.getElementById("newUserYear").value.trim();
+        
+        // Merge names with a space 
+        var fullName = first + " " + last;
+
+        if (first == "" || last == "" || year == "") {
+            alert("Please fill in all three boxes (First Name, Last Name, and Year).");
+            return;
+        }
+
+        if (!/^\d{4}$/.test(year)) {
+            alert("Birth Year must be exactly 4 digits (e.g. 1987). Please do not use a 2-digit year like '87'.");
+            return;
+        }
+
+        var fso = new ActiveXObject("Scripting.FileSystemObject");
+        var userPath = WORKERS_PATH + fullName;
+        var loginFilePath = BASE_PATH + "Logins.txt";
+
+        try {
+            if (!fso.FolderExists(userPath)) { fso.CreateFolder(userPath); }
+            if (!fso.FolderExists(userPath + "\\Temp")) { fso.CreateFolder(userPath + "\\Temp"); }
+            
+            var file = fso.OpenTextFile(loginFilePath, 8, true);
+            file.WriteLine(fullName + "|" + year); // Save as "First Last|Year" [cite: 373, 374]
+            file.Close();
+            
+            currentUserFolder = fullName;
+            document.getElementById("welcomeMsg").innerHTML = "Welcome, " + fullName;
+            closeModal();
+            document.getElementById("loginWrapper").className = "hidden";
+            document.getElementById("mainWorkArea").className = "";
+            refreshGrid();
+            resizeCards();
+        } catch (e) { alert("Error: " + e.description); }
+    }
+	
+    function saveWorkingFileChanges() {
+        if (!currentEditImagePath || rotationValue === 0) return;
+
+        try {
+            var shell = new ActiveXObject("WScript.Shell");
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            
+            // Map: 1=90deg, 2=180deg, 3=270deg
+            // The previous error was using (rotationValue - 1) which was 0 for a 90deg turn.
+            // In PowerShell System.Drawing, 1 is actually Rotate90FlipNone.
+            var psRotationIndex = rotationValue; 
+
+            var psCmd = "powershell -Command \"[Reflection.Assembly]::LoadWithPartialName('System.Drawing'); " +
+                        "$img = [System.Drawing.Image]::FromFile('" + currentEditImagePath + "'); " +
+                        "$img.RotateFlip(" + psRotationIndex + "); " + 
+                        "$img.Save('" + currentEditImagePath + ".tmp', [System.Drawing.Imaging.ImageFormat]::Jpeg); " +
+                        "$img.Dispose(); " +
+                        "if (Test-Path '" + currentEditImagePath + ".tmp') { " +
+                        "Remove-Item '" + currentEditImagePath + "' -Force; " +
+                        "Move-Item '" + currentEditImagePath + ".tmp' -Destination '" + currentEditImagePath + "' -Force }\"";
+
+            // shell.Run parameter 'true' makes HTA wait for PowerShell to finish [cite: 322]
+            shell.Run(psCmd, 0, true); 
+            logDebug("Physical rotation saved: " + rotationValue * 90 + " degrees");
+            
+            rotationValue = 0; 
+        } catch(e) {
+            logDebug("Save Error: " + e.description);
+        }
+    }	
+
+    function prepareUpload() {
+        if (!currentEditImagePath) return;
+
+        // If rotation is pending, save it first with a loading screen
+        if (rotationValue !== 0) {
+            showLoading("Saving before upload...");
+            setTimeout(function() {
+                saveWorkingFileChanges();
+                hideLoading();
+                doUpload();
+            }, 50);
+            return;
+        }
+        doUpload();
+    }
+
+    function doUpload() {
+        if (!currentEditImagePath) return;
+
+        try {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            // We use Shell.Application because it can find existing windows
+            var shellApp = new ActiveXObject("Shell.Application");
+            var tempFolder = WORKERS_PATH + currentUserFolder + "\\Temp\\";
+
+            if (!fso.FolderExists(tempFolder)) {
+                fso.CreateFolder(tempFolder);
+            }
+
+            // 2. CLEAR the folder so it doesn't get cluttered with old obituaries
+            var folder = fso.GetFolder(tempFolder);
+            var files = new Enumerator(folder.Files);
+            for (; !files.atEnd(); files.moveNext()) {
+                try {
+                    fso.DeleteFile(files.item().Path, true);
+                } catch(e) { 
+                    // This prevents a crash if a file is currently "locked" by Windows
+                }
+            }
+
+            // 3. RECOPY the current file into the Temp folder
+            var uploadExt = fso.GetExtensionName(currentEditImagePath);
+            var fileName = fso.GetFileName(currentEditImagePath);
+            var destPath = tempFolder + "Obituary." + uploadExt;
+            fso.CopyFile(currentEditImagePath, destPath, true);
+
+            // 4. REFRESH/FOCUS: This will bring an existing window to the front 
+            // instead of opening a new one.
+            var shellWin = shellApp.Windows();
+            for (var i = 0; i < shellWin.Count; i++) {
+                try {
+                    if (shellWin.Item(i).Document.Folder.Self.Path === tempFolder.replace(/\\$/, "")) {
+                        shellWin.Item(i).Quit();
+                    }
+                } catch(e) {}
+            }
+            shellApp.Explore(tempFolder);
+            
+            logDebug("Folder refreshed with latest edits for: " + fileName);
+
+        } catch(e) {
+            logDebug("Upload Error: " + e.description);
+        }
+    }
+
+    function countUserObituaries(folderPath) {
+        var total = 0;
+        try {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            if (fso.FolderExists(folderPath)) {
+                var mainFolder = fso.GetFolder(folderPath);
+                var subfolders = new Enumerator(mainFolder.SubFolders);
+                for (; !subfolders.atEnd(); subfolders.moveNext()) {
+                    var sub = subfolders.item();
+                    // Don't count files in the "Temp" folder
+                    if (sub.Name.toLowerCase() !== "temp") {
+                        var files = new Enumerator(sub.Files);
+                        for (; !files.atEnd(); files.moveNext()) {
+                            var f = files.item();
+                            var fileName = f.Name.toLowerCase();
+                            if (fileName.match(/\.(jpg|jpeg|png)$/) && fileName.indexOf("(working)") === -1) {
+                                total++;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch(e) { return 0; }
+        return total;
+    }
+
+    function showLoading(message) {
+        var overlay = document.getElementById("loadingOverlay");
+        document.getElementById("loadingMessage").innerText = message || "Please wait...";
+        overlay.style.display = "flex";
+    }
+
+    function hideLoading() {
+        document.getElementById("loadingOverlay").style.display = "none";
+    }
+
+    function showBatchDoneModal() {
+        // Hide all other potential popups first
+        document.getElementById("confirmPartialPopup").className = "login-card hidden";
+        document.getElementById("confirmDonePopup").className = "login-card hidden";
+
+        // Show only the Batch Done popup
+        document.getElementById("confirmBatchDonePopup").className = "login-card";
+        document.getElementById("modalOverlay").className = ""; 
+        document.getElementById("modalOverlay").style.display = "flex";
+    }
+
+    function confirmBatchDone() {
+        closeModal();
+        try {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+            // Close any Explorer windows pointing at this folder — they cause file locks
+            try {
+                var shellApp = new ActiveXObject("Shell.Application");
+                var wins = shellApp.Windows();
+                for (var wi = 0; wi < wins.Count; wi++) {
+                    try {
+                        var winPath = wins.Item(wi).Document.Folder.Self.Path;
+                        if (winPath && winPath.toLowerCase().indexOf(pendingPartialPath.toLowerCase()) !== -1) {
+                            wins.Item(wi).Quit();
+                        }
+                    } catch(we) {}
+                }
+            } catch(se) {}
+
+            // Scan for any (partial) tagged files in the batch
+            var hasPartial = false;
+            var batchFolder = fso.GetFolder(pendingPartialPath);
+            var scanFiles = new Enumerator(batchFolder.Files);
+            for (; !scanFiles.atEnd(); scanFiles.moveNext()) {
+                if (scanFiles.item().Name.toLowerCase().indexOf("(partial)") !== -1) {
+                    hasPartial = true;
+                    break;
+                }
+            }
+
+            var newFolderName = pendingPartialName + "(" + currentUserFolder + ")";
+
+            if (hasPartial) {
+                // Route to Partial folder
+                var PARTIAL_PATH = BASE_PATH + "Partial\\";
+                if (!fso.FolderExists(PARTIAL_PATH)) {
+                    fso.CreateFolder(PARTIAL_PATH);
+                }
+                var destPath = PARTIAL_PATH + newFolderName;
+                if (fso.FolderExists(destPath)) {
+                    destPath = PARTIAL_PATH + newFolderName + "_" + (new Date()).getTime();
+                }
+                logDebug("Partial detected — moving batch " + pendingPartialName + " to Partial folder as " + newFolderName);
+                fso.MoveFolder(pendingPartialPath, destPath);
+            } else {
+                // No partials — route to Done folder as normal
+                if (!fso.FolderExists(DONE_PATH)) {
+                    fso.CreateFolder(DONE_PATH);
+                }
+                var destPath = DONE_PATH + newFolderName;
+                if (fso.FolderExists(destPath)) {
+                    destPath = DONE_PATH + newFolderName + "_" + (new Date()).getTime();
+                }
+                logDebug("Moving batch " + pendingPartialName + " to Done folder as " + newFolderName);
+                fso.MoveFolder(pendingPartialPath, destPath);
+            }
+
+            refreshGrid();
+            resizeCards();
+        } catch(e) {
+            logDebug("Batch Done Move Error: " + e.description);
+            alert("Could not move the batch. Please close any open File Explorer windows showing this folder, then try again.\n\nDetails: " + e.description);
+        }
+    }
+
+    function markAsPartial() {
+        if (!currentEditImagePath) return;
+        var lowerPath = currentEditImagePath.toLowerCase();
+        if (lowerPath.indexOf("(done)") !== -1 || lowerPath.indexOf("(partial)") !== -1) {
+            closeEditMode();
+            return;
+        }
+        document.getElementById("confirmDonePopup").className = "login-card hidden";
+        document.getElementById("confirmBatchDonePopup").className = "login-card hidden";
+        document.getElementById("confirmPartialPopup").className = "login-card";
+        document.getElementById("passwordPopup").className = "login-card hidden";
+        document.getElementById("newUserPopup").className = "login-card hidden";
+        document.getElementById("modalOverlay").className = "";
+        document.getElementById("modalOverlay").style.display = "flex";
+    }
+
+    function confirmMarkAsPartial() {
+        closeModal();
+        try {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            var ext = currentEditImagePath.substring(currentEditImagePath.lastIndexOf("."));
+            var base = currentEditImagePath.substring(0, currentEditImagePath.lastIndexOf("."));
+            var newPath = base + "(partial)" + ext;
+            fso.MoveFile(currentEditImagePath, newPath);
+
+            // Note: unlike Done, marking a file Partial does NOT move the batch
+            // folder anywhere. The actual move to the Partial folder happens
+            // later, once the batch is marked Done.
+            closeEditMode();
+        } catch(e) {
+            logDebug("MarkPartial Error: " + e.description);
+            closeEditMode();
+        }
+    }
+
+    function switchUser() {
+        currentUserFolder = "";
+        document.getElementById("mainWorkArea").className = "hidden";
+        document.getElementById("editArea").className = "hidden";
+        document.getElementById("loginWrapper").className = "";
+        document.getElementById("loginSearchBox").value = "";
+        document.getElementById("folderListContainer").style.display = "none";
+        document.getElementById("loginNotFoundMsg").style.display = "none";
+        document.getElementById("addNewBtn").style.display = "none";
+        closeModal();
+        loadFolderList();
+    }
+
+    function handleModalEnter() {
+        var e = window.event;
+        if (e.keyCode !== 13) return;
+        if (document.getElementById("passwordPopup").className.indexOf("hidden") === -1) {
+            document.getElementById("passSubmitBtn").onclick();
+        } else if (document.getElementById("newUserPopup").className.indexOf("hidden") === -1) {
+            createNewWorkspace();
+        }
+    }
+
+	function resetWorkingFile() {
+        if (!currentEditImagePath) return;
+
+        try {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+            // Find the original file path by removing "(working)" from the name
+            var originalPath = currentEditImagePath.replace("(working)", "");
+
+            if (!fso.FileExists(originalPath)) {
+                document.getElementById("fileCompletedPopup").className = "login-card";
+                var el = document.getElementById("modalOverlay");
+                el.className = "";
+                el.style.display = "flex";
+                return;
+            }
+
+            showLoading("Resetting image...");
+
+            // Delete the current working file
+            fso.DeleteFile(currentEditImagePath, true);
+
+            // Copy the original back as a fresh working file
+            fso.CopyFile(originalPath, currentEditImagePath);
+
+            // Reload the image in edit mode without leaving the screen
+            var img = document.getElementById("editImage");
+            var container = document.getElementById("viewerContainer");
+
+            img.onload = function() {
+                imgOrigWidth = img.naturalWidth;
+                imgOrigHeight = img.naturalHeight;
+
+                var containerW = container.clientWidth - 40;
+                var containerH = container.clientHeight - 40;
+                var scaleW = containerW / imgOrigWidth;
+                var scaleH = containerH / imgOrigHeight;
+                scale = Math.min(scaleW, scaleH);
+
+                posX = (container.clientWidth - (imgOrigWidth * scale)) / 2;
+                posY = (container.clientHeight - (imgOrigHeight * scale)) / 2;
+
+                rotationValue = 0;
+                applyTransform();
+                hideLoading();
+            };
+
+            img.src = "about:blank";
+            setTimeout(function() {
+                img.src = currentEditImagePath + "?t=" + new Date().getTime();
+                refreshDragThumbnail();
+            }, 300);
+
+        } catch(e) {
+            hideLoading();
+            logDebug("Reset Error: " + e.description);
+            alert("An error occurred during reset: " + e.description);
+        }
+    }
+
+    var currentMergeFolderPath = "";
+    var currentMergeFolderName = "";
+
+    // Each of the 4 line segments has its own independent position (stored as 0..1 fraction)
+    var mergeGuideVTopX  = 0.5;  // top vertical segment — X position
+    var mergeGuideVBotX  = 0.5;  // bottom vertical segment — X position
+    var mergeGuideHLeftY = 0.5;  // left horizontal segment — Y position
+    var mergeGuideHRightY= 0.5;  // right horizontal segment — Y position
+
+    var mergeDragging = null;      // which segment: "vTop","vBot","hLeft","hRight"
+    var mergeDragStartMouse = 0;
+    var mergeDragStartGuide = 0;
+    var mergeDragStartMouseY = 0;  // used when dragging center (needs both X and Y)
+    var mergeDragStartAllX = {};   // snapshot of all X positions when center drag starts
+    var mergeDragStartAllY = {};   // snapshot of all Y positions when center drag starts
+
+    function openMergeMode(folderPath, folderName) {
+        currentMergeFolderPath = folderPath;
+        currentMergeFolderName = folderName;
+        document.getElementById("mainWorkArea").className = "hidden";
+        document.getElementById("mergeArea").className = "";
+        loadMergeImages();
+    }
+
+    var mergeRenderedW = 0;
+    var mergeRenderedH = 0;
+    var mergeRendered  = null;
+
+    function sizeMergeCanvas() {
+        var headerH = document.getElementById("mergeArea").getElementsByClassName("header-card")[0].offsetHeight;
+        var inset   = 30; // matches page padding (20px) + work-card padding (10px), so this reads as its own framed card like viewerContainer
+        var gap     = 20; // gap between the header card and the canvas card
+        var totalW  = window.innerWidth  - (inset * 2);
+        var totalH  = window.innerHeight - headerH - gap - inset;
+        if (totalH < 200) totalH = 200;
+
+        var canvas = document.getElementById("mergeCanvas");
+        canvas.style.position = "fixed";
+        canvas.style.left     = inset + "px";
+        canvas.style.top      = (headerH + gap) + "px";
+        canvas.style.width    = totalW + "px";
+        canvas.style.height   = totalH + "px";
+        canvas.style.marginTop = "10px";
+    }
+
+    function computeMergeLayout(imgSizes) {
+        var topW   = (imgSizes.r1c1.w || 0) + (imgSizes.r1c2.w || 0);
+        var botW   = (imgSizes.r2c1.w || 0) + (imgSizes.r2c2.w || 0);
+        var leftH  = (imgSizes.r1c1.h || 0) + (imgSizes.r2c1.h || 0);
+        var rightH = (imgSizes.r1c2.h || 0) + (imgSizes.r2c2.h || 0);
+        var natW   = Math.max(topW, botW);
+        var natH   = Math.max(leftH, rightH);
+        if (natW === 0 || natH === 0) return;
+
+        var canvas  = document.getElementById("mergeCanvas");
+        var canvasW = parseInt(canvas.style.width)  || window.innerWidth;
+        var canvasH = parseInt(canvas.style.height) || 600;
+
+        var sf = Math.min(canvasW / natW, canvasH / natH);
+        mergeRenderedW = Math.round(natW * sf);
+        mergeRenderedH = Math.round(natH * sf);
+
+        // Position the image area centered in the canvas
+        var imgArea   = document.getElementById("mergeImageArea");
+        var areaLeft  = Math.round((canvasW - mergeRenderedW) / 2);
+        var areaTop   = Math.round((canvasH - mergeRenderedH) / 2);
+        imgArea.style.left   = areaLeft + "px";
+        imgArea.style.top    = areaTop  + "px";
+        imgArea.style.width  = mergeRenderedW + "px";
+        imgArea.style.height = mergeRenderedH + "px";
+
+        // Rendered pixel size of each individual image
+        var rW1 = Math.round((imgSizes.r1c1.w || 0) * sf);
+        var rH1 = Math.round((imgSizes.r1c1.h || 0) * sf);
+        var rW2 = Math.round((imgSizes.r1c2.w || 0) * sf);
+        var rH2 = Math.round((imgSizes.r1c2.h || 0) * sf);
+        var rW3 = Math.round((imgSizes.r2c1.w || 0) * sf);
+        var rH3 = Math.round((imgSizes.r2c1.h || 0) * sf);
+        var rW4 = Math.round((imgSizes.r2c2.w || 0) * sf);
+        var rH4 = Math.round((imgSizes.r2c2.h || 0) * sf);
+
+        // Place each image at its fixed position inside the image area — never moved again
+        function placeImg(id, x, y, w, h, src) {
+            var el = document.getElementById(id);
+            el.style.left    = x + "px";
+            el.style.top     = y + "px";
+            el.style.width   = w + "px";
+            el.style.height  = h + "px";
+            el.style.display = (src && src !== "") ? "block" : "none";
+        }
+        placeImg("mergeImg_r1c1", 0,    0,    rW1, rH1, document.getElementById("mergeImg_r1c1").src);
+        placeImg("mergeImg_r1c2", rW1,  0,    rW2, rH2, document.getElementById("mergeImg_r1c2").src);
+        placeImg("mergeImg_r2c1", 0,    rH1,  rW3, rH3, document.getElementById("mergeImg_r2c1").src);
+        placeImg("mergeImg_r2c2", rW1,  rH1,  rW4, rH4, document.getElementById("mergeImg_r2c2").src);
+
+        // Remove any old rotate buttons before adding fresh ones
+        var oldBtns = imgArea.getElementsByClassName("merge-rotate-btn");
+        while (oldBtns.length > 0) { oldBtns[0].parentNode.removeChild(oldBtns[0]); }
+
+        var pad = 4;
+        var btnSize = 26;
+        function addRotBtn(slot, left, top) {
+            if (!mergeSlotFilePaths[slot]) return;
+            var btn = document.createElement("div");
+            btn.className = "merge-rotate-btn";
+            btn.title = "Rotate 90°";
+            btn.innerHTML = "&#8635;";
+            btn.style.left = left + "px";
+            btn.style.top  = top  + "px";
+            btn.onclick = (function(s) { return function(e) {
+                e = e || window.event;
+                if (e.stopPropagation) e.stopPropagation();
+                e.cancelBubble = true;
+                rotateMergeSlot(s);
+            }; })(slot);
+            imgArea.appendChild(btn);
+        }
+
+        // Top-left corner of r1c1 (outer corner: top-left of whole grid)
+        addRotBtn("r1c1", pad, pad);
+        // Top-right corner of r1c2 (outer corner: top-right of whole grid)
+        addRotBtn("r1c2", rW1 + rW2 - btnSize - pad, pad);
+        // Bottom-left corner of r2c1 (outer corner: bottom-left of whole grid)
+        addRotBtn("r2c1", pad, rH1 + rH3 - btnSize - pad);
+        // Bottom-right corner of r2c2 (outer corner: bottom-right of whole grid)
+        addRotBtn("r2c2", rW1 + rW4 - btnSize - pad, rH1 + rH4 - btnSize - pad);
+
+        // Position the guide layer to exactly match the image area
+        var gl = document.getElementById("mergeGuideLayer");
+        gl.style.left   = areaLeft + "px";
+        gl.style.top    = areaTop  + "px";
+        gl.style.width  = mergeRenderedW + "px";
+        gl.style.height = mergeRenderedH + "px";
+
+        mergeRendered = { rW1:rW1, rH1:rH1, rW2:rW2, rH2:rH2 };
+
+        // Default all 4 guide lines to center
+        mergeGuideVTopX   = 0.5;
+        mergeGuideVBotX   = 0.5;
+        mergeGuideHLeftY  = 0.5;
+        mergeGuideHRightY = 0.5;
+
+        updateGuideLines();
+    }
+
+    function updateGuideLines() {
+        if (!mergeRendered) return;
+        var W = mergeRenderedW;
+        var H = mergeRenderedH;
+
+        var vtX = Math.min(Math.max(Math.round(mergeGuideVTopX   * W), 1), W - 1);
+        var vbX = Math.min(Math.max(Math.round(mergeGuideVBotX   * W), 1), W - 1);
+        var hlY = Math.min(Math.max(Math.round(mergeGuideHLeftY  * H), 1), H - 1);
+        var hrY = Math.min(Math.max(Math.round(mergeGuideHRightY * H), 1), H - 1);
+
+        // Center handle position: average of all 4 line positions
+        var cxPx = Math.round((vtX + vbX) / 2);
+        var cyPx = Math.round((hlY + hrY) / 2);
+
+        var gl = document.getElementById("mergeGuideLayer");
+
+        function setLine(id, isHit, isVert, x, y, w, h, handler) {
+            var el = document.getElementById(id);
+            if (!el) {
+                el = document.createElement("div");
+                el.id = id;
+                gl.appendChild(el);
+            }
+            el.style.position      = "absolute";
+            el.style.boxSizing     = "border-box";
+            el.style.left          = x + "px";
+            el.style.top           = y + "px";
+            el.style.width         = w + "px";
+            el.style.height        = h + "px";
+            el.style.zIndex        = isHit ? "11" : "10";
+            el.style.pointerEvents = isHit ? "auto" : "none";
+            el.style.cursor        = isHit ? (isVert ? "ew-resize" : "ns-resize") : "default";
+            el.style.background    = isHit ? "transparent" : "rgba(255,60,60,0.95)";
+            if (isHit && handler) el.onmousedown = handler;
+            return el;
+        }
+
+        // TOP VERTICAL: from top down to corner A (vtX, hlY)
+        setLine("mg_vTopVis", false, true,  vtX-1,  0,      2,      hlY,     null);
+        setLine("mg_vTopHit", true,  true,  vtX-11, 0,      22,     hlY,     function(e){ startMergeGuideDrag(e||window.event,"vTop"); });
+
+        // BOTTOM VERTICAL: from corner B (vbX, hrY) down to bottom
+        setLine("mg_vBotVis", false, true,  vbX-1,  hrY,    2,      H-hrY,   null);
+        setLine("mg_vBotHit", true,  true,  vbX-11, hrY,    22,     H-hrY,   function(e){ startMergeGuideDrag(e||window.event,"vBot"); });
+
+        // LEFT HORIZONTAL: from left edge to corner A (vtX, hlY)
+        setLine("mg_hLeftVis",  false, false, 0,     hlY-1,  vtX,    2,       null);
+        setLine("mg_hLeftHit",  true,  false, 0,     hlY-11, vtX,    22,      function(e){ startMergeGuideDrag(e||window.event,"hLeft"); });
+
+        // RIGHT HORIZONTAL: from corner B (vbX, hrY) to right edge
+        setLine("mg_hRightVis", false, false, vbX,   hrY-1,  W-vbX,  2,       null);
+        setLine("mg_hRightHit", true,  false, vbX,   hrY-11, W-vbX,  22,      function(e){ startMergeGuideDrag(e||window.event,"hRight"); });
+
+        // CONNECTOR: L-shape from corner A to corner B
+        var connX1 = Math.min(vtX, vbX);
+        var connX2 = Math.max(vtX, vbX);
+        var connY1 = Math.min(hlY, hrY);
+        var connY2 = Math.max(hlY, hrY);
+        setLine("mg_connH", false, false, connX1-1, connY1-1, connX2-connX1+2, 2,              null);
+        setLine("mg_connV", false, true,  connX2-1, connY1-1, 2,               connY2-connY1+2, null);
+
+        // CENTER HANDLE: red circle, draggable, moves all 4 lines together
+        var radius = 10;
+        var ch = document.getElementById("mg_center");
+        if (!ch) {
+            ch = document.createElement("div");
+            ch.id = "mg_center";
+            gl.appendChild(ch);
+        }
+        ch.style.position      = "absolute";
+        ch.style.width         = (radius * 2) + "px";
+        ch.style.height        = (radius * 2) + "px";
+        ch.style.left          = (cxPx - radius) + "px";
+        ch.style.top           = (cyPx - radius) + "px";
+        ch.style.borderRadius  = "50%";
+        ch.style.background    = "rgba(255,60,60,0.95)";
+        ch.style.border        = "2px solid white";
+        ch.style.boxSizing     = "border-box";
+        ch.style.cursor        = "move";
+        ch.style.zIndex        = "20";
+        ch.style.pointerEvents = "auto";
+        ch.onmousedown         = function(e) { startMergeGuideDrag(e||window.event, "center"); };
+    }
+
+    function mergeMouseMoveHandler(e) {
+        if (!mergeDragging) return;
+        e = e || window.event;
+
+        if (mergeDragging === "center") {
+            var dx = (e.clientX - mergeDragStartMouse)  / mergeRenderedW;
+            var dy = (e.clientY - mergeDragStartMouseY) / mergeRenderedH;
+            mergeGuideVTopX   = Math.min(Math.max(mergeDragStartAllX.vTop  + dx, 0.01), 0.99);
+            mergeGuideVBotX   = Math.min(Math.max(mergeDragStartAllX.vBot  + dx, 0.01), 0.99);
+            mergeGuideHLeftY  = Math.min(Math.max(mergeDragStartAllY.hLeft + dy, 0.01), 0.99);
+            mergeGuideHRightY = Math.min(Math.max(mergeDragStartAllY.hRight+ dy, 0.01), 0.99);
+        } else if (mergeDragging === "vTop") {
+            var nx = mergeDragStartGuide + (e.clientX - mergeDragStartMouse);
+            mergeGuideVTopX = Math.min(Math.max(nx / mergeRenderedW, 0.01), 0.99);
+        } else if (mergeDragging === "vBot") {
+            var nx = mergeDragStartGuide + (e.clientX - mergeDragStartMouse);
+            mergeGuideVBotX = Math.min(Math.max(nx / mergeRenderedW, 0.01), 0.99);
+        } else if (mergeDragging === "hLeft") {
+            var ny = mergeDragStartGuide + (e.clientY - mergeDragStartMouse);
+            mergeGuideHLeftY = Math.min(Math.max(ny / mergeRenderedH, 0.01), 0.99);
+        } else if (mergeDragging === "hRight") {
+            var ny = mergeDragStartGuide + (e.clientY - mergeDragStartMouse);
+            mergeGuideHRightY = Math.min(Math.max(ny / mergeRenderedH, 0.01), 0.99);
+        }
+        updateGuideLines();
+    }
+
+    function mergeMouseUpHandler(e) {
+        mergeDragging = null;
+        document.onmousemove = null;
+        document.onmouseup = null;
+    }
+
+    function startMergeGuideDrag(e, segment) {
+        mergeDragging = segment;
+        if (segment === "center") {
+            mergeDragStartMouse  = e.clientX;
+            mergeDragStartMouseY = e.clientY;
+            mergeDragStartAllX = { vTop: mergeGuideVTopX, vBot: mergeGuideVBotX };
+            mergeDragStartAllY = { hLeft: mergeGuideHLeftY, hRight: mergeGuideHRightY };
+        } else if (segment === "vTop" || segment === "vBot") {
+            mergeDragStartMouse = e.clientX;
+            mergeDragStartGuide = (segment === "vTop" ? mergeGuideVTopX : mergeGuideVBotX) * mergeRenderedW;
+        } else {
+            mergeDragStartMouse = e.clientY;
+            mergeDragStartGuide = (segment === "hLeft" ? mergeGuideHLeftY : mergeGuideHRightY) * mergeRenderedH;
+        }
+
+        // Re-attach the handlers fresh every time a drag starts. Crop/resize/
+        // calculator dragging also use document.onmousemove/onmouseup and null
+        // them out when they finish — that used to permanently kill merge-mode
+        // dragging for the rest of the session. Re-arming here every time fixes it.
+        document.onmousemove = mergeMouseMoveHandler;
+        document.onmouseup   = mergeMouseUpHandler;
+
+        e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+    }
+
+    function loadMergeImages() {
+        sizeMergeCanvas();
+        mergeRendered = null;
+
+        // Reset images
+        var slots = ["r1c1","r1c2","r2c1","r2c2"];
+        for (var s = 0; s < slots.length; s++) {
+            var img = document.getElementById("mergeImg_" + slots[s]);
+            img.src = "";
+            img.style.display = "none";
+        }
+        // Clear guide layer
+        var gl = document.getElementById("mergeGuideLayer");
+        if (gl) gl.innerHTML = "";
+
+        try {
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+            if (!fso.FolderExists(currentMergeFolderPath)) return;
+
+            var folder    = fso.GetFolder(currentMergeFolderPath);
+            var filesEnum = new Enumerator(folder.Files);
+            var slotPaths = {};
+
+            for (; !filesEnum.atEnd(); filesEnum.moveNext()) {
+                var f        = filesEnum.item();
+                var nameLower = f.Name.toLowerCase();
+                if (!nameLower.match(/\.(jpg|jpeg|png)$/)) continue;
+                if (nameLower.indexOf("(working)") !== -1) continue;
+
+                var slot = null;
+                if      (nameLower.indexOf("r001-c001") !== -1 || nameLower.indexOf("r1-c1") !== -1) slot = "r1c1";
+                else if (nameLower.indexOf("r001-c002") !== -1 || nameLower.indexOf("r1-c2") !== -1) slot = "r1c2";
+                else if (nameLower.indexOf("r002-c001") !== -1 || nameLower.indexOf("r2-c1") !== -1) slot = "r2c1";
+                else if (nameLower.indexOf("r002-c002") !== -1 || nameLower.indexOf("r2-c2") !== -1) slot = "r2c2";
+
+                if (slot) {
+                    slotPaths[slot] = "file:///" + f.Path.replace(/\\/g, "/") + "?t=" + new Date().getTime();
+                    // Strip (done) from the path so mergeApply knows the original base name
+                    mergeSlotFilePaths[slot] = f.Path.replace("(done)", "");
+                }
+            }
+
+            var imgSizes = { r1c1:{w:0,h:0}, r1c2:{w:0,h:0}, r2c1:{w:0,h:0}, r2c2:{w:0,h:0} };
+            var loaded = 0;
+            var total  = 0;
+            for (var key in slotPaths) { if (slotPaths.hasOwnProperty(key)) total++; }
+            if (total === 0) return;
+
+            for (var sl in slotPaths) {
+                if (!slotPaths.hasOwnProperty(sl)) continue;
+                (function(slotName, src) {
+                    var tmp    = new Image();
+                    tmp.onload = function() {
+                        imgSizes[slotName] = { w: tmp.naturalWidth, h: tmp.naturalHeight };
+                        var imgEl  = document.getElementById("mergeImg_" + slotName);
+                        imgEl.src  = src;
+                        loaded++;
+                        if (loaded === total) computeMergeLayout(imgSizes);
+                    };
+                    tmp.onerror = function() {
+                        loaded++;
+                        if (loaded === total) computeMergeLayout(imgSizes);
+                    };
+                    tmp.src = src;
+                })(sl, slotPaths[sl]);
+            }
+
+        } catch(e) {
+            logDebug("Merge load error: " + e.description);
+        }
+    }
+
+    var mergeSlotFilePaths = {};  // real disk paths for each slot, set during loadMergeImages
+
+    function rotateMergeSlot(slot) {
+        var srcPath = mergeSlotFilePaths[slot];
+        if (!srcPath) return;
+        showLoading("Rotating...");
+        setTimeout(function() {
+            try {
+                var shell = new ActiveXObject("WScript.Shell");
+                var p = srcPath.replace(/\\/g, "\\\\");
+                var psCmd = "powershell -Command \"[Reflection.Assembly]::LoadWithPartialName('System.Drawing'); " +
+                            "$img = [System.Drawing.Image]::FromFile('" + p + "'); " +
+                            "$img.RotateFlip(1); " +
+                            "$img.Save('" + p + ".tmp', [System.Drawing.Imaging.ImageFormat]::Jpeg); " +
+                            "$img.Dispose(); " +
+                            "if (Test-Path '" + p + ".tmp') { " +
+                            "Remove-Item '" + p + "' -Force; " +
+                            "Move-Item '" + p + ".tmp' -Destination '" + p + "' -Force }\"";
+                shell.Run(psCmd, 0, true);
+                logDebug("Merge slot rotated: " + slot);
+            } catch(e) {
+                logDebug("Merge rotate error: " + e.description);
+            }
+            hideLoading();
+            loadMergeImages();
+        }, 50);
+    }
+
+    function closeMergeMode() {
+        document.getElementById("mergeArea").className = "hidden";
+        document.getElementById("mainWorkArea").className = "";
+        currentMergeFolderPath = "";
+        currentMergeFolderName = "";
+        mergeDragging  = null;
+        mergeRendered  = null;
+        mergeSlotFilePaths = {};
+    }
+
+    function mergeReset() {
+        alert("In progress");
+    }
+
+    function mergeApply() {
+        if (!mergeRendered) { alert("No images loaded."); return; }
+
+        try {
+            var fso   = new ActiveXObject("Scripting.FileSystemObject");
+            var shell = new ActiveXObject("WScript.Shell");
+
+            // --- STEP 1: Scan the folder and record which slots were already marked done ---
+            // A slot is "done" if its working file has "(done)" in the name.
+            // We match by base name of the original file for each slot.
+            var slotWasDone = { r1c1: false, r1c2: false, r2c1: false, r2c2: false };
+
+            if (fso.FolderExists(currentMergeFolderPath)) {
+                var scanFolder  = fso.GetFolder(currentMergeFolderPath);
+                var scanEnum    = new Enumerator(scanFolder.Files);
+                for (; !scanEnum.atEnd(); scanEnum.moveNext()) {
+                    var sf2      = scanEnum.item();
+                    var sfLower  = sf2.Name.toLowerCase();
+                    if (!sfLower.match(/\.(jpg|jpeg|png)$/)) continue;
+                    if (sfLower.indexOf("(done)") === -1) continue;
+                    // Which slot does this file belong to?
+                    var doneSlot = null;
+                    if      (sfLower.indexOf("r001-c001") !== -1 || sfLower.indexOf("r1-c1") !== -1) doneSlot = "r1c1";
+                    else if (sfLower.indexOf("r001-c002") !== -1 || sfLower.indexOf("r1-c2") !== -1) doneSlot = "r1c2";
+                    else if (sfLower.indexOf("r002-c001") !== -1 || sfLower.indexOf("r2-c1") !== -1) doneSlot = "r2c1";
+                    else if (sfLower.indexOf("r002-c002") !== -1 || sfLower.indexOf("r2-c2") !== -1) doneSlot = "r2c2";
+                    if (doneSlot) slotWasDone[doneSlot] = true;
+                }
+            }
+
+            logDebug("Done state before merge: r1c1=" + slotWasDone.r1c1 + " r1c2=" + slotWasDone.r1c2 + " r2c1=" + slotWasDone.r2c1 + " r2c2=" + slotWasDone.r2c2);
+
+            // --- STEP 2: Delete ALL existing working and done files from the folder ---
+            // Originals (no tag) are never touched.
+            if (fso.FolderExists(currentMergeFolderPath)) {
+                var delFolder = fso.GetFolder(currentMergeFolderPath);
+                var delEnum   = new Enumerator(delFolder.Files);
+                var toDelete  = [];
+                for (; !delEnum.atEnd(); delEnum.moveNext()) {
+                    var df      = delEnum.item();
+                    var dfLower = df.Name.toLowerCase();
+                    if (!dfLower.match(/\.(jpg|jpeg|png)$/)) continue;
+                    if (dfLower.indexOf("(working)") !== -1 || dfLower.indexOf("(done)") !== -1) {
+                        toDelete.push(df.Path);
+                    }
+                }
+                for (var d = 0; d < toDelete.length; d++) {
+                    try { fso.DeleteFile(toDelete[d], true); } catch(e2) {
+                        logDebug("Could not delete: " + toDelete[d] + " - " + e2.description);
+                    }
+                }
+                logDebug("Cleared " + toDelete.length + " working/done files.");
+            }
+
+            // --- STEP 3: Stitch and crop as before ---
+            var W = mergeRenderedW;
+            var H = mergeRenderedH;
+
+            var vtX = Math.min(Math.max(Math.round(mergeGuideVTopX   * W), 1), W - 1);
+            var vbX = Math.min(Math.max(Math.round(mergeGuideVBotX   * W), 1), W - 1);
+            var hlY = Math.min(Math.max(Math.round(mergeGuideHLeftY  * H), 1), H - 1);
+            var hrY = Math.min(Math.max(Math.round(mergeGuideHRightY * H), 1), H - 1);
+
+            var natSizes = {};
+            var slots = ["r1c1","r1c2","r2c1","r2c2"];
+            for (var s = 0; s < slots.length; s++) {
+                var imgEl = document.getElementById("mergeImg_" + slots[s]);
+                natSizes[slots[s]] = { w: imgEl.naturalWidth || 0, h: imgEl.naturalHeight || 0 };
+            }
+
+            var topW  = (natSizes.r1c1.w || 0) + (natSizes.r1c2.w || 0);
+            var botW  = (natSizes.r2c1.w || 0) + (natSizes.r2c2.w || 0);
+            var leftH = (natSizes.r1c1.h || 0) + (natSizes.r2c1.h || 0);
+            var rightH= (natSizes.r1c2.h || 0) + (natSizes.r2c2.h || 0);
+            var natW  = Math.max(topW, botW);
+            var natH  = Math.max(leftH, rightH);
+            var sfVal = Math.min(W / natW, H / natH);
+
+            var nW1 = natSizes.r1c1.w; var nH1 = natSizes.r1c1.h;
+            var nW2 = natSizes.r1c2.w;
+            var nW3 = natSizes.r2c1.w; var nH3 = natSizes.r2c1.h;
+
+            var canvasNatW = nW1 + nW2;
+            var canvasNatH = nH1 + nH3;
+
+            function toNat(v) { return Math.round(v / sfVal); }
+            var cutVtX = toNat(vtX);
+            var cutVbX = toNat(vbX);
+            var cutHlY = toNat(hlY);
+            var cutHrY = toNat(hrY);
+
+            var regions = {
+                r1c1: { x: 0,      y: 0,      w: cutVtX,            h: cutHlY             },
+                r1c2: { x: cutVtX, y: 0,       w: canvasNatW-cutVtX, h: cutHrY             },
+                r2c1: { x: 0,      y: cutHlY,  w: cutVbX,            h: canvasNatH-cutHlY  },
+                r2c2: { x: cutVbX, y: cutHrY,  w: canvasNatW-cutVbX, h: canvasNatH-cutHrY  }
+            };
+
+            var p1 = mergeSlotFilePaths["r1c1"] || "";
+            var p2 = mergeSlotFilePaths["r1c2"] || "";
+            var p3 = mergeSlotFilePaths["r2c1"] || "";
+            var p4 = mergeSlotFilePaths["r2c2"] || "";
+
+            if (!p1 && !p2 && !p3 && !p4) { alert("No source files found."); return; }
+
+            function workingPath(srcPath) {
+                var ext  = fso.GetExtensionName(srcPath);
+                var base = fso.GetBaseName(srcPath);
+                var dir  = fso.GetParentFolderName(srcPath);
+                return dir + "\\" + base + "(working)." + ext;
+            }
+
+            function psDrawImg(varName, path, ox, oy) {
+                if (!path) return "";
+                return "$img_" + varName + " = [System.Drawing.Image]::FromFile('" + path + "'); " +
+                       "$g.DrawImage($img_" + varName + ", " + ox + ", " + oy + ", $img_" + varName + ".Width, $img_" + varName + ".Height); " +
+                       "$img_" + varName + ".Dispose(); ";
+            }
+
+            function psCropSave(region, outPath) {
+                if (!outPath) return "";
+                var r = regions[region];
+                if (r.w <= 0 || r.h <= 0) return "";
+                return "$rect_" + region + " = New-Object System.Drawing.Rectangle(" + r.x + "," + r.y + "," + r.w + "," + r.h + "); " +
+                       "$crop_" + region + " = $canvas.Clone($rect_" + region + ", $canvas.PixelFormat); " +
+                       "$crop_" + region + ".Save('" + outPath + "', [System.Drawing.Imaging.ImageFormat]::Jpeg); " +
+                       "$crop_" + region + ".Dispose(); ";
+            }
+
+            showLoading("Stitching and cropping...");
+
+            // For slots that were already done, save directly as (working)(done) — skip plain working
+            function finalPath(srcPath, slot) {
+                if (!srcPath) return "";
+                var ext  = fso.GetExtensionName(srcPath);
+                var base = fso.GetBaseName(srcPath);
+                var dir  = fso.GetParentFolderName(srcPath);
+                if (slotWasDone[slot]) {
+                    return dir + "\\" + base + "(working)(done)." + ext;
+                }
+                return dir + "\\" + base + "(working)." + ext;
+            }
+
+            var psScript =
+                "[Reflection.Assembly]::LoadWithPartialName('System.Drawing') | Out-Null; " +
+                "$canvas = New-Object System.Drawing.Bitmap(" + canvasNatW + ", " + canvasNatH + "); " +
+                "$g = [System.Drawing.Graphics]::FromImage($canvas); " +
+                "$g.Clear([System.Drawing.Color]::Black); " +
+                psDrawImg("r1c1", p1, 0,   0  ) +
+                psDrawImg("r1c2", p2, nW1, 0  ) +
+                psDrawImg("r2c1", p3, 0,   nH1) +
+                psDrawImg("r2c2", p4, nW1, nH1) +
+                "$g.Dispose(); " +
+                psCropSave("r1c1", finalPath(p1, "r1c1")) +
+                psCropSave("r1c2", finalPath(p2, "r1c2")) +
+                psCropSave("r2c1", finalPath(p3, "r2c1")) +
+                psCropSave("r2c2", finalPath(p4, "r2c2")) +
+                "$canvas.Dispose();";
+
+            var tempDir    = WORKERS_PATH + currentUserFolder + "\\Temp\\";
+            var tempScript = tempDir + "merge_apply.ps1";
+            if (!fso.FolderExists(tempDir)) fso.CreateFolder(tempDir);
+
+            var scriptFile = fso.OpenTextFile(tempScript, 2, true);
+            scriptFile.Write(psScript);
+            scriptFile.Close();
+
+            shell.Run("powershell -ExecutionPolicy Bypass -File \"" + tempScript + "\"", 0, true);
+            try { fso.DeleteFile(tempScript, true); } catch(e2) {}
+
+            logDebug("Done slots saved directly as (working)(done): " + JSON.stringify(slotWasDone));
+
+            hideLoading();
+            closeMergeMode();
+            refreshGrid();
+            resizeCards();
+
+        } catch(e) {
+            hideLoading();
+            logDebug("mergeApply error: " + e.description);
+            alert("Error during apply: " + e.description);
+        }
+    }
+
+</script>
+</head>
+
+<body onselectstart="return false;" ondragover="window.event.returnValue=false;">
+    <div id="debugResizeHandle"></div>
+    <div id="debugConsole">Console initialized...</div>
+    <button id="debugCloseBtn" onclick="toggleDebugConsole()">close</button>
+    <button id="debugToggleBtn" onclick="toggleDebugConsole()">DEBUG</button>
+
+    <div id="loginWrapper">
+        <div class="login-card">
+            <button class="login-splitscreen-btn" onclick="makeFullScreen()">Splitscreen</button>
+            <img src="M:\Obituary Project\Colored Icons\Tree.png" style="width:100px; height:100px;">
+            <h2 style="border-bottom: 2px solid #27ae60; padding-bottom:10px;">Obituary Indexing Assistant</h2>
+            <p style="color: #bdc3c7; margin-bottom: 4px;">Enter your name to find your workspace:</p>
+            <input type="text" id="loginSearchBox" placeholder="Start typing your name..." onkeyup="filterFolderList()">
+            <div id="folderListContainer" class="folder-list" style="display:none;"></div>
+            <p id="loginNotFoundMsg">Unable to find your workspace? Check your spelling or create a new workspace below.</p>
+            <button id="addNewBtn" class="done-btn" onclick="openModal()" style="margin-top: 12px; display: none;">+ Add New</button>
+        </div>
+    </div>
+
+    <div id="mainWorkArea" class="hidden">
+        <div class="header-card">
+            <div style="display: flex; align-items: center;">
+                <div style="flex: 1; display: flex; align-items: center; gap: 16px;">
+                    <img src="M:\Obituary Project\Colored Icons\Tree.png" style="width:80px; height:80px; padding: 0 10px 0 0;">
+                    <div>
+                        <h2>Obituary Indexing Assistant</h2>
+                        <div id="welcomeMsg">Welcome</div>
+                    </div>
+                </div>
+                <button onclick="requestNewBatch()" style="display:inline-flex; flex-direction:row; align-items:center; gap:18px; background:#242529; border:0px solid #27ae60; border-radius:10px; padding:30px 22px; cursor:pointer;" onmouseover="this.style.backgroundColor= 'rgba(39,174,96,0.15)'" onmouseout="this.style.backgroundColor= '#242529'">
+                    <span style="color:#27ae60; font-size:18px; font-weight:bold; padding: 0 10px 0 0;">Request Obituaries</span>
+                    <img src="M:\Obituary Project\Colored Icons\Download.png" style="width:26px; height:26px;">
+                </button>
+            </div>
+        </div>
+        <div class="work-card">
+            <div id="imageGrid" class="image-grid"></div>
+        </div>
+    </div>
+	
+    <div id="editArea" class="hidden">
+        <div class="header-card">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; gap:10px;">
+            <div style="flex:1;">
+                <button id="btnReturn" onclick="closeEditMode()" style="display:inline-flex; flex-direction:row; align-items:center; gap:10px; background:transparent; border:0px solid #27ae60; border-radius:10px; padding:10px 15px; cursor:pointer; color:#27ae60; font-size:20px; font-weight:bold; box-sizing:border-box;" onmouseover="this.style.backgroundColor='rgba(39,174,96,0.15)'" onmouseout="this.style.backgroundColor='transparent'">Return</button>
+            </div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex:1;">
+                    <button id="btnLeft" class="edit-control-btn" onclick="handleLeftBtn()" style="display:inline-flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; border:2px solid #27ae60; border-radius:12px; color:#27ae60; font-size:14px; font-weight:bold; width:68px; height:68px; cursor:pointer; box-sizing:border-box;" onmouseover="this.style.backgroundColor='rgba(39,174,96,0.15)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <img src="M:\Obituary Project\Colored Icons\Calc.png" class="btn-icon">
+                        <span>Calc</span>
+                    </button>
+
+                    <button id="btnCenter" class="edit-control-btn" onclick="handleCenterBtn()" style="display:inline-flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; border:2px solid #27ae60; border-radius:12px; color:#27ae60; font-size:14px; font-weight:bold; width:68px; height:68px; cursor:pointer; box-sizing:border-box;" onmouseover="this.style.backgroundColor='rgba(39,174,96,0.15)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <img src="M:\Obituary Project\Colored Icons\Rotate.png" style="transform: scaleX(-1);" class="btn-icon">
+                        <span>Rotate</span>
+                    </button>
+
+                    <button id="btnRight" class="edit-control-btn" onclick="handleRightBtn()" style="display:inline-flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; border:2px solid #27ae60; border-radius:12px; color:#27ae60; font-size:14px; font-weight:bold; width:68px; height:68px; cursor:pointer; box-sizing:border-box;" onmouseover="this.style.backgroundColor='rgba(39,174,96,0.15)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <img src="M:\Obituary Project\Colored Icons\Crop.png" class="btn-icon">
+                        <span>Crop</span>
+                    </button>
+
+                </div>
+
+                <div style="display:flex; flex-direction:row; align-items:center; justify-content:flex-end; gap:10px; flex:1;">
+                    <button id="btnReset" onclick="resetWorkingFile()" style="display:inline-flex; flex-direction:row; align-items:center; gap:10px; background:transparent; border:0px solid #e74c3c; border-radius:10px; padding:10px 15px; margin:5px; cursor:pointer; color:#e74c3c; font-size:20px; font-weight:bold; box-sizing:border-box;" onmouseover="this.style.backgroundColor='rgba(231,76,60,0.15)'" onmouseout="this.style.backgroundColor='transparent'"><span>Reset</span></button>
+                    <button id="btnPartial" onclick="markAsPartial()" style="display:inline-flex; flex-direction:row; align-items:center; gap:10px; background:transparent; border:0px solid #e67e22; border-radius:10px; padding:10px 15px; margin:5px; cursor:pointer; color:#e67e22; font-size:20px; font-weight:bold; box-sizing:border-box;" onmouseover="this.style.backgroundColor='rgba(230,126,34,0.15)'" onmouseout="this.style.backgroundColor='transparent'">Partial</button>                    
+                    <button id="btnDone" onclick="markAsDone()" style="display:inline-flex; flex-direction:row; align-items:center; gap:10px; background:transparent; border:0px solid #27ae60; border-radius:10px; padding:10px 15px; margin:5px; cursor:pointer; color:#27ae60; font-size:20px; font-weight:bold; box-sizing:border-box;" onmouseover="this.style.backgroundColor='rgba(39,174,96,0.15)'" onmouseout="this.style.backgroundColor='transparent'">Done</button>
+                </div>
+            </div>
+        </div>
+        <div class="work-card" style="padding: 10px;">
+            <div id="viewerContainer" onmousedown="startCropDraw()">
+                <img id="editImage" src="" alt="Card">
+                <div id="dragHandle" title="Drag this image to upload">
+                    <img id="dragPreview" src="" alt="">
+                </div>
+                <div id="saveOverlay" class="hidden" style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.7); color:#3498db; padding:10px; border-radius:8px; font-weight:bold; z-index:200;">
+                    Saving<span id="loadingDots">.</span>
+                </div>
+                <div id="cropOverlay" class="hidden crop-overlay" onmousedown="startCropDraw()">
+                    <div id="cropBox" class="hidden"></div>
+                </div>
+			</div>
+        </div>
+    </div>
+
+    <div id="mergeArea" class="hidden">
+        <div class="header-card">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; gap:10px;">
+                <div style="flex:1;"></div>
+
+                <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex:1;">
+                    <button id="mergeBtnCancel" class="edit-control-btn" onclick="closeMergeMode()" style="display:inline-flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; border:2px solid #e74c3c; border-radius:12px; color:#e74c3c; font-size:14px; font-weight:bold; width:68px; height:68px; cursor:pointer; box-sizing:border-box;" onmouseover="this.style.backgroundColor='rgba(231,76,60,0.15)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <img src="M:\Obituary Project\Colored Icons\Cancel.png" class="btn-icon">
+                        <span>Cancel</span>
+                    </button>
+                    <button id="mergeBtnApply" class="edit-control-btn" onclick="mergeApply()" style="display:inline-flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; border:2px solid #27ae60; border-radius:12px; color:#27ae60; font-size:14px; font-weight:bold; width:68px; height:68px; cursor:pointer; box-sizing:border-box;" onmouseover="this.style.backgroundColor='rgba(39,174,96,0.15)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <img src="M:\Obituary Project\Colored Icons\Apply.png" class="btn-icon">
+                        <span>Apply</span>
+                    </button>
+                </div>
+
+                <div style="flex:1;"></div>
+            </div>
+        </div>
+        <div class="work-card" style="padding: 10px;">
+            <div id="mergeCanvas" style="position:relative; background:#000; border:2px solid #333; border-radius:8px; overflow:hidden;">
+                <!-- IMAGE LAYER: 4 fixed image tiles, never resized after load -->
+                <div id="mergeImageArea" style="position:absolute; overflow:hidden;">
+                    <img id="mergeImg_r1c1" src="" style="position:absolute; display:none;">
+                    <img id="mergeImg_r1c2" src="" style="position:absolute; display:none;">
+                    <img id="mergeImg_r2c1" src="" style="position:absolute; display:none;">
+                    <img id="mergeImg_r2c2" src="" style="position:absolute; display:none;">
+                </div>
+                <!-- GUIDE LINE LAYER: sits on top, completely independent of images -->
+                <div id="mergeGuideLayer" style="position:absolute; overflow:visible;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator popup — fixed position, draggable -->
+    <div id="calcPopup">
+        <div id="calcHeader">
+            <span style="font-size:11px; font-weight:bold; color:#aaa; letter-spacing:1px;">CALCULATOR</span>
+            <span id="closeCalc" style="cursor:pointer; color:#e74c3c; font-weight:bold; font-size:16px; padding:0 4px;" onclick="closeCalc()">X</span>
+        </div>
+        <div id="calcDisplay">0</div>
+        <div id="calcButtons"></div>
+    </div>
+
+	<div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9000; align-items:center; justify-content:center; flex-direction:column;">
+        <div style="color:white; font-size:28px; font-weight:bold; margin-bottom:20px;" id="loadingMessage">Please wait...</div>
+        <div style="color:#3498db; font-size:18px;" id="loadingSubMessage">Do not click anything.</div>
+    </div>
+
+    <div id="modalOverlay" class="hidden" onkeypress="handleModalEnter()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
+        
+        <div id="newUserPopup" class="login-card hidden" style="width:450px; text-align:center; padding:30px; margin:0;">
+            <h3 style="color:white; margin-bottom:15px;">Create New Workspace</h3>
+            <p style="color:#bdc3c7; margin-bottom:20px;">Please enter your details to get started.</p>
+            
+            <div style="display:flex; margin-bottom:15px;">
+                <div class="field-wrapper" style="margin-right:8px;">
+                    <span id="lbl_firstName" class="field-label">First Name</span>
+                    <input type="text" id="firstName" style="flex:1; width:100%; padding:10px; border-radius:6px; border:none; font-size:1em; position:relative; z-index:5;" onkeyup="toggleLabel('lbl_firstName', this)" onchange="toggleLabel('lbl_firstName', this)">
+                </div>
+                <div class="field-wrapper">
+                    <span id="lbl_lastName" class="field-label">Last Name</span>
+                    <input type="text" id="lastName" style="flex:1; width:100%; padding:10px; border-radius:6px; border:none; font-size:1em; position:relative; z-index:5;" onkeyup="toggleLabel('lbl_lastName', this)" onchange="toggleLabel('lbl_lastName', this)">
+                </div>
+            </div>
+
+            <div class="field-wrapper" style="margin-bottom:25px;">
+                <span id="lbl_newUserYear" class="field-label">Birth Year (e.g. 1987)</span>
+                <input type="text" id="newUserYear" style="width:100%; padding:10px; border-radius:6px; border:none; font-size:1em; box-sizing:border-box; position:relative; z-index:5;" onkeyup="toggleLabel('lbl_newUserYear', this)" onchange="toggleLabel('lbl_newUserYear', this)">
+            </div>
+            
+            <div style="display:flex; justify-content:space-between;">
+                <button class="get-btn modal-cancel-btn" style="flex:1; margin-right:8px;" onclick="closeModal()">Cancel</button>
+                <button class="done-btn" style="flex:1;" onclick="createNewWorkspace()">Get Started</button>
+            </div>
+        </div>
+
+        <div id="confirmDonePopup" class="login-card hidden" style="width:450px; text-align:center; padding:30px; margin:0;">
+            <h3 style="color:white; margin-bottom:15px;">Confirm Done</h3>
+            <p style="color:#bdc3c7; margin-bottom:25px;">Are you sure you want to mark this file as done? Only do so if you have uploaded the image.</p>
+            <div style="display:flex; justify-content:space-between;">
+                <button class="get-btn modal-cancel-btn" style="flex:1; margin-right:8px;" onclick="closeModal()">Cancel</button>
+                <button class="done-btn" style="flex:1;" onclick="confirmMarkAsDone()">Confirm</button>
+            </div>
+        </div>
+
+        <div id="confirmPartialPopup" class="login-card hidden" style="width:450px; text-align:center; padding:30px; margin:0; border-color: #e67e22">
+            <h3 style="color:white; margin-bottom:15px;">Confirm Mark as Partial</h3>
+            <p style="color:#bdc3c7; margin-bottom:25px;">This will mark this obituary as a partial that will later be matched with its counter part.</p>
+            <div style="display:flex; justify-content:space-between;">
+                <button class="get-btn modal-cancel-btn" style="flex:1; margin-right:8px;" onclick="closeModal()">Cancel</button>
+                <button class="done-btn" style="flex:1;" onclick="confirmMarkAsPartial()">Confirm</button>            </div>
+        </div>
+
+        <div id="passwordPopup" class="login-card hidden" style="width:400px; text-align:center; padding:30px; margin:0;">
+            <h3 id="passPopupTitle" style="color:white; margin-bottom:15px;">Login</h3>
+            <p style="color:#bdc3c7; margin-bottom:20px;">Please enter your birth year to access this folder.</p>
+            
+            <div class="field-wrapper" style="margin-bottom:25px;">
+                <span id="lbl_loginPass" class="field-label" style="width:100%; text-align:center; left:0;">YYYY</span>
+                <input type="password" id="loginPassInput" style="width:100%; padding:10px; border-radius:6px; border:none; text-align:center; font-size:1em; box-sizing:border-box; position:relative; z-index:5;" onkeyup="toggleLabel('lbl_loginPass', this)" onchange="toggleLabel('lbl_loginPass', this)">
+            </div>
+            
+            <div style="display:flex; justify-content:space-between;">
+                <button class="get-btn modal-cancel-btn" style="flex:1; margin-right:8px;" onclick="closeModal()">Cancel</button>
+                <button class="done-btn" style="flex:1;" id="passSubmitBtn">Login</button>
+            </div>
+        </div>
+
+        <div id="confirmBatchDonePopup" class="login-card hidden" style="width:450px; text-align:center; padding:30px; margin:0;">
+            <h3 style="color:white; margin-bottom:15px;">Confirm Done</h3>
+            <p style="color:#bdc3c7; margin-bottom:15px; font-weight:bold;">By selecting yes the done files will be moved and you will not be able to re-edit or upload them again.</p>
+            <p style="color:#bdc3c7; margin-bottom:25px;">Make sure you have uploaded each obituary before continuing. Are you sure you are done?</p>
+            <div style="display:flex; justify-content:space-between;">
+                <button class="get-btn modal-cancel-btn" style="flex:1; margin-right:8px;" onclick="closeModal()">No</button>
+                <button class="done-btn" style="flex:1;" onclick="confirmBatchDone()">Yes</button>
+            </div>
+        </div>
+        <div id="fileCompletedPopup" class="login-card hidden" style="width:420px; text-align:center; padding:30px; margin:0;">
+            <h3 style="color:white; margin-bottom:15px;">File Already Completed</h3>
+            <p style="color:#bdc3c7; margin-bottom:25px;">This file has been completed. No further action is required.</p>
+            <button class="done-btn" style="width:100%;" onclick="closeModal()">OK</button>
+        </div>
+
+    </div>
+	
+</body>
+</html>
